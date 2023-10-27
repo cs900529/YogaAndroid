@@ -1,6 +1,7 @@
 package com.example.yoga
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,9 +10,16 @@ import android.widget.TextView
 import android.widget.VideoView
 
 class VideoGuide : AppCompatActivity() {
+
     fun getfile(context: Context, filename: String): Int {
         if(filename == "Tree Style")
             return R.raw.tree_style
+        else if(filename == "Warrior2 Style")
+            return R.raw.warrior2_style
+        else if(filename == "Plank")
+            return R.raw.plank
+        else if(filename == "Reverse Plank")
+            return R.raw.reverse_plank
         return R.raw.tree_style
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,10 +39,18 @@ class VideoGuide : AppCompatActivity() {
         // 设置视频路径并开始播放
         videoPlayer.setVideoURI(Uri.parse(videoPath))
         videoPlayer.start()
+        // 设置循环播放
+        videoPlayer.setOnPreparedListener { mp ->
+            mp.isLooping = true
+        }
 
         val finish = findViewById<ImageButton>(R.id.finish)
         finish.setOnClickListener {
-
+            // 頁面跳轉
+            val intent = Intent(this, YogaMain::class.java).apply {
+                putExtra("poseName",poseName)
+            }
+            startActivity(intent)
         }
     }
 }

@@ -26,5 +26,32 @@ class Menu : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        val button2 = findViewById<Button>(R.id.button2)
+        button2.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Warrior2 Style")
+            }
+            startActivity(intent)
+        }
+
+        val button3 = findViewById<Button>(R.id.button3)
+        button3.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Plank")
+            }
+            startActivity(intent)
+        }
+
+        val button4 = findViewById<Button>(R.id.button4)
+        button4.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Reverse Plank")
+            }
+            startActivity(intent)
+        }
     }
 }
