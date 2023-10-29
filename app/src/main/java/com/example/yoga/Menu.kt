@@ -11,6 +11,7 @@ class Menu : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
         supportActionBar?.hide() // 隐藏title bar
+        
         val back_button = findViewById<ImageButton>(R.id.back)
         back_button.setOnClickListener {
             // 頁面跳轉
