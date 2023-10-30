@@ -31,7 +31,6 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
         }
 
 
-
         // 連接前鏡頭
         surfaceView = findViewById(R.id.camera)
         surfaceHolder = surfaceView?.holder
@@ -53,7 +52,7 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
                 camera?.release()
             }
         })
-
+        //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
     }
 

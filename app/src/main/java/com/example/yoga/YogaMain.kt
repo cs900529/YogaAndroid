@@ -1,7 +1,9 @@
 package com.example.yoga
 
+import android.content.Context
 import android.content.Intent
 import android.hardware.Camera
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -11,6 +13,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.VideoView
 import java.util.*
 
 class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
@@ -20,6 +23,18 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
     private var surfaceHolder: SurfaceHolder? = null
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+    //獲取影片檔案
+    fun getfile(context: Context, filename: String): Int {
+        if(filename == "Tree Style")
+            return R.raw.tree_style_show
+        else if(filename == "Warrior2 Style")
+            return R.raw.warrior2_style_show
+        else if(filename == "Plank")
+            return R.raw.plank_show
+        else if(filename == "Reverse Plank")
+            return R.raw.reverse_plank_show
+        return R.raw.tree_style
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
@@ -55,6 +70,17 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
             startActivity(intent)
         }
 
+        //guide_video init
+        val videoPlayer = findViewById<VideoView>(R.id.guide_video)
+        val videoPath = "android.resource://" + packageName + "/" +  getfile(this, poseName.toString() )
+        videoPlayer.setVideoURI(Uri.parse(videoPath))
+        videoPlayer.start()
+        // 设置循环播放
+        videoPlayer.setOnPreparedListener { mp ->
+            mp.isLooping = true
+        }
+
+        //camera init
         // 連接前鏡頭
         surfaceView = findViewById(R.id.camera)
         surfaceHolder = surfaceView?.holder
@@ -76,7 +102,7 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
                 camera?.release()
             }
         })
-
+        //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
     }
     //文字轉語音用

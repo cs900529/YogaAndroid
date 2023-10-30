@@ -10,7 +10,7 @@ import android.widget.TextView
 import android.widget.VideoView
 
 class VideoGuide : AppCompatActivity() {
-
+    //獲取影片檔案
     fun getfile(context: Context, filename: String): Int {
         if(filename == "Tree Style")
             return R.raw.tree_style
@@ -32,11 +32,9 @@ class VideoGuide : AppCompatActivity() {
         val title = findViewById<TextView>(R.id.videoTitle)
         title.text = poseName
 
+        //video player init
         val videoPlayer = findViewById<VideoView>(R.id.videoPlayer)
-        // 获取视频文件的路径
         val videoPath = "android.resource://" + packageName + "/" +  getfile(this, poseName.toString() )
-
-        // 设置视频路径并开始播放
         videoPlayer.setVideoURI(Uri.parse(videoPath))
         videoPlayer.start()
         // 设置循环播放

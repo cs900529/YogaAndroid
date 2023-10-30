@@ -31,7 +31,7 @@
         app:layout_constraintBottom_toTopOf="@+id/camera"/>
 
     <VideoView
-        android:id="@+id/videoView1"
+        android:id="@+id/guide_video"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintWidth_percent="0.47"
@@ -49,7 +49,7 @@
         app:layout_constraintHeight_percent="0.65"
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintBottom_toTopOf="@+id/sensor"
-        app:layout_constraintStart_toEndOf="@+id/videoView1"
+        app:layout_constraintStart_toEndOf="@+id/guide_video"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
@@ -61,7 +61,7 @@
         android:textColor="#0000FF"
         app:layout_constraintWidth_percent="0.47"
         app:layout_constraintHeight_percent="0.15"
-        app:layout_constraintTop_toBottomOf="@+id/videoView1"
+        app:layout_constraintTop_toBottomOf="@+id/guide_video"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/sensor"/>
