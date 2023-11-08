@@ -20,6 +20,18 @@ class VideoGuide : AppCompatActivity() {
             return R.raw.plank
         else if(filename == "Reverse Plank")
             return R.raw.reverse_plank
+        else if(filename == "Child's pose")
+            return R.raw.childspose_teacher
+        else if(filename == "Seated Forward Bend")
+            return R.raw.seatedforwardbend_teacher
+        else if(filename == "Low Lunge")
+            return R.raw.lowlunge_teacher
+        else if(filename == "Downward dog")
+            return R.raw.downwarddog_teacher
+        else if(filename == "Pyramid pose")
+            return R.raw.pyramid_teacher
+        else if(filename == "Bridge pose")
+            return R.raw.bridge_teacher
         return R.raw.tree_style
     }
     override fun onCreate(savedInstanceState: Bundle?) {
