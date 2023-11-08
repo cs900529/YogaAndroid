@@ -54,5 +54,59 @@ class Menu : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        val button5 = findViewById<Button>(R.id.button5)
+        button5.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Child\'s pose")
+            }
+            startActivity(intent)
+        }
+
+        val button6 = findViewById<Button>(R.id.button6)
+        button6.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Seated Forward Bend")
+            }
+            startActivity(intent)
+        }
+
+        val button7 = findViewById<Button>(R.id.button7)
+        button7.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Low Lunge")
+            }
+            startActivity(intent)
+        }
+
+        val button8 = findViewById<Button>(R.id.button8)
+        button8.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Downward dog")
+            }
+            startActivity(intent)
+        }
+
+        val button9 = findViewById<Button>(R.id.button9)
+        button9.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Pyramid pose")
+            }
+            startActivity(intent)
+        }
+
+        val button10 = findViewById<Button>(R.id.button10)
+        button10.setOnClickListener {
+            // 頁面跳轉
+            val intent = Intent(this, VideoGuide::class.java).apply {
+                putExtra("poseName","Bridge pose")
+            }
+            startActivity(intent)
+        }
     }
 }

@@ -33,6 +33,18 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
             return R.raw.plank_show
         else if(filename == "Reverse Plank")
             return R.raw.reverse_plank_show
+        else if(filename == "Child's pose")
+            return R.raw.child_show
+        else if(filename == "Seated Forward Bend")
+            return R.raw.seated_forward_bend_show
+        else if(filename == "Low Lunge")
+            return R.raw.low_lunge_show
+        else if(filename == "Downward dog")
+            return R.raw.downward_dog_show
+        else if(filename == "Pyramid pose")
+            return R.raw.pyramid_pose_show
+        else if(filename == "Bridge pose")
+            return R.raw.bridge_show
         return R.raw.tree_style
     }
     override fun onCreate(savedInstanceState: Bundle?) {
