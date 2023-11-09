@@ -23,6 +23,11 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
     private var surfaceHolder: SurfaceHolder? = null
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+    private var sensorText:String="目前未收到資料"//測試用
+    //修改sensor內容
+    fun setSensorText(str:String){
+        findViewById<TextView>(R.id.sensor).text = str
+    }
     //獲取影片檔案
     fun getfile(context: Context, filename: String): Int {
         if(filename == "Tree Style")
@@ -54,6 +59,10 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
 
         val poseName = intent.getStringExtra("poseName")
 
+        //test
+        //setSensorText("123")
+
+        //title
         val title = findViewById<TextView>(R.id.title)
         title.text = poseName
 
