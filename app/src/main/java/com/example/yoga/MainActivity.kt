@@ -6,11 +6,14 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.yoga.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
+    //private lateinit var activityMainBinding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar

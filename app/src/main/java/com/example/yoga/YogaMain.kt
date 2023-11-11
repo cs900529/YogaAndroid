@@ -2,7 +2,7 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
-import android.hardware.Camera
+//import android.hardware.Camera
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,20 +14,48 @@ import android.view.SurfaceView
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.VideoView
+import androidx.activity.viewModels
 import java.util.*
+//----------------------------------------
+import androidx.fragment.app.activityViewModels
+import com.example.yoga.PoseLandmarkerHelper
+import com.example.yoga.MainViewModel
+import com.example.yoga.R
+//import com.example.yoga.databinding.FragmentCameraBinding
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import androidx.camera.core.Preview
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Camera
+import androidx.camera.core.AspectRatio
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.fragment.app.Fragment
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import androidx.core.content.ContextCompat
 
-class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
+
+
+class YogaMain : AppCompatActivity() /*, PoseLandmarkerHelper.LandmarkerListener*/, TextToSpeech.OnInitListener{
+    //private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
+    //private val viewModel : MainViewModel by viewModels()
+    //private var preview: Preview? = null
+    //private var imageAnalyzer: ImageAnalysis? = null
+
+
     //前鏡頭
     private var camera: Camera? = null
-    private var surfaceView: SurfaceView? = null
-    private var surfaceHolder: SurfaceHolder? = null
+    private var cameraProvider: ProcessCameraProvider? = null
+    private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private lateinit var cameraExecutor: ExecutorService
+    //private var camera: Camera? = null
+    private lateinit var surfaceView : PreviewView
+
+    //private var surfaceHolder: SurfaceHolder? = null
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
-    private var sensorText:String="目前未收到資料"//測試用
-    //修改sensor內容
-    fun setSensorText(str:String){
-        findViewById<TextView>(R.id.sensor).text = str
-    }
     //獲取影片檔案
     fun getfile(context: Context, filename: String): Int {
         if(filename == "Tree Style")
@@ -52,6 +80,8 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
             return R.raw.bridge_show
         return R.raw.tree_style
     }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
@@ -59,10 +89,6 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
 
         val poseName = intent.getStringExtra("poseName")
 
-        //test
-        //setSensorText("123")
-
-        //title
         val title = findViewById<TextView>(R.id.title)
         title.text = poseName
 
@@ -103,7 +129,7 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
 
         //camera init
         // 連接前鏡頭
-        surfaceView = findViewById(R.id.camera)
+        /*surfaceView = findViewById(R.id.camera)
         surfaceHolder = surfaceView?.holder
         surfaceHolder?.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -122,7 +148,14 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
                 camera?.stopPreview()
                 camera?.release()
             }
-        })
+        })*/
+
+
+        surfaceView = findViewById(R.id.camera)
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
+        // 初始化 CameraX
+        startCamera()
         //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
     }
@@ -144,7 +177,38 @@ class YogaMain : AppCompatActivity() , TextToSpeech.OnInitListener{
             // 初始化失败，可以处理错误情况
         }
     }
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
+        cameraProviderFuture.addListener(Runnable {
+            // 获取 CameraProvider
+            val cameraProvider :ProcessCameraProvider = cameraProviderFuture.get()
+
+
+            // 配置预览
+            val preview :Preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(surfaceView.getSurfaceProvider())
+                }
+
+            // 配置相机选择器
+            val cameraSelector : CameraSelector =
+                CameraSelector.Builder().requireLensFacing(cameraFacing).build()
+
+            // 绑定相机和预览
+            try {
+                cameraProvider.unbindAll()
+                camera = cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview
+                )
+
+                //preview?.setSurfaceProvider(surfaceView.getSurfaceProvider())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
     override fun onDestroy() {
         super.onDestroy()
         // 释放TextToSpeech资源

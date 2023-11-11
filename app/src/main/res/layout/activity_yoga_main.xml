@@ -41,7 +41,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/camera"/>
 
-    <VideoView
+    <androidx.camera.view.PreviewView
         android:id="@+id/camera"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -66,11 +66,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/sensor"/>
 
-    <TextView
+    <VideoView
         android:id="@+id/sensor"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="尚未收到訊息 "
         app:layout_constraintWidth_percent="0.47"
         app:layout_constraintHeight_percent="0.15"
         app:layout_constraintTop_toBottomOf="@+id/camera"
