@@ -9,10 +9,9 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.VideoView
 import androidx.activity.viewModels
 import java.util.*
@@ -21,7 +20,7 @@ import androidx.fragment.app.activityViewModels
 import com.example.yoga.PoseLandmarkerHelper
 import com.example.yoga.MainViewModel
 import com.example.yoga.R
-//import com.example.yoga.databinding.FragmentCameraBinding
+import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import androidx.camera.core.Preview
 import androidx.camera.core.CameraSelector
@@ -31,31 +30,40 @@ import androidx.camera.core.Camera
 import androidx.camera.core.AspectRatio
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+
 import androidx.fragment.app.Fragment
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+
+import java.util.concurrent.ScheduledExecutorService
 
 
-
-class YogaMain : AppCompatActivity() /*, PoseLandmarkerHelper.LandmarkerListener*/, TextToSpeech.OnInitListener{
-    //private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
-    //private val viewModel : MainViewModel by viewModels()
+class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
+    private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
+    private val viewModel : MainViewModel by viewModels()
     //private var preview: Preview? = null
-    //private var imageAnalyzer: ImageAnalysis? = null
+    private var imageAnalyzer: ImageAnalysis? = null
 
+    private var _fragmentCameraBinding: ActivityYogaMainBinding? = null
 
+    private val fragmentCameraBinding
+        get() = _fragmentCameraBinding!!
+
+    private lateinit var backgroundExecutor: ExecutorService
     //前鏡頭
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var cameraExecutor: ExecutorService
-    //private var camera: Camera? = null
     private lateinit var surfaceView : PreviewView
-
     //private var surfaceHolder: SurfaceHolder? = null
+
+
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+
     //獲取影片檔案
     fun getfile(context: Context, filename: String): Int {
         if(filename == "Tree Style")
@@ -152,10 +160,27 @@ class YogaMain : AppCompatActivity() /*, PoseLandmarkerHelper.LandmarkerListener
 
 
         surfaceView = findViewById(R.id.camera)
-        cameraExecutor = Executors.newSingleThreadExecutor()
+        backgroundExecutor = Executors.newSingleThreadExecutor()
 
         // 初始化 CameraX
         startCamera()
+
+        //設定PoseLandmarkerHelper
+
+
+        backgroundExecutor.execute {
+            poseLandmarkerHelper = PoseLandmarkerHelper(
+                //context = requireContext(),
+                context = this,
+                runningMode = RunningMode.LIVE_STREAM,
+                minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
+                minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
+                minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
+                currentDelegate = viewModel.currentDelegate,
+                poseLandmarkerHelperListener = this
+            )
+        }
+
         //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
     }
@@ -196,11 +221,25 @@ class YogaMain : AppCompatActivity() /*, PoseLandmarkerHelper.LandmarkerListener
             val cameraSelector : CameraSelector =
                 CameraSelector.Builder().requireLensFacing(cameraFacing).build()
 
+            // ImageAnalysis. Using RGBA 8888 to match how our models work
+            imageAnalyzer =
+                ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                    .setTargetRotation(fragmentCameraBinding.camera.display.rotation)
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                    .build()
+                    // The analyzer can then be assigned to the instance
+                    .also {
+                        it.setAnalyzer(backgroundExecutor) { image ->
+                            detectPose(image)
+                        }
+                    }
+
             // 绑定相机和预览
             try {
                 cameraProvider.unbindAll()
                 camera = cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview
+                    this, cameraSelector, preview , imageAnalyzer
                 )
 
                 //preview?.setSurfaceProvider(surfaceView.getSurfaceProvider())
@@ -209,8 +248,50 @@ class YogaMain : AppCompatActivity() /*, PoseLandmarkerHelper.LandmarkerListener
             }
         }, ContextCompat.getMainExecutor(this))
     }
+
+    private fun detectPose(imageProxy: ImageProxy) {
+        if(this::poseLandmarkerHelper.isInitialized) {
+            poseLandmarkerHelper.detectLiveStream(
+                imageProxy = imageProxy,
+                isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
+            )
+        }
+    }
+
+    // Update UI after pose have been detected. Extracts original
+    // image height/width to scale and place the landmarks properly through
+    // OverlayView
+    override fun onResults(
+        resultBundle: PoseLandmarkerHelper.ResultBundle
+    ) {
+        this?.runOnUiThread {
+            if (_fragmentCameraBinding != null) {
+
+                // Pass necessary information to OverlayView for drawing on the canvas
+                fragmentCameraBinding.overlay.setResults(
+                    resultBundle.results.first(),
+                    resultBundle.inputImageHeight,
+                    resultBundle.inputImageWidth,
+                    RunningMode.LIVE_STREAM
+                )
+
+                // Force a redraw
+                fragmentCameraBinding.overlay.invalidate()
+            }
+        }
+    }
+    override fun onError(error: String, errorCode: Int) {
+        this?.runOnUiThread {
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+            if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
+                viewModel.setDelegate(0)
+            }
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
+        //關掉相機
+        backgroundExecutor.shutdown()
         // 释放TextToSpeech资源
         textToSpeech.stop()
         textToSpeech.shutdown()
