@@ -2,6 +2,7 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 //import android.hardware.Camera
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -16,9 +17,8 @@ import android.widget.VideoView
 import androidx.activity.viewModels
 import java.util.*
 //----------------------------------------
-import androidx.fragment.app.activityViewModels
 import com.example.yoga.PoseLandmarkerHelper
-import com.example.yoga.MainViewModel
+
 import com.example.yoga.R
 import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -31,34 +31,33 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 
-import androidx.fragment.app.Fragment
+
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 
-import java.util.concurrent.ScheduledExecutorService
+
 
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
+    //拿mediapipe model
     private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
     private val viewModel : MainViewModel by viewModels()
-    //private var preview: Preview? = null
+    //分析圖片
     private var imageAnalyzer: ImageAnalysis? = null
 
-    private var _fragmentCameraBinding: ActivityYogaMainBinding? = null
+    //databinding 讓xml調用不綁R.id.xxx
+    private lateinit var yogamainBinding: ActivityYogaMainBinding
 
-    private val fragmentCameraBinding
-        get() = _fragmentCameraBinding!!
-
+    //開個thread
     private lateinit var backgroundExecutor: ExecutorService
     //前鏡頭
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_BACK
-    private lateinit var cameraExecutor: ExecutorService
-    private lateinit var surfaceView : PreviewView
-    //private var surfaceHolder: SurfaceHolder? = null
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
+    //private lateinit var cameraExecutor: ExecutorService
+
 
 
     //文字轉語音
@@ -93,15 +92,17 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
-        setContentView(R.layout.activity_yoga_main)
+        //初始化yogamainBinding
+        yogamainBinding = ActivityYogaMainBinding.inflate(layoutInflater)
+        setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
 
-        val title = findViewById<TextView>(R.id.title)
-        title.text = poseName
+
+        yogamainBinding.title.text = poseName
 
         //監聽guide 當文字改變時會重新念語音
-        val guide = findViewById<TextView>(R.id.guide)
+        //val guide = findViewById<TextView>(R.id.guide)
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // 在文本变化之前执行的操作
@@ -115,23 +116,23 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 // 在文本变化之后执行的操作
             }
         }
-        guide.addTextChangedListener(textWatcher)
+        yogamainBinding.guide.addTextChangedListener(textWatcher)
 
 
-        val back_button = findViewById<ImageButton>(R.id.back)
-        back_button.setOnClickListener {
+        //val back_button = findViewById<ImageButton>(R.id.back)
+        yogamainBinding.back.setOnClickListener {
             // 頁面跳轉
             val intent = Intent(this, Menu::class.java)
             startActivity(intent)
         }
 
         //guide_video init
-        val videoPlayer = findViewById<VideoView>(R.id.guide_video)
+        //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
         val videoPath = "android.resource://" + packageName + "/" +  getfile(this, poseName.toString() )
-        videoPlayer.setVideoURI(Uri.parse(videoPath))
-        videoPlayer.start()
+        yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
+        yogamainBinding.guideVideo.start()
         // 设置循环播放
-        videoPlayer.setOnPreparedListener { mp ->
+        yogamainBinding.guideVideo.setOnPreparedListener { mp ->
             mp.isLooping = true
         }
 
@@ -158,8 +159,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             }
         })*/
 
-
-        surfaceView = findViewById(R.id.camera)
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
         // 初始化 CameraX
@@ -214,7 +213,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             val preview :Preview = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(surfaceView.getSurfaceProvider())
+                    it.setSurfaceProvider(yogamainBinding.camera.getSurfaceProvider())
                 }
 
             // 配置相机选择器
@@ -224,7 +223,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             // ImageAnalysis. Using RGBA 8888 to match how our models work
             imageAnalyzer =
                 ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                    .setTargetRotation(fragmentCameraBinding.camera.display.rotation)
+                    .setTargetRotation(yogamainBinding.camera.display.rotation)
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .build()
@@ -258,6 +257,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
     }
 
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        imageAnalyzer?.targetRotation =
+            yogamainBinding.camera.display.rotation
+    }
     // Update UI after pose have been detected. Extracts original
     // image height/width to scale and place the landmarks properly through
     // OverlayView
@@ -265,10 +270,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
         this?.runOnUiThread {
-            if (_fragmentCameraBinding != null) {
+            if (yogamainBinding != null) {
 
                 // Pass necessary information to OverlayView for drawing on the canvas
-                fragmentCameraBinding.overlay.setResults(
+                yogamainBinding.overlay.setResults(
                     resultBundle.results.first(),
                     resultBundle.inputImageHeight,
                     resultBundle.inputImageWidth,
@@ -276,7 +281,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 )
 
                 // Force a redraw
-                fragmentCameraBinding.overlay.invalidate()
+                yogamainBinding.overlay.invalidate()
             }
         }
     }
