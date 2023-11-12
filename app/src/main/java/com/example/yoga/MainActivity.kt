@@ -13,7 +13,6 @@ import com.example.yoga.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
-    //private lateinit var activityMainBinding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar

@@ -279,6 +279,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     resultBundle.inputImageWidth,
                     RunningMode.LIVE_STREAM
                 )
+                // pass result to Yogapose
+                //resultBundle.results.last()
+
 
                 // Force a redraw
                 yogamainBinding.overlay.invalidate()
