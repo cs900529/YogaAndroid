@@ -6,6 +6,7 @@ import com.example.yoga.yogatoolkit.AngleNodeDef
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 
 
+
 class yogaPose(private val filename: String) {
     private var _roi: MutableMap<String,Boolean> = mutableMapOf()
     private var _tips :String = ""
@@ -232,7 +233,18 @@ class yogaPose(private val filename: String) {
         }
         _ang_dict = ang
     }
-    fun getMediapipeResult(poseLandmarkerResults: PoseLandmarkerResult){
+    fun getMediapipeResult(poseLandmarkerResults: PoseLandmarkerResult):String{
         point3d = poseLandmarkerResults
+
+        if (filename == "Tree Style") {
+            for ((key,value) in cur_ang){
+
+            }
+        }
+        else if(filename == "Warrior2 Style"){
+
+        }
+        return cur_tips
     }
+
 }

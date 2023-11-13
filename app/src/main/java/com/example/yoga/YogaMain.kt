@@ -35,9 +35,8 @@ import androidx.camera.view.PreviewView
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModel
 
-
+import com.example.yoga.yogatoolkit.yogaPose
 
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
@@ -58,7 +57,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //private lateinit var cameraExecutor: ExecutorService
 
-
+    private lateinit var pose: yogaPose
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
@@ -97,8 +96,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
-
-
+        pose = poseName?.let { yogaPose(it) }!!
         yogamainBinding.title.text = poseName
 
         //監聽guide 當文字改變時會重新念語音
@@ -280,6 +278,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     RunningMode.LIVE_STREAM
                 )
                 // pass result to Yogapose
+                yogamainBinding.guide.setText(pose.getMediapipeResult(resultBundle.results.last()))
                 //resultBundle.results.last()
 
 
