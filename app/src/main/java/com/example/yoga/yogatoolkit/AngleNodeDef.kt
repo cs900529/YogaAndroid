@@ -1,7 +1,7 @@
 package com.example.yoga.yogatoolkit
 
 class AngleNodeDef {
-    object Constants {
+     object Constants {
         /*
         11. left_shoulder
         12. right_shoulder

@@ -1,23 +1,24 @@
 package com.example.yoga.yogatoolkit
 
 
-import com.example.yoga.R
-import com.example.yoga.yogatoolkit.AngleNodeDef
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import androidx.appcompat.app.AppCompatActivity
+import com.google.mediapipe.tasks.components.containers.*
+import org.json.JSONObject
 
 
-
-class yogaPose(private val filename: String) {
+class yogaPose(private val filename: String,private val activity: AppCompatActivity) {
     private var _roi: MutableMap<String,Boolean> = mutableMapOf()
     private var _tips :String = ""
     private var _ang : Map<String,List<*>> = mapOf()
     private var _ang_dict : MutableMap<String,Any> = mutableMapOf()
-    private var point3d: PoseLandmarkerResult? = null
+    private var point3d: List<Landmark?>? = null
+    private var sample_angle_dict:JSONObject? = null
     //private var _ang
     val angle_dict: Map<String,Any> get() =  _ang_dict
     val cur_roi : Map<String,Boolean> get() = _roi
     val cur_tips :String get() = _tips
     val cur_ang : Map<String,List<*>> get() = _ang
+    val cur_sample_angle_dict : JSONObject? get() = sample_angle_dict
     fun init(){
         if(filename == "Tree Style")
         {
@@ -33,6 +34,7 @@ class yogaPose(private val filename: String) {
             _roi["LEFT_INDEX"]= false
             _roi["RIGHT_INDEX"]= false
             setang(AngleNodeDef.TREE_ANGLE)
+            setsample_angle_dict(readJsonFile(activity,"TreePose/sample.json"))
         }
         else if(filename == "Warrior2 Style") {
             val initroi :MutableMap<String,Boolean> = mutableMapOf(
@@ -224,6 +226,10 @@ class yogaPose(private val filename: String) {
     fun setang(ang:Map<String,List<*>>){
         _ang = ang
     }
+    fun setsample_angle_dict(sample_angle_dict:JSONObject?){
+        this.sample_angle_dict = sample_angle_dict
+    }
+
     fun initialAngleDict(){
         var index = 0
         var ang: MutableMap<String, Any> = mutableMapOf()
@@ -233,14 +239,16 @@ class yogaPose(private val filename: String) {
         }
         _ang_dict = ang
     }
-    fun getMediapipeResult(poseLandmarkerResults: PoseLandmarkerResult):String{
+    fun getMediapipeResult(poseLandmarkerResults: MutableList<Landmark>):String{
         point3d = poseLandmarkerResults
-
-        if (filename == "Tree Style") {
-            for ((key,value) in cur_ang){
-
-            }
+        for ((key,value) in cur_ang){
+            var angle = computeAngle(getLandmarks(point3d?.get(value[0] as Int)),
+                    getLandmarks(point3d?.get(value[1] as Int)),
+                    getLandmarks(point3d?.get(value[2] as Int)))
+            _ang_dict[key] = angle
         }
+        if (filename == "Tree Style")
+            _tips = treePoseRule(_roi, _tips, sample_angle_dict, _ang_dict, point3d!! /*, mat*/)
         else if(filename == "Warrior2 Style"){
 
         }

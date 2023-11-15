@@ -3,40 +3,31 @@ package com.example.yoga
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-//import android.hardware.Camera
+import android.hardware.camera2.CameraManager
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
-import android.widget.VideoView
 import androidx.activity.viewModels
-import java.util.*
-//----------------------------------------
-import com.example.yoga.PoseLandmarkerHelper
-
-import com.example.yoga.R
-import com.example.yoga.databinding.ActivityYogaMainBinding
-import com.google.mediapipe.tasks.vision.core.RunningMode
-import androidx.camera.core.Preview
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.AspectRatio
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.Camera
-import androidx.camera.core.AspectRatio
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
-
-
+import androidx.core.content.ContextCompat
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+import com.example.yoga.databinding.ActivityYogaMainBinding
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import androidx.core.content.ContextCompat
-
-import com.example.yoga.yogatoolkit.yogaPose
 
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
@@ -48,55 +39,54 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
     //databinding 讓xml調用不綁R.id.xxx
     private lateinit var yogamainBinding: ActivityYogaMainBinding
-
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
     //前鏡頭
     private var camera: Camera? = null
-    private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
-    //private lateinit var cameraExecutor: ExecutorService
+    //private var cameraProvider: ProcessCameraProvider? = null
+    private lateinit var python : Python
+    private lateinit var pyObject : PyObject
 
-    private lateinit var pose: yogaPose
+    //private lateinit var pose: yogaPose
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
 
     //獲取影片檔案
-    fun getfile(context: Context, filename: String): Int {
-        if(filename == "Tree Style")
-            return R.raw.tree_style_show
-        else if(filename == "Warrior2 Style")
-            return R.raw.warrior2_style_show
-        else if(filename == "Plank")
-            return R.raw.plank_show
-        else if(filename == "Reverse Plank")
-            return R.raw.reverse_plank_show
-        else if(filename == "Child's pose")
-            return R.raw.child_show
-        else if(filename == "Seated Forward Bend")
-            return R.raw.seated_forward_bend_show
-        else if(filename == "Low Lunge")
-            return R.raw.low_lunge_show
-        else if(filename == "Downward dog")
-            return R.raw.downward_dog_show
-        else if(filename == "Pyramid pose")
-            return R.raw.pyramid_pose_show
-        else if(filename == "Bridge pose")
-            return R.raw.bridge_show
-        return R.raw.tree_style
+    private fun getfile(context: Context, filename: String): Int {
+        return when (filename) {
+            "Tree Style" -> R.raw.tree_style_show
+            "Warrior2 Style" -> R.raw.warrior2_style_show
+            "Plank" -> R.raw.plank_show
+            "Reverse Plank" -> R.raw.reverse_plank_show
+            "Child's pose" -> R.raw.child_show
+            "Seated Forward Bend" -> R.raw.seated_forward_bend_show
+            "Low Lunge" -> R.raw.low_lunge_show
+            "Downward dog" -> R.raw.downward_dog_show
+            "Pyramid pose" -> R.raw.pyramid_pose_show
+            "Bridge pose" -> R.raw.bridge_show
+            else -> R.raw.tree_style
+        }
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
+
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+        python = Python.getInstance()
+        pyObject = python.getModule("yogaPoseDetect")
         //初始化yogamainBinding
         yogamainBinding = ActivityYogaMainBinding.inflate(layoutInflater)
         setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
-        pose = poseName?.let { yogaPose(it) }!!
+        //pose = poseName?.let { yogaPose(it,this) }!!
+        //pose.init()
         yogamainBinding.title.text = poseName
 
         //監聽guide 當文字改變時會重新念語音
@@ -192,7 +182,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 // 如果语音数据不可用，可以提示用户下载相应的数据
             } else {
                 // 文字转语音
-                var text = findViewById<TextView>(R.id.guide).text
+                var text = yogamainBinding.guide.text
                 textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
             }
         } else {
@@ -205,7 +195,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         cameraProviderFuture.addListener(Runnable {
             // 获取 CameraProvider
             val cameraProvider :ProcessCameraProvider = cameraProviderFuture.get()
-
+            val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraFacing = cameraManager.cameraIdList[0].toInt()
 
             // 配置预览
             val preview :Preview = Preview.Builder()
@@ -250,7 +241,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         if(this::poseLandmarkerHelper.isInitialized) {
             poseLandmarkerHelper.detectLiveStream(
                 imageProxy = imageProxy,
-                isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
+                //isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
+                isFrontCamera = cameraFacing >= 0
             )
         }
     }
@@ -278,7 +270,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     RunningMode.LIVE_STREAM
                 )
                 // pass result to Yogapose
-                yogamainBinding.guide.setText(pose.getMediapipeResult(resultBundle.results.last()))
+                //yogamainBinding.guide.text =
+                    //pose.getMediapipeResult(resultBundle.results.first().worldLandmarks().first())
+                if(resultBundle.results.first().worldLandmarks().first().isNotEmpty())
+                    pyObject.callAttr("","")
                 //resultBundle.results.last()
 
 
