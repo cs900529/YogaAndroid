@@ -46,9 +46,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var camera: Camera? = null
     //private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var python : Python
-    private lateinit var pyObject : PyObject
 
-    //private lateinit var pose: yogaPose
+    private lateinit var pyObject : PyObject
+    private lateinit var pose     : PyObject
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
@@ -79,14 +79,14 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             Python.start(AndroidPlatform(this))
         }
         python = Python.getInstance()
-        pyObject = python.getModule("yogaPoseDetect")
+
         //初始化yogamainBinding
         yogamainBinding = ActivityYogaMainBinding.inflate(layoutInflater)
         setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
-        //pose = poseName?.let { yogaPose(it,this) }!!
-        //pose.init()
+        pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
+        //pose = pyObject.callAttr("YogaPose",poseName).toJava(YogaPose::class.java)
         yogamainBinding.title.text = poseName
 
         //監聽guide 當文字改變時會重新念語音
@@ -272,8 +272,16 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 // pass result to Yogapose
                 //yogamainBinding.guide.text =
                     //pose.getMediapipeResult(resultBundle.results.first().worldLandmarks().first())
-                if(resultBundle.results.first().worldLandmarks().first().isNotEmpty())
-                    pyObject.callAttr("","")
+                if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
+                    val floatListList: List<List<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                        landmarks.map { landmark ->
+                            listOf(landmark.x(), landmark.y(), landmark.z())
+                        }
+                    }
+
+                    yogamainBinding.guide.text = pose.callAttr("detect",floatListList , 0).toString()
+                }
+
                 //resultBundle.results.last()
 
 
