@@ -58,12 +58,15 @@ def computeAngle(point1, centerPoint, point2):
     Returns:
         degree (float)
     """
-    p1_x, pc_x, p2_x = point1[0], centerPoint[0], point2[0]
-    p1_y, pc_y, p2_y = point1[1], centerPoint[1], point2[1] 
+    
+    #p1_x, pc_x, p2_x = point1[0], centerPoint[0], point2[0]
+    #p1_y, pc_y, p2_y = point1[1], centerPoint[1], point2[1]
+    p1_x, pc_x, p2_x = point1.get(0), centerPoint.get(0), point2.get(0)
+    p1_y, pc_y, p2_y = point1.get(1), centerPoint.get(1), point2.get(1)
 
-    if len(point1) == len(centerPoint) == len(point2) == 3:
+    if point1.size() == centerPoint.size() == point2.size() == 3:
         # 3 dim
-        p1_z, pc_z, p2_z = point1[2], centerPoint[2], point2[2]
+        p1_z, pc_z, p2_z = point1.get(2), centerPoint.get(2), point2.get(2)
     else:
         # 2 dim
         p1_z, pc_z, p2_z = 0,0,0
@@ -113,8 +116,10 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 roi[key] = False
                 tips = "請勿將右腳重量全放在左腳大腿，避免傾斜造成左腳負擔" if tip_flag else tips
         elif key == 'RIGHT_FOOT_INDEX':
-            _,foot_y,_ = point3d[AngleNodeDef.RIGHT_FOOT_INDEX]
-            _,knee_y,_ = point3d[AngleNodeDef.LEFT_KNEE]
+            #_,foot_y,_ = point3d.get(AngleNodeDef.RIGHT_FOOT_INDEX)
+            foot_y = point3d.get(AngleNodeDef.RIGHT_FOOT_INDEX).get(1)
+            #_,knee_y,_ = point3d.get(AngleNodeDef.LEFT_KNEE)
+            knee_y = point3d.get(AngleNodeDef.LEFT_KNEE).get(1)
             if foot_y <= knee_y:
                 roi[key] = True
             else:
@@ -122,8 +127,10 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 if tip_flag == True:
                     tips = "請將右腳抬至高於左腳膝蓋的位置，勿將右腳放在左腳膝蓋上，\n避免造成膝蓋負擔"
         elif key == 'RIGHT_KNEE':
-            _,_,knee_z = point3d[AngleNodeDef.RIGHT_KNEE]
-            _,_,hip_z = point3d[AngleNodeDef.RIGHT_HIP]
+            #_,_,knee_z = point3d.get(AngleNodeDef.RIGHT_KNEE)
+            #_,_,hip_z = point3d.get(AngleNodeDef.RIGHT_HIP)
+            knee_z = point3d.get(AngleNodeDef.RIGHT_KNEE).get(2)
+            hip_z = point3d.get(AngleNodeDef.RIGHT_HIP).get(2)
             if angle_dict[key]<=65 and ((hip_z-knee_z)*100)<=17:
                 roi[key] = True
             elif angle_dict[key]>65:
@@ -161,9 +168,13 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
             #     roi[key] = False
             #     tips = "請將手再抬高一些，並保持在頭頂正上方" if tip_flag else tips
         elif key == 'LEFT_INDEX' or key == 'RIGHT_INDEX':
-            index_x,_,_ = point3d[AngleNodeDef.LEFT_INDEX] if key == 'LEFT_INDEX' else point3d[AngleNodeDef.RIGHT_INDEX]
-            left_shoulder_x,_,_ = point3d[AngleNodeDef.LEFT_SHOULDER]
-            right_shoulder_x,_,_ = point3d[AngleNodeDef.RIGHT_SHOULDER]
+            #index_x,_,_ = point3d.get(AngleNodeDef.LEFT_INDEX) if key == 'LEFT_INDEX' else point3d.get(AngleNodeDef.RIGHT_INDEX)
+            index_x = point3d.get(AngleNodeDef.LEFT_INDEX).get(0) if key == 'LEFT_INDEX' else point3d.get(AngleNodeDef.RIGHT_INDEX).get(0)
+
+            #left_shoulder_x,_,_ = point3d.get(AngleNodeDef.LEFT_SHOULDER)
+            #right_shoulder_x,_,_ = point3d.get(AngleNodeDef.RIGHT_SHOULDER)
+            left_shoulder_x = point3d.get(AngleNodeDef.LEFT_SHOULDER).get(0)
+            right_shoulder_x = point3d.get(AngleNodeDef.RIGHT_SHOULDER).get(0)
             if index_x>=right_shoulder_x and index_x<=left_shoulder_x:
                 roi[key] = True
             elif index_x<right_shoulder_x:

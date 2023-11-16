@@ -279,7 +279,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         }
                     }
 
-                    yogamainBinding.guide.text = pose.callAttr("detect",floatListList , 0).toString()
+
+                    yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
                 }
 
                 //resultBundle.results.last()
