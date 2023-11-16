@@ -47,14 +47,14 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var python : Python
 
-    private lateinit var pyObject : PyObject
+
     private lateinit var pose     : PyObject
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
 
     //獲取影片檔案
-    private fun getfile(context: Context, filename: String): Int {
+    private fun getfile(filename: String): Int {
         return when (filename) {
             "Tree Style" -> R.raw.tree_style_show
             "Warrior2 Style" -> R.raw.warrior2_style_show
@@ -116,7 +116,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         //guide_video init
         //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
-        val videoPath = "android.resource://" + packageName + "/" +  getfile(this, poseName.toString() )
+        val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
         yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
         yogamainBinding.guideVideo.start()
         // 设置循环播放
@@ -259,40 +259,36 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     override fun onResults(
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
-        this?.runOnUiThread {
-            if (yogamainBinding != null) {
+        this.runOnUiThread {
 
-                // Pass necessary information to OverlayView for drawing on the canvas
-                yogamainBinding.overlay.setResults(
+            // Pass necessary information to OverlayView for drawing on the canvas
+            yogamainBinding.overlay.setResults(
                     resultBundle.results.first(),
                     resultBundle.inputImageHeight,
                     resultBundle.inputImageWidth,
                     RunningMode.LIVE_STREAM
-                )
-                // pass result to Yogapose
-                //yogamainBinding.guide.text =
-                    //pose.getMediapipeResult(resultBundle.results.first().worldLandmarks().first())
-                if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
-                    val floatListList: List<List<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
-                        landmarks.map { landmark ->
-                            listOf(landmark.x(), landmark.y(), landmark.z())
-                        }
+            )
+            // pass result to Yogapose
+            //yogamainBinding.guide.text =
+            //pose.getMediapipeResult(resultBundle.results.first().worldLandmarks().first())
+            if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
+                val floatListList: List<List<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                    landmarks.map { landmark ->
+                        listOf(landmark.x(), landmark.y(), landmark.z())
                     }
-
-
-                    yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
                 }
 
-                //resultBundle.results.last()
 
-
-                // Force a redraw
-                yogamainBinding.overlay.invalidate()
+                yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
             }
+
+
+            // Force a redraw
+            yogamainBinding.overlay.invalidate()
         }
     }
     override fun onError(error: String, errorCode: Int) {
-        this?.runOnUiThread {
+        this.runOnUiThread {
             Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
             if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
                 viewModel.setDelegate(0)
