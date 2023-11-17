@@ -22,7 +22,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
-            buildPython "C:/Users/Dreamy/AppData/Local/Programs/Python/Python311/python.exe"
+            version "3.8"
             pip {
                 // A requirement specifier, with or without a version number:
                 install "numpy"
