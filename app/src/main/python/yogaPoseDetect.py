@@ -35,7 +35,173 @@ class YogaPose:
             }
             angle_def = AngleNodeDef.TREE_ANGLE
             jsonfile_path = f".\JsonFile\TreePose\sample.json"
+        elif type == 'WarriorII':
+            roi = {
+                'RIGHT_ANKLE': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False
+            }
+            angle_def = AngleNodeDef.WARRIOR_II_ANGLE
+            jsonfile_path = f"./JsonFile/WarriorIIPose/sample.json"
 
+        elif type == 'ReversePlank':
+            roi = {
+                'NOSE': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_INDEX': False,
+                'RIGHT_INDEX': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'LEFT_KNEE': False,
+                'RIGHT_KNEE': False
+            }
+            angle_def = AngleNodeDef.REVERSE_PLANK_ANGLE
+            jsonfile_path = f"./JsonFile/ReversePlankPose/sample.json"
+        elif type == "Plank":
+            roi = {
+                'NOSE': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'LEFT_KNEE': False,
+                'RIGHT_KNEE': False,
+                'LEFT_ANKLE': False,
+                'RIGHT_ANKLE': False,
+            }
+            angle_def = AngleNodeDef.PLANK_ANGLE
+            jsonfile_path = f"./JsonFile/PlankPose/sample_v3.json"
+        elif type == 'Childs':
+            roi = {
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'LEFT_ANKLE': False,
+                'RIGHT_ANKLE': False,
+            }
+            angle_def = AngleNodeDef.CHILDS_ANGLE
+            jsonfile_path = f"./JsonFile/ChildsPose/sample.json"
+        elif type == "DownwardDog":
+            roi = {
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'RIGHT_ANKLE':False,
+                'LEFT_ANKLE':False,
+                'LEFT_HEEL': False,
+                'RIGHT_HEEL': False,
+            }
+            angle_def = AngleNodeDef.DOWNWARDDOG_ANGLE 
+            jsonfile_path = f"./JsonFile/DownwardDogPose/sample.json"
+        elif type == "LowLunge":
+            roi = {
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'RIGHT_ANKLE':False,
+                'LEFT_ANKLE':False,
+            }
+            angle_def = AngleNodeDef.LOWLUNGE_ANGLE 
+            jsonfile_path = f"./JsonFile/LowLungePose/sample.json"
+        elif type == "SeatedForwardBend":
+            roi = {
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'RIGHT_ANKLE':False,
+                'LEFT_ANKLE':False,
+                'RIGHT_FOOT_INDEX':False,
+                'LEFT_FOOT_INDEX':False,
+            }
+            angle_def = AngleNodeDef.SEATEDFORWARDBEND_ANGLE 
+            jsonfile_path = f"./JsonFile/SeatedForwardBendPose/sample.json"
+        elif type == "Bridge":
+            roi = {
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'RIGHT_ANKLE':False,
+                'LEFT_ANKLE':False,
+                'RIGHT_FOOT_INDEX':False,
+                'LEFT_FOOT_INDEX':False,
+            }
+            angle_def = AngleNodeDef.BRIDGE_ANGLE 
+            jsonfile_path = f"./JsonFile/BridgePose/sample.json"
+        elif type == "Pyramid":
+            roi = {
+                'NOSE': False,
+                'LEFT_SHOULDER': False,
+                'RIGHT_SHOULDER': False,
+                'LEFT_ELBOW': False,
+                'RIGHT_ELBOW': False,
+                'LEFT_WRIST': False,
+                'RIGHT_WRIST': False,
+                'LEFT_HIP': False,
+                'RIGHT_HIP': False,
+                'RIGHT_KNEE': False,
+                'LEFT_KNEE': False,
+                'RIGHT_ANKLE':False,
+                'LEFT_ANKLE':False,
+                'RIGHT_FOOT_INDEX':False,
+                'LEFT_FOOT_INDEX':False,
+                'LEG': False,
+            }
+            angle_def = AngleNodeDef.PYRAMID_ANGLE 
+            jsonfile_path = f"./JsonFile/PyramidPose/sample.json"
 
         return roi, angle_def, jsonfile_path
     
@@ -56,19 +222,71 @@ class YogaPose:
     def detect(self, point, mat):
         
         self.tips = ""
-        point3d = point
+        point3d = []
         if mat == 0:
             mat = None
+
+        for i in range(point.size()):
+            ang = []
+            for j in range(3):
+                ang.append(point.get(i).get(j))
+            point3d.append(ang)
+            
         
+
         if(self.type == 'Tree Style'):
             for key,value in self.angle_def.items():
-                #angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
-                angle = toolkit.computeAngle(point3d.get(value[0]), point3d.get(value[1]), point3d.get(value[2]))
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                #angle = toolkit.computeAngle(point3d.get(value[0]), point3d.get(value[1]), point3d.get(value[2]))
                 self.angle_dict[key] = angle
             self.roi, self.tips = toolkit.treePoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d, mat)
         
-
-        
+        elif(self.type == 'WarriorII'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath = toolkit.warriorIIPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'ReversePlank'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.reversePlankPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Plank'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.plankPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Childs'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.ChildsPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'DownwardDog'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.DownwardDogRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'LowLunge'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.LowLungeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'SeatedForwardBend'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.SeatedForwardBendRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Bridge'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                self.angle_dict[key] = angle
+            self.roi, self.tips = toolkit.BridgeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Pyramid'):
+            for key,value in self.angle_def.items():
+                angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+                self.angle_dict[key] = angle
+                
+            self.roi, self.tips = toolkit.PyramidRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         return self.tips
     
 

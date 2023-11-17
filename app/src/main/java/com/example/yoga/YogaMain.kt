@@ -44,10 +44,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private lateinit var backgroundExecutor: ExecutorService
     //前鏡頭
     private var camera: Camera? = null
-    //private var cameraProvider: ProcessCameraProvider? = null
+    //python 物件
     private lateinit var python : Python
-
-
     private lateinit var pose     : PyObject
 
     //文字轉語音
@@ -75,6 +73,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
 
+        //啟動python
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
         }
@@ -85,8 +84,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
+        //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
-        //pose = pyObject.callAttr("YogaPose",poseName).toJava(YogaPose::class.java)
+
         yogamainBinding.title.text = poseName
 
         //監聽guide 當文字改變時會重新念語音
@@ -124,28 +124,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             mp.isLooping = true
         }
 
-        //camera init
-        // 連接前鏡頭
-        /*surfaceView = findViewById(R.id.camera)
-        surfaceHolder = surfaceView?.holder
-        surfaceHolder?.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                // 在此处配置相机参数，例如设置摄像头预览尺寸
-            }
-
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                // 打开前置摄像头
-                camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
-                camera?.setPreviewDisplay(holder)
-                camera?.startPreview()
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                // 释放相机资源
-                camera?.stopPreview()
-                camera?.release()
-            }
-        })*/
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -153,8 +131,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         startCamera()
 
         //設定PoseLandmarkerHelper
-
-
         backgroundExecutor.execute {
             poseLandmarkerHelper = PoseLandmarkerHelper(
                 //context = requireContext(),
@@ -229,8 +205,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview , imageAnalyzer
                 )
-
-                //preview?.setSurfaceProvider(surfaceView.getSurfaceProvider())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -269,16 +243,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     RunningMode.LIVE_STREAM
             )
             // pass result to Yogapose
-            //yogamainBinding.guide.text =
-            //pose.getMediapipeResult(resultBundle.results.first().worldLandmarks().first())
             if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
                 val floatListList: List<List<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
                     landmarks.map { landmark ->
                         listOf(landmark.x(), landmark.y(), landmark.z())
                     }
                 }
-
-
                 yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
             }
 
