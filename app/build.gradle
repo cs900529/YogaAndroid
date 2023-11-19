@@ -22,6 +22,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
+            buildPython "C:/Users/cs000/anaconda3/envs/andriod/python.exe"
             version "3.8"
             pip {
                 // A requirement specifier, with or without a version number:
