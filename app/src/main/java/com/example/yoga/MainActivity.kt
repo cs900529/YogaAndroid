@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.yoga.databinding.ActivityMainBinding
+import com.example.yoga.discover.BluetoothActivity
 
 class MainActivity : AppCompatActivity() {
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
@@ -21,7 +22,8 @@ class MainActivity : AppCompatActivity() {
         val start = findViewById<Button>(R.id.start)
         start.setOnClickListener {
             // 頁面跳轉
-            val intent = Intent(this, CalibrationStage::class.java)
+            // val intent = Intent(this, CalibrationStage::class.java)
+            val intent = Intent(this, BluetoothActivity::class.java)
             startActivity(intent)
         }
 
