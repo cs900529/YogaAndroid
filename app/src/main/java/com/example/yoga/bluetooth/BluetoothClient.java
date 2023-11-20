@@ -1,17 +1,23 @@
 package com.example.yoga.bluetooth;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
+import com.example.yoga.R;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.UUID;
 public class BluetoothClient {
     final String UUIDString = "00001101-0000-1000-8000-00805F9B34FB";
@@ -23,7 +29,7 @@ public class BluetoothClient {
     private Object lock = new Object();
     byte[] bytes;
 
-    BluetoothClient(Handler handler, String remoteAddress) {
+    public BluetoothClient(Handler handler, String remoteAddress) {
         mHandler = handler;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(remoteAddress);
@@ -34,28 +40,19 @@ public class BluetoothClient {
         }
     }
 
+
     public void StringToArray(String str) {
         //System.out.println(str);
         Python python=Python.getInstance();
 
         PyObject pyObject=python.getModule("heatmap");
         bytes = pyObject.callAttr("get_heatmap", str).toJava(byte[].class);
-        //System.out.println(Arrays.toString(getHeatmap()));
+        //System.out.println(Arrays.toString(bytes));
         send_msg("done");
     }
 
-    // 取得 heatmap 的 Bitmap
     public byte[] getHeatmap(){
         return bytes;
-        /* 理當銜接的內容
-        ImageView heatmap_image;
-        ...
-        heatmap_image = (ImageView) findViewById(R.id.imageview);
-        ...
-        // 將處理後的圖片顯示到畫面上
-        Bitmap bmp = BitmapFactory.decodeByteArray(bytes,0, bytes.length);
-        heatmap_image.setImageBitmap(bmp);
-        */
     }
     
     private void connect(){
