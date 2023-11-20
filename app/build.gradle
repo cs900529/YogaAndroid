@@ -22,7 +22,8 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
-            buildPython "C:/Users/cs000/anaconda3/envs/andriod/python.exe"
+            // 當前的python路徑
+            buildPython "C:/Users/EricTang/anaconda3/envs/cilab/python.exe"
             version "3.8"
             pip {
                 // A requirement specifier, with or without a version number:

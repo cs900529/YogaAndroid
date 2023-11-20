@@ -6,6 +6,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- 藍芽權限 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
@@ -21,6 +22,10 @@
         android:theme="@style/Theme.Yoga"
         tools:targetApi="31">
 
+        <activity
+            android:name=".discover.BluetoothActivity"/>
+        <activity
+            android:name=".bluetooth.ChatActivity"/>
         <activity
             android:name=".YogaMain"
             android:exported="false"
@@ -38,16 +43,11 @@
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".discover.BluetoothActivity"/>
-        <activity
-            android:name=".bluetooth.ChatActivity"/>
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

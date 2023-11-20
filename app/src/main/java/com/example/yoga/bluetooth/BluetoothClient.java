@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.ImageView;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
@@ -13,7 +12,6 @@ import com.chaquo.python.Python;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.UUID;
 public class BluetoothClient {
     final String UUIDString = "00001101-0000-1000-8000-00805F9B34FB";
@@ -24,7 +22,6 @@ public class BluetoothClient {
     private PrintWriter out;
     private Object lock = new Object();
     byte[] bytes;
-
 
     BluetoothClient(Handler handler, String remoteAddress) {
         mHandler = handler;
@@ -47,6 +44,7 @@ public class BluetoothClient {
         send_msg("done");
     }
 
+    // 取得 heatmap 的 Bitmap
     public byte[] getHeatmap(){
         return bytes;
         /* 理當銜接的內容

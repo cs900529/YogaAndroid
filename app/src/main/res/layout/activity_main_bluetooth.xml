@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onClick"
-        android:text="Scan"/>
+        android:text="搜尋瑜珈墊"/>
 
     <ListView
         android:id="@+id/listview"

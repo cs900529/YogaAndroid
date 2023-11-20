@@ -47,12 +47,13 @@ public class BluetoothActivity extends AppCompatActivity {
         }
         Python python=Python.getInstance();
 
-        //調用hello_python.py裡面的Python_say_Hello函式
+        // 調用hello_python.py裡面的Python_say_Hello函式
         int x = 8;
 
         PyObject pyObject=python.getModule("hello_python");
         x = pyObject.callAttr("Python_say_Hello", x).toJava(int.class);
 
+        // 照理來說會 print 出 32，驗證正確性
         System.out.println(x);
 
         init();

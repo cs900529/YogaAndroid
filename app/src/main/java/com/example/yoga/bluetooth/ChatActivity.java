@@ -33,6 +33,7 @@ public class ChatActivity extends AppCompatActivity {
         client = new BluetoothClient(mHandler, remoteAddress);
         client.begin_listen();
 
+        // intent 回瑜珈主程式
         Intent intent_main = new Intent(this, CalibrationStage.class);
         startActivity(intent_main);
     }

@@ -9,7 +9,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.yoga.R;
-
 import java.util.ArrayList;
 public class DevicesAdapter extends BaseAdapter {
 

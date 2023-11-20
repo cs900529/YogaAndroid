@@ -29,6 +29,6 @@ public class ScanDevices {
             mBluetoothAdapter.enable(); // 開啟藍芽
             return;
         }
-        mBluetoothAdapter.startDiscovery();
+        mBluetoothAdapter.startDiscovery(); // 開始搜尋
     }
 }
