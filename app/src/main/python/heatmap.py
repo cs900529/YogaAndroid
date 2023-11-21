@@ -3,6 +3,8 @@ import numpy as np
 import json
 
 enlarge = 50
+need_center = np.array([])
+need_rects = np.array([])
 
 def test(data):
     data = np.array(json.loads(data))
@@ -28,10 +30,9 @@ def find_center(heatmap_arr):
         return np.array([])
     
 def get_heatmap(data):
-
+    global need_center, need_rects
     data = np.array(json.loads(data))
 
-    #print(data)
     print(data.shape)
     
     rescaled_array = cv2.resize(data.astype('uint8'), dsize=(18 * enlarge , 12 * enlarge)) 
@@ -39,6 +40,8 @@ def get_heatmap(data):
     heatmap = cv2.applyColorMap(rescaled_array, cv2.COLORMAP_JET)
     center = find_center(data)
     rects = find_bounding_box(heatmap)
+    need_center = center
+    need_rects = rects
     print(herotwo_pose_evaluate(center ,rects))
     if len(center)!=0 :
         cv2.circle(heatmap, (center[1], center[0]), 10, (255, 255, 255), 1)
@@ -81,4 +84,11 @@ def herotwo_pose_evaluate(center ,rects):
         if front2center<rear2center and abs(front2center-rear2center)<100:
             return True
     return False
-    
+
+def get_rects():
+    global need_rects
+    return need_rects.tolist()
+
+def get_center():
+    global need_center
+    return need_center.tolist()

@@ -3,11 +3,8 @@ package com.example.yoga.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
@@ -16,6 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 public class BluetoothClient {
     final String UUIDString = "00001101-0000-1000-8000-00805F9B34FB";
@@ -44,7 +43,8 @@ public class BluetoothClient {
         Python python=Python.getInstance();
         PyObject pyObject = python.getModule("heatmap");
         bytes = pyObject.callAttr("get_heatmap", str).toJava(byte[].class);
-
+        int[][] test = pyObject.callAttr("get_rects").toJava(int[][].class);
+        System.out.println(Arrays.deepToString(test));
         // 儲存 heatmap PNG 供Kotlin使用
         savePNG();
 
