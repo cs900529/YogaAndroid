@@ -3,12 +3,16 @@ package com.example.yoga.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -21,9 +25,10 @@ public class BluetoothClient {
     private InputStream in;
     private PrintWriter out;
     private Object lock = new Object();
+    String filePath = "/data/user/0/com.example.yoga/files/yourFile.txt";
     byte[] bytes;
 
-    BluetoothClient(Handler handler, String remoteAddress) {
+    public BluetoothClient(Handler handler, String remoteAddress) {
         mHandler = handler;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(remoteAddress);
@@ -35,27 +40,33 @@ public class BluetoothClient {
     }
 
     public void StringToArray(String str) {
-        //System.out.println(str);
+        // 調用 python function "get_heatmap"
         Python python=Python.getInstance();
-
-        PyObject pyObject=python.getModule("heatmap");
+        PyObject pyObject = python.getModule("heatmap");
         bytes = pyObject.callAttr("get_heatmap", str).toJava(byte[].class);
-        //System.out.println(Arrays.toString(getHeatmap()));
+
+        // 儲存 heatmap PNG 供Kotlin使用
+        savePNG();
+
+        // 回傳給 raspberrypi "done"
         send_msg("done");
     }
 
-    // 取得 heatmap 的 Bitmap
+    public void savePNG() {
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath);
+            fos.write(bytes);
+            fos.close();
+            System.out.println("save file done!");
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public byte[] getHeatmap(){
         return bytes;
-        /* 理當銜接的內容
-        ImageView heatmap_image;
-        ...
-        heatmap_image = (ImageView) findViewById(R.id.imageview);
-        ...
-        // 將處理後的圖片顯示到畫面上
-        Bitmap bmp = BitmapFactory.decodeByteArray(bytes,0, bytes.length);
-        heatmap_image.setImageBitmap(bmp);
-        */
     }
     
     private void connect(){

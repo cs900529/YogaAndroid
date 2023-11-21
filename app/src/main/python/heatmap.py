@@ -48,7 +48,8 @@ def get_heatmap(data):
             cv2.rectangle(heatmap, (x, y), (x + w, y + h), (36,255,12), 2)
     heatmap = cv2.rotate(heatmap, cv2.ROTATE_180)
     print(heatmap.shape)
-    bytes_data = heatmap.tobytes()
+    is_success, im_buf_arr = cv2.imencode(".png", heatmap)
+    bytes_data = im_buf_arr.tobytes()
     return bytes_data
 
 def find_bounding_box(heatmap):

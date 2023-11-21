@@ -34,58 +34,57 @@
         android:id="@+id/guide_video"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.47"
+        app:layout_constraintEnd_toStartOf="@+id/camera"
         app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintBottom_toTopOf="@+id/sensor"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/camera"/>
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintWidth_percent="0.47" />
 
     <androidx.camera.view.PreviewView
         android:id="@+id/camera"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.47"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintBottom_toTopOf="@+id/sensor"
         app:layout_constraintStart_toEndOf="@+id/guide_video"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintWidth_percent="0.47" />
 
     <com.example.yoga.OverlayView
         android:id="@+id/overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.47"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintBottom_toTopOf="@+id/sensor"
         app:layout_constraintStart_toEndOf="@+id/guide_video"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintWidth_percent="0.47" />
 
     <TextView
         android:id="@+id/guide"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="提示文字在這"
-        android:textSize="25sp"
-        android:textColor="#0000FF"
-        app:layout_constraintWidth_percent="0.47"
-        app:layout_constraintHeight_percent="0.15"
-        app:layout_constraintTop_toBottomOf="@+id/guide_video"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/sensor"/>
-
-    <VideoView
-        android:id="@+id/sensor"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:text="提示文字在這"
+        android:textColor="#0000FF"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/guide_video"
+        app:layout_constraintWidth_percent="0.47" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
         app:layout_constraintWidth_percent="0.47"
         app:layout_constraintHeight_percent="0.15"
+        app:layout_constraintStart_toEndOf="@+id/guide"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/camera"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"/>
+        app:srcCompat="@android:drawable/divider_horizontal_bright" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
