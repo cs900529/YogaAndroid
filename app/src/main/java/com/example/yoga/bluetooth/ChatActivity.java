@@ -30,8 +30,9 @@ public class ChatActivity extends AppCompatActivity {
         tv_msg = (TextView) findViewById(R.id.tv_msg);
         Intent intent = getIntent();
         String remoteAddress = intent.getStringExtra("remoteAddress");
+        String filePath = getFilesDir().getPath() + "/yourFile.txt";
         client = new BluetoothClient(mHandler, remoteAddress);
-        client.begin_listen();
+        client.begin_listen(filePath);
 
         // intent 回瑜珈主程式
         Intent intent_main = new Intent(this, CalibrationStage.class);

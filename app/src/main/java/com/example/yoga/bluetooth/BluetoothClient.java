@@ -13,8 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.UUID;
 public class BluetoothClient {
     final String UUIDString = "00001101-0000-1000-8000-00805F9B34FB";
@@ -24,7 +22,7 @@ public class BluetoothClient {
     private InputStream in;
     private PrintWriter out;
     private Object lock = new Object();
-    String filePath = "/data/user/0/com.example.yoga/files/yourFile.txt";
+    public String filePath;
     byte[] bytes;
 
     public BluetoothClient(Handler handler, String remoteAddress) {
@@ -40,24 +38,26 @@ public class BluetoothClient {
 
     public void StringToArray(String str) {
         // 調用 python function "get_heatmap"
-        Python python=Python.getInstance();
+        Python python = Python.getInstance();
         PyObject pyObject = python.getModule("heatmap");
         bytes = pyObject.callAttr("get_heatmap", str).toJava(byte[].class);
-        int[][] test = pyObject.callAttr("get_rects").toJava(int[][].class);
-        System.out.println(Arrays.deepToString(test));
-        // 儲存 heatmap PNG 供Kotlin使用
+
+        // 取得 yogamat 的data
+        //int[][] test = pyObject.callAttr("get_rects").toJava(int[][].class);
+
         savePNG();
 
         // 回傳給 raspberrypi "done"
         send_msg("done");
     }
 
+    // 儲存 heatmap PNG 供Kotlin使用
     public void savePNG() {
         try {
             FileOutputStream fos = new FileOutputStream(filePath);
             fos.write(bytes);
             fos.close();
-            System.out.println("save file done!");
+            System.out.println("save file done!" + filePath);
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -65,10 +65,6 @@ public class BluetoothClient {
         }
     }
 
-    public byte[] getHeatmap(){
-        return bytes;
-    }
-    
     private void connect(){
         new Thread() {
             @Override
@@ -78,7 +74,7 @@ public class BluetoothClient {
                         if (mSocket.isConnected()) {
                             return;
                         }
-                        mSocket.connect(); //c t
+                        mSocket.connect(); //需要在子thread中執行，以免堵塞
                         in = mSocket.getInputStream();
                         out = new PrintWriter(mSocket.getOutputStream());
                     }
@@ -89,7 +85,8 @@ public class BluetoothClient {
         }.start();
     }
 
-    public void begin_listen() {
+    public void begin_listen(String Path) {
+        filePath = Path;
         while (!mSocket.isConnected()) {
             connect();
             try {
@@ -112,7 +109,6 @@ public class BluetoothClient {
                             Message msg = new Message();
                             msg.obj = content;
                             mHandler.sendMessage(msg);
-
                         }
                     }
                 } catch (IOException e) {

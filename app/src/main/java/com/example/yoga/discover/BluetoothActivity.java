@@ -33,7 +33,8 @@ public class BluetoothActivity extends AppCompatActivity {
             "android.permission.ACCESS_COARSE_LOCATION",
             "android.permission.BLUETOOTH_PRIVILEGED",
             "android.permission.BLUETOOTH_CONNECT",
-            "android.permission.BLUETOOTH_SCAN"};
+            "android.permission.BLUETOOTH_SCAN",
+            "android.permission.BLUETOOTH_ADVERTISE"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
