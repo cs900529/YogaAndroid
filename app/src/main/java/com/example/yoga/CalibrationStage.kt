@@ -22,9 +22,12 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
         setContentView(R.layout.activity_calibration_stage)
+        //文字轉語音設定
+        textToSpeech = TextToSpeech(this, this)
 
         val finish_button = findViewById<ImageButton>(R.id.finish)
         finish_button.setOnClickListener {
+            textToSpeech.stop()
             // 頁面跳轉
             val intent = Intent(this, Menu::class.java)
             startActivity(intent)
@@ -52,8 +55,7 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
                 camera?.release()
             }
         })
-        //文字轉語音設定
-        textToSpeech = TextToSpeech(this, this)
+
     }
 
     //文字轉語音用

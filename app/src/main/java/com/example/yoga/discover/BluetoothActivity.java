@@ -31,7 +31,9 @@ public class BluetoothActivity extends AppCompatActivity {
             "android.permission.BLUETOOTH",
             "android.permission.BLUETOOTH_ADMIN",
             "android.permission.ACCESS_COARSE_LOCATION",
-            "android.permission.BLUETOOTH_PRIVILEGED" };
+            "android.permission.BLUETOOTH_PRIVILEGED",
+            "android.permission.BLUETOOTH_CONNECT",
+            "android.permission.BLUETOOTH_SCAN"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // 照理來說會 print 出 32，驗證正確性
         System.out.println(x);
+
 
         init();
     }

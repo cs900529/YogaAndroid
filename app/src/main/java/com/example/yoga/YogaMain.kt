@@ -37,6 +37,7 @@ import java.io.IOException
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
     //拿mediapipe model
@@ -50,6 +51,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
+
     //前鏡頭
     private var camera: Camera? = null
     //python 物件
@@ -58,6 +60,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+    //判別文字是否更動用
+    public var lastText="提示文字在這"
 
     //獲取影片檔案
     private fun getfile(filename: String): Int {
@@ -75,7 +79,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             else -> R.raw.tree_style
         }
     }
-
+    private fun TTSSpeak(str:String){
+        textToSpeech.stop()
+        textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,26 +104,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         yogamainBinding.title.text = poseName
 
-        //監聽guide 當文字改變時會重新念語音
-        //val guide = findViewById<TextView>(R.id.guide)
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // 在文本变化之前执行的操作
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // 在文本变化时执行的操作
-                //這邊會直接唸出來
-                textToSpeech.speak(s.toString(), TextToSpeech.QUEUE_FLUSH, null, null)
-            }
-            override fun afterTextChanged(s: Editable?) {
-                // 在文本变化之后执行的操作
-            }
-        }
-        yogamainBinding.guide.addTextChangedListener(textWatcher)
 
 
         //val back_button = findViewById<ImageButton>(R.id.back)
         yogamainBinding.back.setOnClickListener {
+            textToSpeech.stop()
             // 頁面跳轉
             val intent = Intent(this, Menu::class.java)
             startActivity(intent)
@@ -130,7 +122,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         // 设置循环播放
         yogamainBinding.guideVideo.setOnPreparedListener { mp ->
             mp.isLooping = true
+            mp.setVolume(0f,0f)
         }
+
 
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
@@ -166,8 +160,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 // 如果语音数据不可用，可以提示用户下载相应的数据
             } else {
                 // 文字转语音
-                var text = yogamainBinding.guide.text
-                textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+                //var text = yogamainBinding.guide.text
+                //textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
             }
         } else {
             // 初始化失败，可以处理错误情况
@@ -229,7 +223,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
     }
 
-    fun readBytesFromFile(context: Context, filePath: String): ByteArray? {
+    private fun readBytesFromFile(context: Context, filePath: String): ByteArray? {
         var fileBytes: ByteArray? = null
         try {
             val file = File(filePath)
@@ -255,41 +249,36 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
         this.runOnUiThread {
-            val fileName = "yourFile.txt"
-            val file = File(this.filesDir, fileName)
-            val filePath = file.path
+            val heatmapexecutor : ExecutorService =Executors.newSingleThreadExecutor()
+            thread{
+                heatmapexecutor.execute {
+                    val fileName = "yourFile.txt"
+                    val file = File(this.filesDir, fileName)
+                    val filePath = file.path
 
-            val readByteArray = readBytesFromFile(applicationContext, filePath)
-            //println(readByteArray?.contentToString())
-            println(readByteArray.toString())
+                    val readByteArray = readBytesFromFile(applicationContext, filePath)
 
-            val bitmap: Bitmap? =
-                readByteArray?.let { BitmapFactory.decodeByteArray(readByteArray,0, it.size) }
+                    // 檢查 ByteArray 是否為空
+                    if ((readByteArray != null) && readByteArray.isNotEmpty()) {
+                        val bmp: Bitmap? =
+                            BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
 
-            // 取得ImageView的參考
-            val imageView: ImageView = findViewById(R.id.imageView2) // 記得替換成你的ImageView ID
-
-            // 設置Bitmap到ImageView
-            imageView.setImageBitmap(bitmap)
-
-
-            /*// 檢查 ByteArray 是否為空
-            if (readByteArray != null && readByteArray.isNotEmpty()) {
-                val bmp: Bitmap? = BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
-
-                println(readByteArray.size)
-
-                // 檢查解碼的 Bitmap 是否為空
-                if (bmp != null) {
-                    yogamainBinding.imageView2.setImageBitmap(bmp)
-                } else {
-                    // 處理解碼失敗的情況
-                    Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
+                        // 檢查解碼的 Bitmap 是否為空
+                        if (bmp != null) {
+                            runOnUiThread{yogamainBinding.imageView2.setImageBitmap(bmp)}
+                        } else {
+                            // 處理解碼失敗的情況
+                            Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
+                        }
+                    } else {
+                        // 處理空的 ByteArray 情況
+                        Log.e("BitmapFactory", "ByteArray is null or empty")
+                    }
                 }
-            } else {
-                // 處理空的 ByteArray 情況
-                Log.e("BitmapFactory", "ByteArray is null or empty")
-            }*/
+            }
+
+
+
 
             // Pass necessary information to OverlayView for drawing on the canvas
             yogamainBinding.overlay.setResults(
@@ -306,7 +295,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     }
                 }
                 yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
-
+                if (lastText != yogamainBinding.guide.text)
+                    TTSSpeak(yogamainBinding.guide.text.toString())
+                lastText = yogamainBinding.guide.text.toString()
             }
 
 

@@ -127,7 +127,7 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
             else:
                 roi[key] = False
                 if tip_flag == True:
-                    tips = "請將右腳抬至高於左腳膝蓋的位置，勿將右腳放在左腳膝蓋上，\n避免造成膝蓋負擔"
+                    tips = "請將右腳抬至高於左腳膝蓋的位置，勿將右腳放在左腳膝蓋上，避免造成膝蓋負擔"
         elif key == 'RIGHT_KNEE':
             _,_,knee_z = point3d[AngleNodeDef.RIGHT_KNEE]
             _,_,hip_z = point3d[AngleNodeDef.RIGHT_HIP]
@@ -283,11 +283,11 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 imagePath = f"{imageFolder}/8.JPG" if tip_flag else imagePath
             elif angle_dict[key]<min_angle:
                 roi[key] = False
-                tips = f"請將{direction}手抬高，與肩膀呈水平，\n並將身體挺直朝向前方" if tip_flag else tips
+                tips = f"請將{direction}手抬高，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/6.JPG" if tip_flag else imagePath
             elif angle_dict[key]>max_angle:
                 roi[key] = False
-                tips = f"請將{direction}手放低，與肩膀呈水平，\n並將身體挺直朝向前方" if tip_flag else tips
+                tips = f"請將{direction}手放低，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/6.JPG" if tip_flag else imagePath
         elif key == 'LEFT_ELBOW' or key == 'RIGHT_ELBOW': #7
             tolerance_val = 5
@@ -457,7 +457,7 @@ def reversePlankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 side = "RIGHT"
             else:
                 roi[key] = False
-                tips = "請將身體面向右方或左方坐下，並將雙手撐在肩膀下方，\n使上半身呈現斜線" if tip_flag else tips
+                tips = "請將身體面向右方或左方坐下，並將雙手撐在肩膀下方，使上半身呈現斜線" if tip_flag else tips
                 break
         if key == f"{side}_ELBOW":
             tolerance_val = 10
@@ -500,7 +500,7 @@ def reversePlankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             else:
                 roi["LEFT_WRIST"] = False
                 roi["RIGHT_WRIST"] = False
-                tips = "請將手掌平貼於地面，\n讓肩膀、手軸、手腕成一直線垂直於地面" if tip_flag else tips
+                tips = "請將手掌平貼於地面，讓肩膀、手軸、手腕成一直線垂直於地面" if tip_flag else tips
         elif key == f"{side}_SHOULDER":
             tolerance_val = 10
             min_angle = sample_angle_dict[key]-tolerance_val
