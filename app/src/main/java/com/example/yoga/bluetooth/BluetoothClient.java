@@ -3,8 +3,6 @@ package com.example.yoga.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
-import android.os.Message;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
@@ -16,7 +14,6 @@ import java.io.PrintWriter;
 import java.util.UUID;
 public class BluetoothClient {
     final String UUIDString = "00001101-0000-1000-8000-00805F9B34FB";
-    private Handler mHandler;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothSocket mSocket;
     private InputStream in;
@@ -25,8 +22,7 @@ public class BluetoothClient {
     public String filePath;
     byte[] bytes;
 
-    public BluetoothClient(Handler handler, String remoteAddress) {
-        mHandler = handler;
+    public BluetoothClient(String remoteAddress) {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(remoteAddress);
         try {
@@ -95,6 +91,7 @@ public class BluetoothClient {
                 e.printStackTrace();
             }
         }
+
         new Thread() {
             @Override
             public void run() {
@@ -106,17 +103,10 @@ public class BluetoothClient {
                         if (content!=null && !content.equals("")) {
                             String[] x = content.split("!");
                             StringToArray(x[0]);
-                            Message msg = new Message();
-                            msg.obj = content;
-                            mHandler.sendMessage(msg);
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                } finally {
-                    Message msg = new Message();
-                    msg.obj = "失去連線";
-                    mHandler.sendMessage(msg);
                 }
             }
         }.start();
