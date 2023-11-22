@@ -30,10 +30,11 @@ public class BluetoothActivity extends AppCompatActivity {
     public static final String[] permissions = {
             "android.permission.BLUETOOTH",
             "android.permission.BLUETOOTH_ADMIN",
-            "android.permission.ACCESS_COARSE_LOCATION",
             "android.permission.BLUETOOTH_PRIVILEGED",
             "android.permission.BLUETOOTH_CONNECT",
-            "android.permission.BLUETOOTH_SCAN"};
+            "android.permission.BLUETOOTH_SCAN",
+            "android.permission.BLUETOOTH_ADVERTISE",
+            "android.permission.ACCESS_COARSE_LOCATION"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +52,11 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // 調用hello_python.py裡面的Python_say_Hello函式
         int x = 8;
-
         PyObject pyObject=python.getModule("hello_python");
         x = pyObject.callAttr("Python_say_Hello", x).toJava(int.class);
 
         // 照理來說會 print 出 32，驗證正確性
         System.out.println(x);
-
 
         init();
     }
@@ -78,21 +77,21 @@ public class BluetoothActivity extends AppCompatActivity {
         registerReceiver(receiver, filter);
     }
 
-    public void onClick(View view){ //单击扫描按钮
+    public void onClick(View view){ //onClick 搜尋設備
         list.clear();
-        list.addAll(mScanDevices.getBondedDevices()); //添加已绑定的设备列表
+        list.addAll(mScanDevices.getBondedDevices()); //先添加已綁定過的設備
         adapter.notifyDataSetChanged();
-        mScanDevices.startDiscovery(); //搜索周围蓝牙设备，并通过广播返回
+        mScanDevices.startDiscovery(); //搜尋附近的設備
     }
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case BluetoothDevice.ACTION_FOUND: //接收搜索到的蓝牙设备
+                case BluetoothDevice.ACTION_FOUND: //接收附近的裝置
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     String address = device.getAddress();
-                    for (int i = 0; i < list.size(); i++) { //避免接收重复的设备
+                    for (int i = 0; i < list.size(); i++) { //避免有重複的裝置出現
                         if (address == null || address.equals(list.get(i).getAddress())) {
                             return;
                         }

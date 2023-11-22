@@ -9,10 +9,7 @@ import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -27,10 +24,8 @@ import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
-import com.example.yoga.bluetooth.ChatActivity
 import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -223,7 +218,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
     }
 
-    private fun readBytesFromFile(context: Context, filePath: String): ByteArray? {
+    private fun readBytesFromFile(filePath: String): ByteArray? {
         var fileBytes: ByteArray? = null
         try {
             val file = File(filePath)
@@ -256,7 +251,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     val file = File(this.filesDir, fileName)
                     val filePath = file.path
 
-                    val readByteArray = readBytesFromFile(applicationContext, filePath)
+                    val readByteArray = readBytesFromFile(filePath)
 
                     // 檢查 ByteArray 是否為空
                     if ((readByteArray != null) && readByteArray.isNotEmpty()) {
