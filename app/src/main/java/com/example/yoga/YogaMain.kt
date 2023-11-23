@@ -10,6 +10,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.util.Rational
+import android.util.Size
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
@@ -172,7 +175,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             val cameraFacing = cameraManager.cameraIdList[0].toInt()
 
             // 配置预览
+            //val aspectRatio: Rational = Rational(16, 9) // 指定16:9的寬高比
+            //val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
+
             val preview :Preview = Preview.Builder()
+                //.setTargetResolution(size)
                 .build()
                 .also {
                     it.setSurfaceProvider(yogamainBinding.camera.getSurfaceProvider())
