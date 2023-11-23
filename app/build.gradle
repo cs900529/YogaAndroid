@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.yoga"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -23,6 +23,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
             // 當前的python路徑
+            //buildPython "D:\\anaconda\\envs\\yoga\\python.exe"
             buildPython "C:/Users/EricTang/anaconda3/envs/cilab/python.exe"
             version "3.8"
             pip {
