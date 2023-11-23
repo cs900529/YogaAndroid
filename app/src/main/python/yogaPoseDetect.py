@@ -240,6 +240,10 @@ class YogaPose:
                 #angle = toolkit.computeAngle(point3d.get(value[0]), point3d.get(value[1]), point3d.get(value[2]))
                 self.angle_dict[key] = angle
             self.roi, self.tips, self.imagePath = toolkit.treePoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d, mat)
+<<<<<<< Updated upstream
+=======
+        
+>>>>>>> Stashed changes
         elif(self.type == 'Warrior2 Style'):
             for key,value in self.angle_def.items():
                 angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
