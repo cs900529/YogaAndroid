@@ -2,14 +2,17 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.AssetManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +36,7 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
+
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
     //拿mediapipe model
@@ -74,6 +78,24 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             else -> R.raw.tree_style
         }
     }
+
+    // Function to get image resource based on poseName
+    private fun getDefaultNum(filename: String?): Int {
+        return when (filename) {
+            "Tree Style" -> 8
+            "Warrior2 Style" -> 8
+            "Plank" -> 10
+            "Reverse Plank" -> 6
+            "Child's pose" -> 5
+            "Seated Forward Bend" -> 5
+            "Low Lunge" -> 5
+            "Downward dog" -> 7
+            "Pyramid pose" -> 6
+            "Bridge pose" -> 5
+            else -> 1
+        }
+    }
+
     private fun TTSSpeak(str:String){
         textToSpeech.stop()
         textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
@@ -120,6 +142,20 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             mp.setVolume(0f,0f)
         }
 
+        //guide_picture init
+        val picturePath = findViewById<ImageView>(R.id.guide_picture)
+        var am: AssetManager? = null
+        am = assets
+        val pic = am.open("images/"+poseName.toString()+"/"+getDefaultNum(poseName)+".jpg")
+
+        // Decode the input stream into a Drawable
+        val drawable = Drawable.createFromStream(pic, null)
+
+        // Set the drawable as the image source for the ImageView
+        picturePath.setImageDrawable(drawable)
+
+        // Close the input stream when you're done
+        pic.close()
 
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
