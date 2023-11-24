@@ -38,6 +38,8 @@ import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
 
+
+
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
     //拿mediapipe model
     private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
@@ -55,7 +57,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var camera: Camera? = null
     //python 物件
     private lateinit var python : Python
-    private lateinit var pose     : PyObject
+    private lateinit var pose   : PyObject
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
@@ -96,6 +98,22 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
     }
 
+    private fun setImage(imagePath: String?,poseName:String ) {
+        val picturePath = findViewById<ImageView>(R.id.guide_picture)
+        var am: AssetManager? = null
+        am = assets
+        val pic = am.open("images/"+poseName+"/"+imagePath)
+
+        // Decode the input stream into a Drawable
+        val drawable = Drawable.createFromStream(pic, null)
+
+        // Set the drawable as the image source for the ImageView
+        picturePath.setImageDrawable(drawable)
+
+        // Close the input stream when you're done
+        pic.close()
+    }
+
     private fun TTSSpeak(str:String){
         textToSpeech.stop()
         textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
@@ -131,7 +149,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             startActivity(intent)
         }
 
-        //guide_video init
+        /*//guide_video init
         //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
         val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
         yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
@@ -140,23 +158,19 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         yogamainBinding.guideVideo.setOnPreparedListener { mp ->
             mp.isLooping = true
             mp.setVolume(0f,0f)
-        }
+        }*/
 
         //guide_picture init
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
         var am: AssetManager? = null
         am = assets
         val pic = am.open("images/"+poseName.toString()+"/"+getDefaultNum(poseName)+".jpg")
-
         // Decode the input stream into a Drawable
         val drawable = Drawable.createFromStream(pic, null)
-
         // Set the drawable as the image source for the ImageView
         picturePath.setImageDrawable(drawable)
-
         // Close the input stream when you're done
         pic.close()
-
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -319,18 +333,42 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     RunningMode.LIVE_STREAM
             )
             // pass result to Yogapose
-            if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
-                val floatListList: List<List<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
-                    landmarks.map { landmark ->
-                        listOf(landmark.x(), landmark.y(), landmark.z())
+            if(resultBundle.results.first().worldLandmarks().isNotEmpty()) {
+                val floatListList: List<List<Float>> =
+                    resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                        landmarks.map { landmark ->
+                            listOf(landmark.x(), landmark.y(), landmark.z())
+                        }
                     }
-                }
-                yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
+
+                /*
+                yogamainBinding.guide.text = pose.callAttr("detect", floatListList, 0).toString()
                 if (lastText != yogamainBinding.guide.text)
                     TTSSpeak(yogamainBinding.guide.text.toString())
                 lastText = yogamainBinding.guide.text.toString()
-            }
+                */
 
+                val retult = pose.callAttr("detect", floatListList, 0).toString()
+                // Check if the result can be iterated over (assumed behavior of a list)
+                if (retult.iterator().hasNext()) {
+                    // Assume it behaves like a list and try accessing its elements
+                    try {
+                        yogamainBinding.guide.text = retult[0].toString()
+                        if (lastText != yogamainBinding.guide.text)
+                            TTSSpeak(yogamainBinding.guide.text.toString())
+                        lastText = yogamainBinding.guide.text.toString()
+
+                        val imagePath = retult[1].toString()
+                        setImage(imagePath, yogamainBinding.title.text.toString())
+                    } catch (e: Exception) {
+                        // Handle exceptions when accessing elements if the result doesn't behave like a list
+                        println("Result does not have expected list behavior: ${e.message}")
+                    }
+                } else {
+                    // Handle cases where the result does not behave like an iterable (e.g., not a list)
+                    println("Result is not iterable like a list")
+                }
+            }
 
             // Force a redraw
             yogamainBinding.overlay.invalidate()

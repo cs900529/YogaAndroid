@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/camera"/>
 
-    <VideoView
+    <!--VideoView
         android:id="@+id/guide_video"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -40,17 +40,7 @@
         app:layout_constraintHeight_percent="0.65"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintWidth_percent="0.47" />
-    
-    <ImageView
-        android:id="@+id/guide_picture"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toStartOf="@+id/camera"
-        app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintWidth_percent="0.47"  />
+        app:layout_constraintWidth_percent="0.47" /-->
 
     <ImageView
         android:id="@+id/guide_picture"
@@ -68,7 +58,7 @@
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintStart_toEndOf="@+id/guide_video"
+        app:layout_constraintStart_toEndOf="@+id/guide_picture"
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintWidth_percent="0.47" />
 
@@ -78,7 +68,7 @@
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintStart_toEndOf="@+id/guide_video"
+        app:layout_constraintStart_toEndOf="@+id/guide_picture"
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintWidth_percent="0.47" />
 
@@ -93,7 +83,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.15"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guide_video"
+        app:layout_constraintTop_toBottomOf="@+id/guide_picture"
         app:layout_constraintWidth_percent="0.47" />
 
     <ImageView
