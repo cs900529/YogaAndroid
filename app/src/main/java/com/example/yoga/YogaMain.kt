@@ -55,7 +55,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //python 物件
     private lateinit var python : Python
     private lateinit var pose     : PyObject
-
+    private lateinit var heatmappy : PyObject
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
     //判別文字是否更動用
@@ -99,6 +99,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         val poseName = intent.getStringExtra("poseName")
         //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
+
+        heatmappy = python.getModule("heatmap")
 
         yogamainBinding.title.text = poseName
 
@@ -296,7 +298,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         listOf(landmark.x(), landmark.y(), landmark.z())
                     }
                 }
-                yogamainBinding.guide.text = pose.callAttr("detect", floatListList , 0).toString()
+                yogamainBinding.guide.text = pose.callAttr("detect",
+                        floatListList ,
+                        heatmappy.callAttr("get_rects") ,
+                        heatmappy.callAttr("get_center")).toString()
                 if (lastText != yogamainBinding.guide.text)
                     TTSSpeak(yogamainBinding.guide.text.toString())
                 lastText = yogamainBinding.guide.text.toString()
