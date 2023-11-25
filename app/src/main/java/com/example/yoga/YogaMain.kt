@@ -82,27 +82,42 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     }
 
     // Function to get image resource based on poseName
-    private fun getDefaultNum(filename: String?): Int {
+    private fun getDefaultPic(filename: String?): String {
         return when (filename) {
-            "Tree Style" -> 8
-            "Warrior2 Style" -> 8
-            "Plank" -> 10
-            "Reverse Plank" -> 6
-            "Child's pose" -> 5
-            "Seated Forward Bend" -> 5
-            "Low Lunge" -> 5
-            "Downward dog" -> 7
-            "Pyramid pose" -> 6
-            "Bridge pose" -> 5
-            else -> 1
+            "Tree Style" -> "TreePose/8"
+            "Warrior2 Style" -> "WarriorIIRulePic/8"
+            "Plank" -> "PlankPose/10"
+            "Reverse Plank" -> "ReversePlankPose/6"
+            "Child's pose" -> "ChildsPose/5"
+            "Seated Forward Bend" -> "SeatedForwardBendPose/5"
+            "Low Lunge" -> "LowLungePose/5"
+            "Downward dog" -> "DownwardDogPose/6"
+            "Pyramid pose" -> "Pyramidpose/6"
+            "Bridge pose" -> "BridgePose/5"
+            else -> "TreePose/8"
         }
     }
-
-    private fun setImage(imagePath: String?,poseName:String ) {
+    // Function to get image resource based on poseName
+    private fun getPoseFolder(filename: String?): String {
+        return when (filename) {
+            "Tree Style" -> "TreePose"
+            "Warrior2 Style" -> "WarriorIIRulePic"
+            "Plank" -> "PlankPose"
+            "Reverse Plank" -> "ReversePlankPose"
+            "Child's pose" -> "ChildsPose"
+            "Seated Forward Bend" -> "SeatedForwardBendPose"
+            "Low Lunge" -> "LowLungePose"
+            "Downward dog" -> "DownwardDogPose"
+            "Pyramid pose" -> "Pyramidpose"
+            "Bridge pose" -> "BridgePose"
+            else -> "TreePose"
+        }
+    }
+    private fun setImage(imagePath: String?) {
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
         var am: AssetManager? = null
         am = assets
-        val pic = am.open("images/"+poseName+"/"+imagePath)
+        val pic = am.open(imagePath.toString())
 
         // Decode the input stream into a Drawable
         val drawable = Drawable.createFromStream(pic, null)
@@ -164,7 +179,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
         var am: AssetManager? = null
         am = assets
-        val pic = am.open("images/"+poseName.toString()+"/"+getDefaultNum(poseName)+".jpg")
+        val pic = am.open("images/"+getDefaultPic(poseName)+".jpg")
         // Decode the input stream into a Drawable
         val drawable = Drawable.createFromStream(pic, null)
         // Set the drawable as the image source for the ImageView
@@ -359,7 +374,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         lastText = yogamainBinding.guide.text.toString()
 
                         val imagePath = retult[1].toString()
-                        setImage(imagePath, yogamainBinding.title.text.toString())
+                        setImage(imagePath)
+
                     } catch (e: Exception) {
                         // Handle exceptions when accessing elements if the result doesn't behave like a list
                         println("Result does not have expected list behavior: ${e.message}")
