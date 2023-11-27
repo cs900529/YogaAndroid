@@ -2,12 +2,15 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.util.Rational
@@ -23,6 +26,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
@@ -43,13 +47,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private val viewModel : MainViewModel by viewModels()
     //分析圖片
     private var imageAnalyzer: ImageAnalysis? = null
-
     //databinding 讓xml調用不綁R.id.xxx
     private lateinit var yogamainBinding: ActivityYogaMainBinding
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
-
     //前鏡頭
     private var camera: Camera? = null
     //python 物件
@@ -59,7 +61,60 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
     //判別文字是否更動用
-    public var lastText="提示文字在這"
+    private var lastText="提示文字在這"
+    //30秒計時器
+    private var timer: CountDownTimer? = null
+    private var timeLeft_ms: Long = 30000 // 初始計時為30秒
+    private var timeLeft_str=""
+    private fun initializeTimer() {
+        timer = object : CountDownTimer(timeLeft_ms, 100) {
+            override fun onTick(ms_remain: Long) {
+                timeLeft_ms = ms_remain
+                // 每0.1秒執行一次的邏輯，例如更新 UI 顯示剩餘時間
+                timeLeft_str = (ms_remain/1000f).toString()
+                //timeLeftBar
+                val layoutParams = yogamainBinding.timeLeftBar.layoutParams as ConstraintLayout.LayoutParams
+                layoutParams.matchConstraintPercentWidth = 0.47f*(ms_remain/30000f)
+                yogamainBinding.timeLeftBar.layoutParams = layoutParams
+                var G = 0f
+                var R = 0f
+                if(ms_remain > 15000){
+                    G = 1f
+                    R = (30000-ms_remain)/15000f
+                }
+                else{
+                    R = 1f
+                    G = ms_remain/15000f
+                }
+                val barColor = Color.rgb(R,G,0f)
+                yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
+                //yogamainBinding.timeLeftBar.setColorFilter(android.graphics.Color.rgb((30000-ms_remain)/30000f*255f,ms_remain/30000f*255f,0f))
+
+            }
+
+            override fun onFinish() {
+                // 計時器倒數完畢時觸發的邏輯
+                finishFunction()
+            }
+        }
+    }
+    private fun startTimer() {
+        initializeTimer()
+        // 開始計時器
+        timer?.start()
+    }
+    private fun resetTimer() {
+        // 重置計時器為30秒
+        timeLeft_ms = 30000
+        timeLeft_str = ""
+        timer?.cancel()
+        timer = null
+    }
+    private fun finishFunction() {
+        // 計時器倒數完畢後的邏輯
+        // 在這裡執行你想要的操作
+        timeLeft_str = "結束"
+    }
 
     //獲取影片檔案
     private fun getfile(filename: String): Int {
@@ -97,6 +152,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
+        yogamainBinding.title.text = poseName
+
         //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
 
@@ -115,17 +172,14 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
 
         //guide_video init
-        //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
         val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
         yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
         yogamainBinding.guideVideo.start()
         // 设置循环播放
-        yogamainBinding.guideVideo.setOnPreparedListener { mp ->
+        yogamainBinding.guideVideo.setOnPreparedListener { mp -> //mp=mediaplayer
             mp.isLooping = true
             mp.setVolume(0f,0f)
         }
-
-
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -160,8 +214,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 // 如果语音数据不可用，可以提示用户下载相应的数据
             } else {
                 // 文字转语音
-                //var text = yogamainBinding.guide.text
-                //textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
             }
         } else {
             // 初始化失败，可以处理错误情况
@@ -282,8 +334,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             }
 
 
-
-
             // Pass necessary information to OverlayView for drawing on the canvas
             yogamainBinding.overlay.setResults(
                     resultBundle.results.first(),
@@ -298,13 +348,25 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         listOf(landmark.x(), landmark.y(), landmark.z())
                     }
                 }
-                yogamainBinding.guide.text = pose.callAttr("detect",
+          
+                var guideStr = pose.callAttr("detect",
                         floatListList ,
                         heatmappy.callAttr("get_rects") ,
                         heatmappy.callAttr("get_center")).toString()
-                if (lastText != yogamainBinding.guide.text)
-                    TTSSpeak(yogamainBinding.guide.text.toString())
-                lastText = yogamainBinding.guide.text.toString()
+                //var guideStr = "動作正確"
+                yogamainBinding.guide.text = guideStr
+                if (lastText != guideStr)
+                    TTSSpeak(guideStr)
+                lastText = guideStr
+
+                //30秒計時器
+                if (lastText.contains("動作正確")){
+                    if (timer == null)
+                        startTimer()
+                    yogamainBinding.guide.text = lastText + " " + timeLeft_str
+                }
+                else
+                    resetTimer()
             }
 
 

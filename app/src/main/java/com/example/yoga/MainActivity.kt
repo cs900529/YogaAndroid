@@ -6,13 +6,13 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.yoga.databinding.ActivityMainBinding
 import com.example.yoga.discover.BluetoothActivity
+import android.media.MediaPlayer
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var mediaPlayer: MediaPlayer
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         val start = findViewById<Button>(R.id.start)
         start.setOnClickListener {
             // 頁面跳轉
-            // val intent = Intent(this, CalibrationStage::class.java)
+            //val intent = Intent(this, Menu::class.java)
             val intent = Intent(this, BluetoothActivity::class.java)
             startActivity(intent)
         }
@@ -32,5 +32,9 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST_CODE)
         }
 
+        // 初始化 MediaPlayer(背景音樂)
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.start()
     }
 }
