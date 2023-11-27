@@ -57,6 +57,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //python 物件
     private lateinit var python : Python
     private lateinit var pose     : PyObject
+    private lateinit var heatmappy : PyObject
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
     //判別文字是否更動用
@@ -156,6 +157,13 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
 
+        heatmappy = python.getModule("heatmap")
+
+        yogamainBinding.title.text = poseName
+
+
+
+        //val back_button = findViewById<ImageButton>(R.id.back)
         yogamainBinding.back.setOnClickListener {
             textToSpeech.stop()
             // 頁面跳轉
@@ -340,7 +348,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         listOf(landmark.x(), landmark.y(), landmark.z())
                     }
                 }
-                var guideStr = pose.callAttr("detect", floatListList , 0).toString()
+          
+                var guideStr = pose.callAttr("detect",
+                        floatListList ,
+                        heatmappy.callAttr("get_rects") ,
+                        heatmappy.callAttr("get_center")).toString()
                 //var guideStr = "動作正確"
                 yogamainBinding.guide.text = guideStr
                 if (lastText != guideStr)

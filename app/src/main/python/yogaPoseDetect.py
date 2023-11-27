@@ -2,6 +2,7 @@ from com.example.yoga import YogaMain
 import AngleNodeDef
 import toolkit
 import numpy as np
+from yogamat import get_mat_data
 class YogaPose:
     '''
     type: WarriorII, Tree, ReversePlank, Plank ...etc
@@ -219,12 +220,12 @@ class YogaPose:
         
     
         
-    def detect(self, point, mat):
+    def detect(self, point, rect , center):
         
         self.tips = ""
         point3d = []
-        if mat == 0:
-            mat = None
+
+        mat = get_mat_data(rect , center)
 
         for i in range(point.size()):
             ang = []
