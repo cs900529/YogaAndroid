@@ -821,15 +821,14 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             tip_flag = True
         #detect the side for the pose
         if key == 'NOSE':
-            node_x,_,_ = getLandmarks(point3d[AngleNodeDef.NOSE])
-            left_shoulder_x,_,_ = getLandmarks(point3d[AngleNodeDef.LEFT_SHOULDER])
-            right_shoulder_x,_,_ = getLandmarks(point3d[AngleNodeDef.RIGHT_SHOULDER])
-            if node_x>left_shoulder_x and node_x>right_shoulder_x:
+            left_foot_index_x,_,_ = getLandmarks(point3d[AngleNodeDef.LEFT_FOOT_INDEX])
+            right_foot_index_x,_,_ = getLandmarks(point3d[AngleNodeDef.RIGHT_FOOT_INDEX])
+            if left_foot_index_x<=right_foot_index_x:
                 roi[key] = True
                 side = "LEFT"
                 side_back = "RIGHT"
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
-            elif node_x<left_shoulder_x and node_x<right_shoulder_x:
+            elif left_foot_index_x>right_foot_index_x:
                 roi[key] = True
                 side = "RIGHT"
                 side_back = "LEFT"
@@ -840,7 +839,7 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
                 break
         if key == f'{side}_KNEE':
-            if angle_dict[key]<=90:
+            if angle_dict[key]<=angle_dict[f'{side_back}_KNEE']:
                 roi[f"{side}_KNEE"] = True
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
             else:
