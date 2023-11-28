@@ -2,17 +2,19 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.AssetManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
+import android.graphics.Color
 import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import android.widget.ImageView
+import android.util.Rational
+import android.util.Size
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +24,9 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
@@ -37,32 +41,80 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
-
-
-
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
     //拿mediapipe model
     private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
     private val viewModel : MainViewModel by viewModels()
     //分析圖片
     private var imageAnalyzer: ImageAnalysis? = null
-
     //databinding 讓xml調用不綁R.id.xxx
     private lateinit var yogamainBinding: ActivityYogaMainBinding
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
-
     //前鏡頭
     private var camera: Camera? = null
     //python 物件
     private lateinit var python : Python
-    private lateinit var pose   : PyObject
-
+    private lateinit var pose     : PyObject
+    private lateinit var heatmappy : PyObject
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
     //判別文字是否更動用
-    public var lastText="提示文字在這"
+    private var lastText="提示文字在這"
+    //30秒計時器
+    private var timer: CountDownTimer? = null
+    private var timeLeft_ms: Long = 30000 // 初始計時為30秒
+    private var timeLeft_str=""
+    private fun initializeTimer() {
+        timer = object : CountDownTimer(timeLeft_ms, 100) {
+            override fun onTick(ms_remain: Long) {
+                timeLeft_ms = ms_remain
+                // 每0.1秒執行一次的邏輯，例如更新 UI 顯示剩餘時間
+                timeLeft_str = (ms_remain/1000f).toString()
+                //timeLeftBar
+                val layoutParams = yogamainBinding.timeLeftBar.layoutParams as ConstraintLayout.LayoutParams
+                layoutParams.matchConstraintPercentWidth = 0.47f*(ms_remain/30000f)
+                yogamainBinding.timeLeftBar.layoutParams = layoutParams
+                var G = 0f
+                var R = 0f
+                if(ms_remain > 15000){
+                    G = 1f
+                    R = (30000-ms_remain)/15000f
+                }
+                else{
+                    R = 1f
+                    G = ms_remain/15000f
+                }
+                val barColor = Color.rgb(R,G,0f)
+                yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
+                //yogamainBinding.timeLeftBar.setColorFilter(android.graphics.Color.rgb((30000-ms_remain)/30000f*255f,ms_remain/30000f*255f,0f))
+
+            }
+
+            override fun onFinish() {
+                // 計時器倒數完畢時觸發的邏輯
+                finishFunction()
+            }
+        }
+    }
+    private fun startTimer() {
+        initializeTimer()
+        // 開始計時器
+        timer?.start()
+    }
+    private fun resetTimer() {
+        // 重置計時器為30秒
+        timeLeft_ms = 30000
+        timeLeft_str = ""
+        timer?.cancel()
+        timer = null
+    }
+    private fun finishFunction() {
+        // 計時器倒數完畢後的邏輯
+        // 在這裡執行你想要的操作
+        timeLeft_str = "結束"
+    }
 
     //獲取影片檔案
     private fun getfile(filename: String): Int {
@@ -80,55 +132,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             else -> R.raw.tree_style
         }
     }
-
-    // Function to get image resource based on poseName
-    private fun getDefaultPic(filename: String?): String {
-        return when (filename) {
-            "Tree Style" -> "TreePose/8"
-            "Warrior2 Style" -> "WarriorIIRulePic/8"
-            "Plank" -> "PlankPose/10"
-            "Reverse Plank" -> "ReversePlankPose/6"
-            "Child's pose" -> "ChildsPose/5"
-            "Seated Forward Bend" -> "SeatedForwardBendPose/5"
-            "Low Lunge" -> "LowLungePose/5"
-            "Downward dog" -> "DownwardDogPose/6"
-            "Pyramid pose" -> "Pyramidpose/6"
-            "Bridge pose" -> "BridgePose/5"
-            else -> "TreePose/8"
-        }
-    }
-    // Function to get image resource based on poseName
-    private fun getPoseFolder(filename: String?): String {
-        return when (filename) {
-            "Tree Style" -> "TreePose"
-            "Warrior2 Style" -> "WarriorIIRulePic"
-            "Plank" -> "PlankPose"
-            "Reverse Plank" -> "ReversePlankPose"
-            "Child's pose" -> "ChildsPose"
-            "Seated Forward Bend" -> "SeatedForwardBendPose"
-            "Low Lunge" -> "LowLungePose"
-            "Downward dog" -> "DownwardDogPose"
-            "Pyramid pose" -> "Pyramidpose"
-            "Bridge pose" -> "BridgePose"
-            else -> "TreePose"
-        }
-    }
-    private fun setImage(imagePath: String?) {
-        val picturePath = findViewById<ImageView>(R.id.guide_picture)
-        var am: AssetManager? = null
-        am = assets
-        val pic = am.open(imagePath.toString())
-
-        // Decode the input stream into a Drawable
-        val drawable = Drawable.createFromStream(pic, null)
-
-        // Set the drawable as the image source for the ImageView
-        picturePath.setImageDrawable(drawable)
-
-        // Close the input stream when you're done
-        pic.close()
-    }
-
     private fun TTSSpeak(str:String){
         textToSpeech.stop()
         textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
@@ -149,8 +152,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         setContentView(yogamainBinding.root)
 
         val poseName = intent.getStringExtra("poseName")
+        yogamainBinding.title.text = poseName
+
         //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
+
+        heatmappy = python.getModule("heatmap")
 
         yogamainBinding.title.text = poseName
 
@@ -164,28 +171,15 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             startActivity(intent)
         }
 
-        /*//guide_video init
-        //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
+        //guide_video init
         val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
         yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
         yogamainBinding.guideVideo.start()
         // 设置循环播放
-        yogamainBinding.guideVideo.setOnPreparedListener { mp ->
+        yogamainBinding.guideVideo.setOnPreparedListener { mp -> //mp=mediaplayer
             mp.isLooping = true
             mp.setVolume(0f,0f)
-        }*/
-
-        //guide_picture init
-        val picturePath = findViewById<ImageView>(R.id.guide_picture)
-        var am: AssetManager? = null
-        am = assets
-        val pic = am.open("images/"+getDefaultPic(poseName)+".jpg")
-        // Decode the input stream into a Drawable
-        val drawable = Drawable.createFromStream(pic, null)
-        // Set the drawable as the image source for the ImageView
-        picturePath.setImageDrawable(drawable)
-        // Close the input stream when you're done
-        pic.close()
+        }
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -220,8 +214,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 // 如果语音数据不可用，可以提示用户下载相应的数据
             } else {
                 // 文字转语音
-                //var text = yogamainBinding.guide.text
-                //textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
             }
         } else {
             // 初始化失败，可以处理错误情况
@@ -237,7 +229,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             val cameraFacing = cameraManager.cameraIdList[0].toInt()
 
             // 配置预览
+            //val aspectRatio: Rational = Rational(16, 9) // 指定16:9的寬高比
+            //val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
+
             val preview :Preview = Preview.Builder()
+                //.setTargetResolution(size)
                 .build()
                 .also {
                     it.setSurfaceProvider(yogamainBinding.camera.getSurfaceProvider())
@@ -338,8 +334,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             }
 
 
-
-
             // Pass necessary information to OverlayView for drawing on the canvas
             yogamainBinding.overlay.setResults(
                     resultBundle.results.first(),
@@ -348,43 +342,33 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     RunningMode.LIVE_STREAM
             )
             // pass result to Yogapose
-            if(resultBundle.results.first().worldLandmarks().isNotEmpty()) {
-                val floatListList: List<List<Float>> =
-                    resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
-                        landmarks.map { landmark ->
-                            listOf(landmark.x(), landmark.y(), landmark.z())
-                        }
+            if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
+                val floatListList: List<List<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                    landmarks.map { landmark ->
+                        listOf(landmark.x(), landmark.y(), landmark.z())
                     }
-
-                /*
-                yogamainBinding.guide.text = pose.callAttr("detect", floatListList, 0).toString()
-                if (lastText != yogamainBinding.guide.text)
-                    TTSSpeak(yogamainBinding.guide.text.toString())
-                lastText = yogamainBinding.guide.text.toString()
-                */
-
-                val retult = pose.callAttr("detect", floatListList, 0).toString()
-                // Check if the result can be iterated over (assumed behavior of a list)
-                if (retult.iterator().hasNext()) {
-                    // Assume it behaves like a list and try accessing its elements
-                    try {
-                        yogamainBinding.guide.text = retult[0].toString()
-                        if (lastText != yogamainBinding.guide.text)
-                            TTSSpeak(yogamainBinding.guide.text.toString())
-                        lastText = yogamainBinding.guide.text.toString()
-
-                        val imagePath = retult[1].toString()
-                        setImage(imagePath)
-
-                    } catch (e: Exception) {
-                        // Handle exceptions when accessing elements if the result doesn't behave like a list
-                        println("Result does not have expected list behavior: ${e.message}")
-                    }
-                } else {
-                    // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                    println("Result is not iterable like a list")
                 }
+          
+                var guideStr = pose.callAttr("detect",
+                        floatListList ,
+                        heatmappy.callAttr("get_rects") ,
+                        heatmappy.callAttr("get_center")).toString()
+                //var guideStr = "動作正確"
+                yogamainBinding.guide.text = guideStr
+                if (lastText != guideStr)
+                    TTSSpeak(guideStr)
+                lastText = guideStr
+
+                //30秒計時器
+                if (lastText.contains("動作正確")){
+                    if (timer == null)
+                        startTimer()
+                    yogamainBinding.guide.text = lastText + " " + timeLeft_str
+                }
+                else
+                    resetTimer()
             }
+
 
             // Force a redraw
             yogamainBinding.overlay.invalidate()
