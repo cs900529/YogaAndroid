@@ -42,7 +42,7 @@ class VideoGuide : AppCompatActivity() {
         videoPlayer.setVideoURI(Uri.parse(videoPath))
         videoPlayer.start()
         // 设置循环播放
-        videoPlayer.setOnPreparedListener { mp ->
+        videoPlayer.setOnPreparedListener { mp -> // mp = mediaplayer
             mp.isLooping = true
         }
 

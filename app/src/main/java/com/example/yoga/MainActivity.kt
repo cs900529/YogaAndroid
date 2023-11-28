@@ -23,7 +23,8 @@ class MainActivity : AppCompatActivity() {
         start.setOnClickListener {
             // 頁面跳轉
             // val intent = Intent(this, CalibrationStage::class.java)
-            val intent = Intent(this, BluetoothActivity::class.java)
+            //val intent = Intent(this, BluetoothActivity::class.java)
+            val intent = Intent(this, Menu::class.java)
             startActivity(intent)
         }
 
@@ -32,9 +33,13 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST_CODE)
         }
 
-        // 初始化 MediaPlayer
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.start()
+        val playMusic = intent.getBooleanExtra("playMusic",true)
+
+        // 初始化 MediaPlayer(背景音樂)
+        if(playMusic){
+            mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+            mediaPlayer.isLooping = true // 設定音樂循環播放
+            mediaPlayer.start()
+        }
     }
 }

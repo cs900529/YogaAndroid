@@ -20,6 +20,7 @@ public class BluetoothClient {
     private PrintWriter out;
     private Object lock = new Object();
     public String filePath;
+    public Boolean flag;
     byte[] bytes;
 
     public BluetoothClient(String remoteAddress) {
@@ -73,6 +74,7 @@ public class BluetoothClient {
                         mSocket.connect(); //需要在子thread中執行，以免堵塞
                         in = mSocket.getInputStream();
                         out = new PrintWriter(mSocket.getOutputStream());
+                        flag = true;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -83,18 +85,20 @@ public class BluetoothClient {
 
     public void begin_listen(String Path) {
         filePath = Path;
-        while (!mSocket.isConnected()) {
-            connect();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
 
         new Thread() {
             @Override
             public void run() {
+                while (!mSocket.isConnected()) {
+                    connect();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        System.out.println("bluetooth connecting");
+                    }
+                }
+
                 try {
                     while (mSocket.isConnected()) {
                         byte[] bt = new byte[1024];
@@ -107,6 +111,7 @@ public class BluetoothClient {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    System.out.println("bluetooth connection loss");
                 }
             }
         }.start();

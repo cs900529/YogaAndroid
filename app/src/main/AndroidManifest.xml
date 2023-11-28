@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
-    <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- 藍芽權限 -->
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 藍芽權限 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
@@ -24,16 +26,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Yoga"
         tools:targetApi="31">
-
         <activity
-            android:name=".discover.BluetoothActivity"
+            android:name=".YogaResult"
+            android:exported="false"
             android:screenOrientation="landscape"/>
         <activity
-            android:name=".bluetooth.ChatActivity"/>
+            android:name=".discover.BluetoothActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".bluetooth.ChatActivity" />
         <activity
             android:name=".YogaMain"
             android:exported="false"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".VideoGuide"
             android:exported="false"
@@ -49,9 +53,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
