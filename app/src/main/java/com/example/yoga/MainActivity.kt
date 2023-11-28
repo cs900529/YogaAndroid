@@ -32,9 +32,13 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST_CODE)
         }
 
+        val playMusic = intent.getBooleanExtra("playMusic",true)
+
         // 初始化 MediaPlayer(背景音樂)
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.start()
+        if(playMusic){
+            mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+            mediaPlayer.isLooping = true // 設定音樂循環播放
+            mediaPlayer.start()
+        }
     }
 }

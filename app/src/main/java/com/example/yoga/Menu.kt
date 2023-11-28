@@ -15,7 +15,9 @@ class Menu : AppCompatActivity() {
         val back_button = findViewById<ImageButton>(R.id.back)
         back_button.setOnClickListener {
             // 頁面跳轉
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("playMusic",false)
+            }
             startActivity(intent)
         }
 

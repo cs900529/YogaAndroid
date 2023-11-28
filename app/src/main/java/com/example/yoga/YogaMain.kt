@@ -11,10 +11,10 @@ import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import android.util.Rational
-import android.util.Size
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +24,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -66,6 +65,17 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var timer: CountDownTimer? = null
     private var timeLeft_ms: Long = 30000 // 初始計時為30秒
     private var timeLeft_str=""
+    //結算分數時間
+    private var finishTime = 0.0
+    private var score = 99.0
+    private val handler = Handler()
+    private var baseTime = SystemClock.elapsedRealtime()
+    private val finishTimer = object : Runnable {
+        override fun run() {
+            finishTime = (SystemClock.elapsedRealtime()-baseTime)/1000.0
+            handler.postDelayed(this, 100) // update every 0.1 second
+        }
+    }
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
             override fun onTick(ms_remain: Long) {
@@ -88,10 +98,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 }
                 val barColor = Color.rgb(R,G,0f)
                 yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
-                //yogamainBinding.timeLeftBar.setColorFilter(android.graphics.Color.rgb((30000-ms_remain)/30000f*255f,ms_remain/30000f*255f,0f))
-
             }
-
             override fun onFinish() {
                 // 計時器倒數完畢時觸發的邏輯
                 finishFunction()
@@ -114,6 +121,15 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         // 計時器倒數完畢後的邏輯
         // 在這裡執行你想要的操作
         timeLeft_str = "結束"
+        //停止計時
+        handler.removeCallbacks(finishTimer)
+        // 頁面跳轉
+        val intent = Intent(this, YogaResult::class.java).apply {
+            putExtra("title" ,yogamainBinding.title.text)
+            putExtra("finishTime",finishTime)
+            putExtra("score",score)
+        }
+        startActivity(intent)
     }
 
     //獲取影片檔案
@@ -154,6 +170,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         val poseName = intent.getStringExtra("poseName")
         yogamainBinding.title.text = poseName
 
+        //開始計算完成時間
+        handler.post(finishTimer)
+
         //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
 
@@ -161,9 +180,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         yogamainBinding.title.text = poseName
 
-
-
-        //val back_button = findViewById<ImageButton>(R.id.back)
         yogamainBinding.back.setOnClickListener {
             textToSpeech.stop()
             // 頁面跳轉
