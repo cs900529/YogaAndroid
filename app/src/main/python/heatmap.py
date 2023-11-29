@@ -87,8 +87,8 @@ def herotwo_pose_evaluate(center ,rects):
 
 def get_rects():
     global need_rects
-    return need_rects
+    return need_rects.tolist()
 
 def get_center():
     global need_center
-    return need_center
+    return need_center.tolist()
