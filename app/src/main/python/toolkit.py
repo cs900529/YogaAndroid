@@ -328,7 +328,7 @@ def plankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             tip_flag = True
 
         if key == 'NOSE':
-            if point3d[AngleNodeDef.NOSE].x > point3d[AngleNodeDef.LEFT_HIP].x and point3d[AngleNodeDef.NOSE].x > point3d[AngleNodeDef.RIGHT_HIP].x:
+            if point3d[AngleNodeDef.NOSE][0] > point3d[AngleNodeDef.LEFT_HIP][0] and point3d[AngleNodeDef.NOSE][0] > point3d[AngleNodeDef.RIGHT_HIP][0]:
                 roi['NOSE'] = True
                 side = 'RIGHT_'
             elif tip_flag == True:
@@ -336,11 +336,11 @@ def plankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 side = 'LEFT_'
         if key == side + 'EYE':
             if side == 'RIGHT_':
-                eye_shoulder_distance = abs(point3d[AngleNodeDef.RIGHT_SHOULDER].y - point3d[AngleNodeDef.RIGHT_EYE].y)
-                forearm_distance = abs(point3d[AngleNodeDef.RIGHT_SHOULDER].y - point3d[AngleNodeDef.RIGHT_ELBOW].y)
+                eye_shoulder_distance = abs(point3d[AngleNodeDef.RIGHT_SHOULDER][1] - point3d[AngleNodeDef.RIGHT_EYE][1])
+                forearm_distance = abs(point3d[AngleNodeDef.RIGHT_SHOULDER][1] - point3d[AngleNodeDef.RIGHT_ELBOW][1])
             else:
-                eye_shoulder_distance = abs(point3d[AngleNodeDef.LEFT_SHOULDER].y - point3d[AngleNodeDef.LEFT_EYE].y)
-                forearm_distance = abs(point3d[AngleNodeDef.LEFT_SHOULDER].y - point3d[AngleNodeDef.LEFT_ELBOW].y)
+                eye_shoulder_distance = abs(point3d[AngleNodeDef.LEFT_SHOULDER][1] - point3d[AngleNodeDef.LEFT_EYE][1])
+                forearm_distance = abs(point3d[AngleNodeDef.LEFT_SHOULDER][1] - point3d[AngleNodeDef.LEFT_ELBOW][1])
 
             if eye_shoulder_distance >= forearm_distance * 0.05:
                 roi['LEFT_EYE'] = True
