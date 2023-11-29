@@ -287,7 +287,7 @@ class YogaPose:
                 self.angle_dict[key] = angle
             self.roi, self.tips, self.imagePath = toolkit.PyramidRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
 
-        return self.tips, self.imagePath
+        return [self.tips, self.imagePath]
     
 
 
