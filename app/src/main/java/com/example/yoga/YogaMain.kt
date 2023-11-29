@@ -188,12 +188,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     }
     private fun setImage(imagePath: String?) {
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
-        println("1")
         var am: AssetManager? = null
         am = assets
-        println("2")
         val pic = am.open(imagePath.toString())
-        println("j")
         // Decode the input stream into a Drawable
         val drawable = Drawable.createFromStream(pic, null)
 
@@ -448,7 +445,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     println(re[1].substring(2..re_1-3))
                     // Assume it behaves like a list and try accessing its elements
                     try {
-                        yogamainBinding.guide.text = re[0].substring(1..re_0-2)
+                        yogamainBinding.guide.text = re[0].substring(2..re_0-2)
                         if (lastText != yogamainBinding.guide.text)
                             TTSSpeak(yogamainBinding.guide.text.toString())
                         lastText = yogamainBinding.guide.text.toString()

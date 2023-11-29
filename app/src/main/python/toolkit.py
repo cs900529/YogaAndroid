@@ -779,7 +779,8 @@ def DownwardDogRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
     if tips == "":
         tips = "動作正確 ! "
-    return roi, tips
+        imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
+    return roi, tips, imagePath
 
 def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
     """Low Lunge pose rule
