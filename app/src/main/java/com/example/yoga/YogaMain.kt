@@ -2,21 +2,26 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
@@ -78,6 +83,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     }
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onTick(ms_remain: Long) {
                 timeLeft_ms = ms_remain
                 // 每0.1秒執行一次的邏輯，例如更新 UI 顯示剩餘時間
@@ -148,6 +154,53 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             else -> R.raw.tree_style
         }
     }
+    // Function to get image resource based on poseName
+    private fun getDefaultPic(filename: String?): String {
+        return when (filename) {
+            "Tree Style" -> "TreePose/8"
+            "Warrior2 Style" -> "WarriorIIRulePic/8"
+            "Plank" -> "PlankPose/10"
+            "Reverse Plank" -> "ReversePlankPose/6"
+            "Child's pose" -> "ChildsPose/5"
+            "Seated Forward Bend" -> "SeatedForwardBendPose/5"
+            "Low Lunge" -> "LowLungePose/5"
+            "Downward dog" -> "DownwardDogPose/6"
+            "Pyramid pose" -> "Pyramidpose/6"
+            "Bridge pose" -> "BridgePose/5"
+            else -> "TreePose/8"
+        }
+    }
+    // Function to get image resource based on poseName
+    private fun getPoseFolder(filename: String?): String {
+        return when (filename) {
+            "Tree Style" -> "TreePose"
+            "Warrior2 Style" -> "WarriorIIRulePic"
+            "Plank" -> "PlankPose"
+            "Reverse Plank" -> "ReversePlankPose"
+            "Child's pose" -> "ChildsPose"
+            "Seated Forward Bend" -> "SeatedForwardBendPose"
+            "Low Lunge" -> "LowLungePose"
+            "Downward dog" -> "DownwardDogPose"
+            "Pyramid pose" -> "Pyramidpose"
+            "Bridge pose" -> "BridgePose"
+            else -> "TreePose"
+        }
+    }
+    private fun setImage(imagePath: String?) {
+        val picturePath = findViewById<ImageView>(R.id.guide_picture)
+        var am: AssetManager? = null
+        am = assets
+        val pic = am.open(imagePath.toString())
+        // Decode the input stream into a Drawable
+        val drawable = Drawable.createFromStream(pic, null)
+
+        // Set the drawable as the image source for the ImageView
+        picturePath.setImageDrawable(drawable)
+
+        // Close the input stream when you're done
+        pic.close()
+    }
+
     private fun TTSSpeak(str:String){
         textToSpeech.stop()
         textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
@@ -188,14 +241,29 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
 
         //guide_video init
-        val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
+        //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
+        /*val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
         yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
         yogamainBinding.guideVideo.start()
         // 设置循环播放
-        yogamainBinding.guideVideo.setOnPreparedListener { mp -> //mp=mediaplayer
-            mp.isLooping = true
-            mp.setVolume(0f,0f)
-        }
+        yogamainBinding.guideVideo.setOnPreparedListener { mp ->
+             mp.isLooping = true
+             mp.setVolume(0f,0f)
+        }*/
+
+        //guide_picture init
+        val picturePath = findViewById<ImageView>(R.id.guide_picture)
+        var am: AssetManager? = null
+        am = assets
+
+        val pic = am.open("image/"+getDefaultPic(poseName)+".jpg")
+        // Decode the input stream into a Drawable
+        val drawable = Drawable.createFromStream(pic, null)
+        // Set the drawable as the image source for the ImageView
+        picturePath.setImageDrawable(drawable)
+        // Close the input stream when you're done
+        pic.close()
+
 
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -364,16 +432,41 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         listOf(landmark.x(), landmark.y(), landmark.z())
                     }
                 }
-          
-                var guideStr = pose.callAttr("detect",
-                        floatListList ,
-                        heatmappy.callAttr("get_rects") ,
+
+                var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
                         heatmappy.callAttr("get_center")).toString()
+
+
+                if (guideStr.iterator().hasNext()) {
+                    val re=guideStr.split(',')
+                    val re_0=re[0].length
+                    val re_1=re[1].length
+                    println(re[0].substring(2..re_0-2))
+                    println(re[1].substring(2..re_1-3))
+                    // Assume it behaves like a list and try accessing its elements
+                    try {
+                        yogamainBinding.guide.text = re[0].substring(2..re_0-2)
+                        if (lastText != yogamainBinding.guide.text)
+                            TTSSpeak(yogamainBinding.guide.text.toString())
+                        lastText = yogamainBinding.guide.text.toString()
+
+                        val imagePath = re[1].substring(2..re_1-3)
+                        setImage(imagePath)
+
+                    } catch (e: Exception) {
+                        // Handle exceptions when accessing elements if the result doesn't behave like a list
+                        println("Result does not have expected list behavior: ${e.message}")
+                    }
+                } else {
+                    // Handle cases where the result does not behave like an iterable (e.g., not a list)
+                    println("Result is not iterable like a list")
+                }
                 //var guideStr = "動作正確"
-                yogamainBinding.guide.text = guideStr
+                /*yogamainBinding.guide.text = guideStr
                 if (lastText != guideStr)
                     TTSSpeak(guideStr)
                 lastText = guideStr
+                */
 
                 //30秒計時器
                 if (lastText.contains("動作正確")){
