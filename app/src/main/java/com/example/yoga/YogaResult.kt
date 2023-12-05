@@ -19,7 +19,7 @@ class YogaResult : AppCompatActivity() {
         val finishTime = intent.getDoubleExtra("finishTime",0.0)
         yogaResultBinding.time.text = "完成時間:"+finishTime.toString()+"秒"
         val score = intent.getDoubleExtra("score",100.0)
-        yogaResultBinding.score.text = "分數:"+score.toString()+"  您擊敗了99%的玩家"
+        yogaResultBinding.score.text = "分數:${"%.2f".format(score)}"
 
         yogaResultBinding.back.text = "Back To Menu"
         yogaResultBinding.back.setOnClickListener {

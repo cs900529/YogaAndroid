@@ -25,13 +25,11 @@ import androidx.core.content.ContextCompat
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-import kotlin.math.max
-import kotlin.math.min
 
 class OverlayView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
 
-    private var results: PoseLandmarkerResult? = null
+    private var results: MutableList<MutableList<Float>>? = null
     private var pointPaint = Paint()
     private var linePaint = Paint()
 
@@ -67,23 +65,23 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
-            for(landmark in poseLandmarkerResult.landmarks()) {
-                for(normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        //normalizedLandmark.x() * imageWidth * scaleFactor,
-                        //normalizedLandmark.y() * imageHeight * scaleFactor,
-                        normalizedLandmark.x() * imageWidth * scaleFactorX,
-                        normalizedLandmark.y() * imageHeight * scaleFactorY,
-                        pointPaint
-                    )
-                }
+            for(normalizedLandmark in poseLandmarkerResult) {
+                //for(normalizedLandmark in landmark) {
+                canvas.drawPoint(
+                    //normalizedLandmark.x() * imageWidth * scaleFactor,
+                    //normalizedLandmark.y() * imageHeight * scaleFactor,
+                    normalizedLandmark[0] * imageWidth * scaleFactorX,
+                    normalizedLandmark[1] * imageHeight * scaleFactorY,
+                    pointPaint
+                )
+
 
                 PoseLandmarker.POSE_LANDMARKS.forEach {
                     canvas.drawLine(
-                        poseLandmarkerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactorX,
-                        poseLandmarkerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactorY,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactorX,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactorY,
+                        poseLandmarkerResult[it!!.start()][0] * imageWidth * scaleFactorX,
+                        poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactorY,
+                        poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactorX,
+                        poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactorY,
                         linePaint)
                 }
             }
@@ -91,7 +89,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     }
 
     fun setResults(
-        poseLandmarkerResults: PoseLandmarkerResult,
+        poseLandmarkerResults: MutableList<MutableList<Float>>,
         imageHeight: Int,
         imageWidth: Int,
         runningMode: RunningMode = RunningMode.IMAGE

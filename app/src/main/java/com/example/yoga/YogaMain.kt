@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -44,7 +43,6 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
-import java.util.LinkedList
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
     //拿mediapipe model
@@ -82,7 +80,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             handler.postDelayed(this, 100) // update every 0.1 second
         }
     }
-    private val smoothedListQueue: LinkedList<MutableList<MutableList<Float>>> = LinkedList()
+    private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
@@ -132,6 +130,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         timeLeft_str = "結束"
         //停止計時
         handler.removeCallbacks(finishTimer)
+        if (finishTime<40.1)
+            score = 100.0
+        else if(finishTime<100.1)
+            score = 100.0 - 40.0*(finishTime - 40.0)/60.0
+        else
+            score = 60.0
         // 頁面跳轉
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
@@ -419,15 +423,86 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     }
                 }
             }
+            if(resultBundle.results.first().landmarks().isNotEmpty()){
+                val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
+                    nlandmarks.map { landmark ->
+                        mutableListOf( landmark.x(), landmark.y(), landmark.z())
+                    }
+                }
+
+                //val floatListList = resultBundle.results.first().landmarks()[0]
+                //var average_floatListList: MutableList<MutableList<Float>>
+                var middle_x_list:MutableList<Float> = mutableListOf()
+                var middle_y_list:MutableList<Float> = mutableListOf()
+                var middle_z_list:MutableList<Float> = mutableListOf()
+                var middle_list:MutableList<MutableList<Float>> = mutableListOf()
+                if(norfloatListList.size != len_of_landmark && len_of_landmark != -1){
+                    smoothedListQueue.clear()
+                    len_of_landmark = -1
+                }
+
+                len_of_landmark = norfloatListList.size
+                smoothedListQueue.add(norfloatListList.toMutableList())
+                if (smoothedListQueue.size > 5)
+                    smoothedListQueue.removeFirst()
+                //if(smoothedListQueue.size == 1)
+                //    average_floatListList = smoothedListQueue.first
+                //else{
+                //    average_floatListList = smoothedListQueue.first
+                //    for (Fll in smoothedListQueue){
+                //        if(Fll == smoothedListQueue.first)
+                //            continue
+                //        else{
+                //            for (i in Fll.indices){
+                //                average_floatListList[i][0] += Fll[i][0]
+                //                average_floatListList[i][1] += Fll[i][1]
+                //                average_floatListList[i][2] += Fll[i][2]
+                //            }
+                //        }
+                //    }
+                //    for (landmark in average_floatListList){
+                //        landmark[0] = landmark[0]/smoothedListQueue.size
+                //        landmark[1] = landmark[1]/smoothedListQueue.size
+                //        landmark[2] = landmark[2]/smoothedListQueue.size
+                //    }
+                //}
+                if(smoothedListQueue.size == 5 ) {
+                    for (i in smoothedListQueue[0].indices) {
+                        middle_x_list.clear()
+                        middle_y_list.clear()
+                        middle_z_list.clear()
+                        for (j in smoothedListQueue.indices) {
+                            middle_x_list.add(smoothedListQueue[j][i][0])
+                            middle_y_list.add(smoothedListQueue[j][i][1])
+                            middle_z_list.add(smoothedListQueue[j][i][2])
+                        }
+                        //println(middle_z_list)
+                        middle_x_list = middle_x_list.sorted().toMutableList()
+                        middle_y_list = middle_y_list.sorted().toMutableList()
+                        middle_z_list = middle_z_list.sorted().toMutableList()
+                        //println(middle_z_list)
+                        middle_list.add(
+                                mutableListOf(
+                                        middle_x_list[2],
+                                        middle_y_list[2],
+                                        middle_z_list[2]
+                                )
+                        )
+                    }
+                    println("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiihihihihh")
+                    // Pass necessary information to OverlayView for drawing on the canvas
+                    yogamainBinding.overlay.setResults(
+                            //resultBundle.results.first(),
+                            middle_list,
+                            resultBundle.inputImageHeight,
+                            resultBundle.inputImageWidth,
+                            RunningMode.LIVE_STREAM
+                    )
+                }
+            }
 
 
-            // Pass necessary information to OverlayView for drawing on the canvas
-            yogamainBinding.overlay.setResults(
-                    resultBundle.results.first(),
-                    resultBundle.inputImageHeight,
-                    resultBundle.inputImageWidth,
-                    RunningMode.LIVE_STREAM
-            )
+
             // pass result to Yogapose
             if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
                 val floatListList: List<MutableList<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
@@ -436,45 +511,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     }
                 }
 
-                var average_floatListList: MutableList<MutableList<Float>>
-
-                if(floatListList.size != len_of_landmark && len_of_landmark != -1){
-                    smoothedListQueue.clear()
-                    len_of_landmark = -1
-                }
-
-                len_of_landmark = floatListList.size
-                smoothedListQueue.add(floatListList.toMutableList())
-                if (smoothedListQueue.size > 5)
-                    smoothedListQueue.removeFirst()
-                if(smoothedListQueue.size == 1)
-                    average_floatListList = smoothedListQueue.first
-                else{
-                    average_floatListList = smoothedListQueue.first
-                    for (Fll in smoothedListQueue){
-                        if(Fll == smoothedListQueue.first)
-                            continue
-                        else{
-                            for (i in Fll.indices){
-                                average_floatListList[i][0] += Fll[i][0]
-                                average_floatListList[i][1] += Fll[i][1]
-                                average_floatListList[i][2] += Fll[i][2]
-                            }
-                        }
-                    }
-                    for (landmark in average_floatListList){
-                        landmark[0] = landmark[0]/smoothedListQueue.size
-                        landmark[1] = landmark[1]/smoothedListQueue.size
-                        landmark[2] = landmark[2]/smoothedListQueue.size
-                    }
-
-                }
 
 
-                //println(floatListList)
-                //println(average_floatListList)
 
-                var guideStr = pose.callAttr("detect", average_floatListList , heatmappy.callAttr("get_rects") ,
+
+                var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
                         heatmappy.callAttr("get_center")).toString()
 
 
