@@ -176,7 +176,7 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 tips = "請將雙手合掌並互相施力，往上伸展至頭頂正上方" if tip_flag else tips
                 imagePath = f"{imageFolder}/4.jpg" if tip_flag else imagePath
         elif key == 'LEFT_ELBOW' or key == 'RIGHT_ELBOW':
-            tolerance_val = 10
+            tolerance_val = 15
             min_angle = sample_angle_dict[key]-tolerance_val
             if angle_dict[key]>=min_angle:
                 roi[key] = True
@@ -300,11 +300,15 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 tips = "請將頭轉向彎曲腳的方向並直視前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
         elif key == 'LEFT_SHOULDER' or key == 'RIGHT_SHOULDER': #6
-            tolerance_val = 15
-            min_angle = sample_angle_dict[key]-tolerance_val
-            max_angle = sample_angle_dict[key]+tolerance_val
-            direction = "右" if key == 'RIGHT_SHOULDER' else "左"
-            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+            tolerance_val = 8
+            if(key=='LEFT_SHOULDER'):
+                min_angle=angle_dict['RIGHT_SHOULDER']-tolerance_val
+                max_angle=angle_dict['RIGHT_SHOULDER']+tolerance_val
+            else:
+                min_angle=angle_dict['LEFT_SHOULDER']-tolerance_val
+                max_angle=angle_dict['LEFT_SHOULDER']+tolerance_val
+            direction = "右" if key == 'LEFT_SHOULDER' else "左"
+            if angle_dict[key]>=min_angle and angle_dict[key] <=max_angle:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
             elif angle_dict[key]<min_angle:
@@ -316,10 +320,17 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 tips = f"請將{direction}手放低，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
         elif key == 'LEFT_ELBOW' or key == 'RIGHT_ELBOW': #7
-            tolerance_val = 5
-            min_angle = sample_angle_dict[key]-tolerance_val
-            max_angle = sample_angle_dict[key]+tolerance_val
-            direction = "右" if key == 'RIGHT_ELBOW' else "左"
+            tolerance_val = 10
+            tolerance_val = 8
+            if(key=='LEFT_ELBOW'):
+                min_angle=angle_dict['RIGHT_ELBOW']-tolerance_val
+                max_angle=angle_dict['RIGHT_ELBOW']+tolerance_val
+            else:
+                min_angle=angle_dict['LEFT_ELBOW']-tolerance_val
+                max_angle=angle_dict['LEFT_ELBOW']+tolerance_val
+            # min_angle = sample_angle_dict[key]-tolerance_val
+            # max_angle = sample_angle_dict[key]+tolerance_val
+            direction = "右" if key == 'LEFT_ELBOW' else "左"
             # if angle_dict[key]>=140 and (angle_dict[key]>=min_angle and angle_dict[key]<=max_angle):
             if angle_dict[key]>=min_angle:
                 roi[key] = True
@@ -1148,5 +1159,3 @@ def PyramidRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         tips = "動作正確"
         imagePath = f"{imageFolder}/6.jpg"
     return roi, tips, imagePath
-
-
