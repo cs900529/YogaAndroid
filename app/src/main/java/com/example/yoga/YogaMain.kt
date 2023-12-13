@@ -280,14 +280,14 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         //設定PoseLandmarkerHelper
         backgroundExecutor.execute {
             poseLandmarkerHelper = PoseLandmarkerHelper(
-                //context = requireContext(),
-                context = this,
-                runningMode = RunningMode.LIVE_STREAM,
-                minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
-                minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
-                minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
-                currentDelegate = viewModel.currentDelegate,
-                poseLandmarkerHelperListener = this
+                    //context = requireContext(),
+                    context = this,
+                    runningMode = RunningMode.LIVE_STREAM,
+                    minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
+                    minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
+                    minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
+                    currentDelegate = viewModel.currentDelegate,
+                    poseLandmarkerHelperListener = this
             )
         }
 
@@ -352,7 +352,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             try {
                 cameraProvider.unbindAll()
                 camera = cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview , imageAnalyzer
+                        this, cameraSelector, preview , imageAnalyzer
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -363,9 +363,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private fun detectPose(imageProxy: ImageProxy) {
         if(this::poseLandmarkerHelper.isInitialized) {
             poseLandmarkerHelper.detectLiveStream(
-                imageProxy = imageProxy,
-                //isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
-                isFrontCamera = cameraFacing >= 0
+                    imageProxy = imageProxy,
+                    //isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
+                    isFrontCamera = cameraFacing >= 0
             )
         }
     }
