@@ -7,6 +7,10 @@ import com.example.yoga.databinding.ActivityYogaResultBinding
 
 class YogaResult : AppCompatActivity() {
     private lateinit var yogaResultBinding: ActivityYogaResultBinding
+    fun lastpage(){
+        val intent = Intent(this, Menu::class.java)
+        startActivity(intent)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
@@ -23,9 +27,7 @@ class YogaResult : AppCompatActivity() {
 
         yogaResultBinding.back.text = "Back To Menu"
         yogaResultBinding.back.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, Menu::class.java)
-            startActivity(intent)
+            lastpage()
         }
     }
 }

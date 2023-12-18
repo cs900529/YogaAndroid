@@ -18,6 +18,11 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
     private var surfaceHolder: SurfaceHolder? = null
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+    fun nextpage(){
+        textToSpeech.stop()
+        val intent = Intent(this, Menu::class.java)
+        startActivity(intent)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
@@ -27,10 +32,7 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
 
         val finish_button = findViewById<ImageButton>(R.id.finish)
         finish_button.setOnClickListener {
-            textToSpeech.stop()
-            // 頁面跳轉
-            val intent = Intent(this, Menu::class.java)
-            startActivity(intent)
+            nextpage()
         }
 
 

@@ -7,6 +7,18 @@ import android.widget.Button
 import android.widget.ImageButton
 
 class Menu : AppCompatActivity() {
+    fun lastpage(){
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("playMusic",false)
+        }
+        startActivity(intent)
+    }
+    fun nextpage(posename:String){
+        val intent = Intent(this, VideoGuide::class.java).apply {
+            putExtra("poseName",posename)
+        }
+        startActivity(intent)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
@@ -14,101 +26,57 @@ class Menu : AppCompatActivity() {
         
         val back_button = findViewById<ImageButton>(R.id.back)
         back_button.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, MainActivity::class.java).apply {
-                putExtra("playMusic",false)
-            }
-            startActivity(intent)
+            lastpage()
         }
 
         val button1 = findViewById<Button>(R.id.button1)
         button1.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Tree Style")
-            }
-            startActivity(intent)
+            nextpage("Tree Style")
         }
 
         val button2 = findViewById<Button>(R.id.button2)
         button2.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Warrior2 Style")
-            }
-            startActivity(intent)
+            nextpage("Warrior2 Style")
         }
 
         val button3 = findViewById<Button>(R.id.button3)
         button3.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Plank")
-            }
-            startActivity(intent)
+            nextpage("Plank")
         }
 
         val button4 = findViewById<Button>(R.id.button4)
         button4.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Reverse Plank")
-            }
-            startActivity(intent)
+            nextpage("Reverse Plank")
         }
 
         val button5 = findViewById<Button>(R.id.button5)
         button5.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Child\'s pose")
-            }
-            startActivity(intent)
+            nextpage("Child\'s pose")
         }
 
         val button6 = findViewById<Button>(R.id.button6)
         button6.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Seated Forward Bend")
-            }
-            startActivity(intent)
+            nextpage("Seated Forward Bend")
         }
 
         val button7 = findViewById<Button>(R.id.button7)
         button7.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Low Lunge")
-            }
-            startActivity(intent)
+            nextpage("Low Lunge")
         }
 
         val button8 = findViewById<Button>(R.id.button8)
         button8.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Downward dog")
-            }
-            startActivity(intent)
+            nextpage("Downward dog")
         }
 
         val button9 = findViewById<Button>(R.id.button9)
         button9.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Pyramid pose")
-            }
-            startActivity(intent)
+            nextpage("Pyramid pose")
         }
 
         val button10 = findViewById<Button>(R.id.button10)
         button10.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, VideoGuide::class.java).apply {
-                putExtra("poseName","Bridge pose")
-            }
-            startActivity(intent)
+            nextpage("Bridge pose")
         }
     }
 }

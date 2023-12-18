@@ -11,6 +11,12 @@ import android.widget.VideoView
 
 class VideoGuide : AppCompatActivity() {
     //獲取影片檔案
+    fun nextpage(poseName:String){
+        val intent = Intent(this, YogaMain::class.java).apply {
+            putExtra("poseName",poseName)
+        }
+        startActivity(intent)
+    }
     private fun getfile(context: Context, filename: String): Int {
         return when (filename) {
             "Tree Style" -> R.raw.tree_style
@@ -48,11 +54,7 @@ class VideoGuide : AppCompatActivity() {
 
         val finish = findViewById<ImageButton>(R.id.finish)
         finish.setOnClickListener {
-            // 頁面跳轉
-            val intent = Intent(this, YogaMain::class.java).apply {
-                putExtra("poseName",poseName)
-            }
-            startActivity(intent)
+            nextpage(poseName.toString())
         }
     }
 }

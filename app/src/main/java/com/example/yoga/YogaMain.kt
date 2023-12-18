@@ -82,6 +82,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     }
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
+    fun lastpage(){
+        textToSpeech.stop()
+        val intent = Intent(this, Menu::class.java)
+        startActivity(intent)
+    }
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -241,22 +246,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         yogamainBinding.title.text = poseName
 
         yogamainBinding.back.setOnClickListener {
-            textToSpeech.stop()
-            // 頁面跳轉
-            val intent = Intent(this, Menu::class.java)
-            startActivity(intent)
+            lastpage()
         }
-
-        //guide_video init
-        //val videoPlayer = findViewById<VideoView>(R.id.guide_video)
-        /*val videoPath = "android.resource://" + packageName + "/" +  getfile(poseName.toString())
-        yogamainBinding.guideVideo.setVideoURI(Uri.parse(videoPath))
-        yogamainBinding.guideVideo.start()
-        // 设置循环播放
-        yogamainBinding.guideVideo.setOnPreparedListener { mp ->
-             mp.isLooping = true
-             mp.setVolume(0f,0f)
-        }*/
 
         //guide_picture init
         val picturePath = findViewById<ImageView>(R.id.guide_picture)

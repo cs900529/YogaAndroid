@@ -14,6 +14,10 @@ import android.media.MediaPlayer
 class MainActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
+    fun nextpage(){
+        val intent = Intent(this, BluetoothActivity::class.java)
+        startActivity(intent)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
@@ -21,10 +25,7 @@ class MainActivity : AppCompatActivity() {
 
         val start = findViewById<Button>(R.id.start)
         start.setOnClickListener {
-            // 頁面跳轉
-            //val intent = Intent(this, Menu::class.java)
-            val intent = Intent(this, BluetoothActivity::class.java)
-            startActivity(intent)
+            nextpage()
         }
 
         // 如果没有相机权限，请求相机权限
