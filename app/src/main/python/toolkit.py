@@ -111,6 +111,8 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
             tips = "請將右腳抬起" if tip_flag else tips
             imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
         """
+        if angle_dict[key] == -1:
+            continue
         if key == 'LEFT_KNEE':# or key == 'LEFT_HIP':
             tolerance_val = 15
             min_angle = sample_angle_dict['RIGHT_KNEE']-tolerance_val

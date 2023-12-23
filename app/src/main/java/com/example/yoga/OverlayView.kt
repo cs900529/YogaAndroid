@@ -66,23 +66,29 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
             for(normalizedLandmark in poseLandmarkerResult) {
-                //for(normalizedLandmark in landmark) {
-                canvas.drawPoint(
-                        //normalizedLandmark.x() * imageWidth * scaleFactor,
-                        //normalizedLandmark.y() * imageHeight * scaleFactor,
-                        normalizedLandmark[0] * imageWidth * scaleFactorX,
-                        normalizedLandmark[1] * imageHeight * scaleFactorY,
-                        pointPaint
-                )
+                if (normalizedLandmark[3] > 0.7)
+                {
+                    canvas.drawPoint(
+                            //normalizedLandmark.x() * imageWidth * scaleFactor,
+                            //normalizedLandmark.y() * imageHeight * scaleFactor,
+                            normalizedLandmark[0] * imageWidth * scaleFactorX,
+                            normalizedLandmark[1] * imageHeight * scaleFactorY,
+                            pointPaint
+                    )
+                }
 
 
                 PoseLandmarker.POSE_LANDMARKS.forEach {
-                    canvas.drawLine(
-                            poseLandmarkerResult[it!!.start()][0] * imageWidth * scaleFactorX,
-                            poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactorY,
-                            poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactorX,
-                            poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactorY,
-                            linePaint)
+                    if (poseLandmarkerResult[it!!.start()][3] >0.7 && poseLandmarkerResult[it.end()][3] >0.7)
+                    {
+                        canvas.drawLine(
+                                poseLandmarkerResult[it!!.start()][0] * imageWidth * scaleFactorX,
+                                poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactorY,
+                                poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactorX,
+                                poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactorY,
+                                linePaint
+                        )
+                    }
                 }
             }
         }
