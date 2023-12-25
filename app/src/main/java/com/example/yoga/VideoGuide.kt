@@ -2,6 +2,7 @@ package com.example.yoga
 
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,13 +11,18 @@ import android.widget.TextView
 import android.widget.VideoView
 
 class VideoGuide : AppCompatActivity() {
-    //獲取影片檔案
+    lateinit var global: GlobalVariable
+    private lateinit var mediaPlayer: MediaPlayer
     fun nextpage(poseName:String){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         val intent = Intent(this, YogaMain::class.java).apply {
             putExtra("poseName",poseName)
         }
         startActivity(intent)
+        finish()
     }
+    //獲取影片檔案
     private fun getfile(context: Context, filename: String): Int {
         return when (filename) {
             "Tree Style" -> R.raw.tree_style
@@ -55,6 +61,25 @@ class VideoGuide : AppCompatActivity() {
         val finish = findViewById<ImageButton>(R.id.finish)
         finish.setOnClickListener {
             nextpage(poseName.toString())
+        }
+
+        global = application as GlobalVariable
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.seekTo(global.currentMS)
+        mediaPlayer.start()
+    }
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
         }
     }
 }

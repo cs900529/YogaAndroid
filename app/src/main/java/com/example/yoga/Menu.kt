@@ -1,23 +1,32 @@
 package com.example.yoga
 
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 
 class Menu : AppCompatActivity() {
+    private lateinit var mediaPlayer: MediaPlayer
+    lateinit var global: GlobalVariable
     fun lastpage(){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("playMusic",false)
         }
         startActivity(intent)
+        finish()
     }
     fun nextpage(posename:String){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         val intent = Intent(this, VideoGuide::class.java).apply {
             putExtra("poseName",posename)
         }
         startActivity(intent)
+        finish()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +86,24 @@ class Menu : AppCompatActivity() {
         val button10 = findViewById<Button>(R.id.button10)
         button10.setOnClickListener {
             nextpage("Bridge pose")
+        }
+        global = application as GlobalVariable
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.seekTo(global.currentMS)
+        mediaPlayer.start()
+    }
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
         }
     }
 }

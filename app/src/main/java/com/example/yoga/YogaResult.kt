@@ -1,15 +1,21 @@
 package com.example.yoga
 
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.yoga.databinding.ActivityYogaResultBinding
 
 class YogaResult : AppCompatActivity() {
     private lateinit var yogaResultBinding: ActivityYogaResultBinding
+    lateinit var global: GlobalVariable
+    private lateinit var mediaPlayer: MediaPlayer
     fun lastpage(){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
+        finish()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +34,25 @@ class YogaResult : AppCompatActivity() {
         yogaResultBinding.back.text = "Back To Menu"
         yogaResultBinding.back.setOnClickListener {
             lastpage()
+        }
+
+        global = application as GlobalVariable
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.seekTo(global.currentMS)
+        mediaPlayer.start()
+    }
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
         }
     }
 }

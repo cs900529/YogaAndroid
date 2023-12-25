@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.yoga.GlobalVariable;
 import com.example.yoga.bluetooth.ChatActivity;
 import com.example.yoga.R;
 
@@ -26,6 +28,9 @@ public class BluetoothActivity extends AppCompatActivity {
     private DevicesAdapter adapter;
     private ArrayList<BluetoothDevice> list;
     private ScanDevices mScanDevices;
+
+    private MediaPlayer mediaPlayer;
+    private GlobalVariable global;
 
     public static final String[] permissions = {
             "android.permission.BLUETOOTH",
@@ -57,6 +62,13 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // 照理來說會 print 出 32，驗證正確性
         System.out.println(x);
+
+        // 背景音樂初始化
+        global = (GlobalVariable) getApplication();
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.seekTo(global.getCurrentMS());
+        mediaPlayer.start();
 
         init();
     }
@@ -114,12 +126,29 @@ public class BluetoothActivity extends AppCompatActivity {
     private void startChat(String remoteAddress) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("remoteAddress", remoteAddress);
+        intent.putExtra("currentMS",mediaPlayer.getCurrentPosition());
         startActivity(intent);
+        finish();
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
         super.onDestroy();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+        }
     }
 }

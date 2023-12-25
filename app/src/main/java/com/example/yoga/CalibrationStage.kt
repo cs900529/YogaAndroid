@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
 import android.hardware.Camera
+import android.media.MediaPlayer
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.speech.tts.TextToSpeech
@@ -18,10 +19,16 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
     private var surfaceHolder: SurfaceHolder? = null
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+
+    lateinit var global: GlobalVariable
+    private lateinit var mediaPlayer: MediaPlayer
     fun nextpage(){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         textToSpeech.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
+        finish()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +64,11 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
                 camera?.release()
             }
         })
-
+        global = application as GlobalVariable
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.seekTo(global.currentMS)
+        mediaPlayer.start()
     }
 
     //文字轉語音用
@@ -84,5 +95,18 @@ class CalibrationStage : AppCompatActivity() , TextToSpeech.OnInitListener{
         // 释放TextToSpeech资源
         textToSpeech.stop()
         textToSpeech.shutdown()
+    }
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
     }
 }
