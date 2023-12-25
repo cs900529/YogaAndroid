@@ -517,7 +517,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         val floatListList: List<MutableList<Any>> =
                             resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
                                 landmarks.map { landmark ->
-                                    mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility())
+                                    mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
                                 }
                             }
 

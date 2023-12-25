@@ -111,12 +111,14 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
             tips = "請將右腳抬起" if tip_flag else tips
             imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
         """
-        if angle_dict[key] == -1:
-            continue
+        #if angle_dict[key] == -1:
+        #    continue
         if key == 'LEFT_KNEE':# or key == 'LEFT_HIP':
             tolerance_val = 15
             min_angle = sample_angle_dict['RIGHT_KNEE']-tolerance_val
             max_angle = sample_angle_dict['RIGHT_KNEE']+tolerance_val
+            if angle_dict[key] == -1:
+               continue
             if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
@@ -129,10 +131,12 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 tips = "請勿將右腳重量全放在左腳大腿，避免傾斜造成左腳負擔" if tip_flag else tips
                 imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
         elif key == 'LEFT_FOOT_INDEX':
-            _,foot_y,_ = point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+            _,foot_y,_ ,foot_vi= point3d[AngleNodeDef.LEFT_FOOT_INDEX]
             #foot_y = point3d.get(AngleNodeDef.RIGHT_FOOT_INDEX).get(1)
-            _,knee_y,_ = point3d[AngleNodeDef.RIGHT_KNEE]
+            _,knee_y,_ ,knee_vi= point3d[AngleNodeDef.RIGHT_KNEE]
             #knee_y = point3d.get(AngleNodeDef.LEFT_KNEE).get(1)
+            if foot_vi <0.7 and knee_vi < 0.7 :
+                continue
             if foot_y <= knee_y:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
@@ -142,10 +146,12 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                     tips = "請將右腳抬至高於左腳膝蓋的位置，勿將右腳放在左腳膝蓋上，避免造成膝蓋負擔"
                     imagePath = f"{imageFolder}/2.jpg" if tip_flag else imagePath
         elif key == 'RIGHT_KNEE':
-            _,_,knee_z = point3d[AngleNodeDef.RIGHT_KNEE]
-            _,_,hip_z = point3d[AngleNodeDef.RIGHT_HIP]
+            _,_,knee_z,_ = point3d[AngleNodeDef.RIGHT_KNEE]
+            _,_,hip_z,_ = point3d[AngleNodeDef.RIGHT_HIP]
             #knee_z = point3d.get(AngleNodeDef.RIGHT_KNEE).get(2)
             #hip_z = point3d.get(AngleNodeDef.RIGHT_HIP).get(2)
+            if angle_dict[key] == -1:
+               continue
             if angle_dict['LEFT_KNEE']<=65 and ((hip_z-knee_z)*100)<=17:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
@@ -162,6 +168,8 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 tips = "右腳膝蓋不可向前傾，須與髖關節保持同一平面" if tip_flag else tips
                 imagePath = f"{imageFolder}/3.jpg" if tip_flag else imagePath
         elif key == 'LEFT_HIP':
+            if angle_dict[key] == -1:
+               continue
             if angle_dict[key]>=100:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
@@ -170,6 +178,8 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 tips = "請確認右腳膝蓋是否已經抬至左腳膝蓋以上" if tip_flag else tips
                 imagePath = f"{imageFolder}/2.jpg" if tip_flag else imagePath
         elif key == 'LEFT_SHOULDER' or key == 'RIGHT_SHOULDER':
+            if angle_dict[key] == -1:
+               continue
             if angle_dict[key]>=120:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
@@ -178,6 +188,8 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
                 tips = "請將雙手合掌並互相施力，往上伸展至頭頂正上方" if tip_flag else tips
                 imagePath = f"{imageFolder}/4.jpg" if tip_flag else imagePath
         elif key == 'LEFT_ELBOW' or key == 'RIGHT_ELBOW':
+            if angle_dict[key] == -1:
+               continue
             tolerance_val = 15
             min_angle = sample_angle_dict[key]-tolerance_val
             if angle_dict[key]>=min_angle:
@@ -193,12 +205,15 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d, mat):
             #     roi[key] = False
             #     tips = "請將手再抬高一些，並保持在頭頂正上方" if tip_flag else tips
         elif key == 'LEFT_INDEX' or key == 'RIGHT_INDEX':
-            index_x,_,_ = point3d[AngleNodeDef.LEFT_INDEX] if key == 'LEFT_INDEX' else point3d[AngleNodeDef.RIGHT_INDEX]
+            index_x,_,_,index_vi = point3d[AngleNodeDef.LEFT_INDEX] if key == 'LEFT_INDEX' else point3d[AngleNodeDef.RIGHT_INDEX]
             #index_x = point3d.get(AngleNodeDef.LEFT_INDEX).get(0) if key == 'LEFT_INDEX' else point3d.get(AngleNodeDef.RIGHT_INDEX).get(0)
-            left_shoulder_x,_,_ = point3d[AngleNodeDef.LEFT_SHOULDER]
-            right_shoulder_x,_,_ = point3d[AngleNodeDef.RIGHT_SHOULDER]
+            left_shoulder_x,_,_,left_shoulder_vi = point3d[AngleNodeDef.LEFT_SHOULDER]
+            right_shoulder_x,_,_,right_shoulder_vi = point3d[AngleNodeDef.RIGHT_SHOULDER]
             #left_shoulder_x = point3d.get(AngleNodeDef.LEFT_SHOULDER).get(0)
             #right_shoulder_x = point3d.get(AngleNodeDef.RIGHT_SHOULDER).get(0)
+            if index_vi < 0.7 or left_shoulder_vi <0.7 or right_shoulder_vi <0.7:
+                continue
+
             if index_x>=right_shoulder_x and index_x<=left_shoulder_x:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath

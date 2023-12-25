@@ -233,7 +233,7 @@ class YogaPose:
             point3d.append(ang)
 
         for key,value in self.angle_def.items():
-            if point3d[value[0]][3] < 0.7 or point3d[value[1]][3] <0.7 or point3d[value[2]][3] <0.7 :
+            if float(point3d[value[0]][3]) < 0.7 or float(point3d[value[1]][3]) <0.7 or float(point3d[value[2]][3]) <0.7 :
                 self.angle_dict[key] = -1
             else:
                 if (self.type == 'Reverse Plank')  or (self.type == 'Plank') or (self.type == "Child's pose"):
