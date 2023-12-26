@@ -84,7 +84,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
     private var count_result : Int = 0
-    private var waitsmooth:Int = 1
 
     fun lastpage(){
         textToSpeech.stop()

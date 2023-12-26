@@ -232,6 +232,26 @@ class YogaPose:
                 ang.append(point.get(i).get(j))
             point3d.append(ang)
 
+        con = sum(1 for i in point3d if i[3] < 0.7)
+
+        if(con>0):
+            self.tips="無法偵測到完整骨架"
+            pose_images = {
+                        'Tree Style': "image/TreePose/8.jpg",
+                        'Warrior2 Style': "image/WarriorIIRulePic/8.jpg",
+                        'Reverse Plank': "image/ReversePlankPose/6.jpg",
+                        'Plank': "image/PlankPose/10.jpg",
+                        "Child's pose": "image/ChildsPose/5.jpg",
+                        'Downward dog': "image/DownwardDogPose/6.jpg",
+                        'Low Lunge': "image/LowLungePose/5.jpg",
+                        "Seated Forward Bend": "image/SeatedForwardBendPose/5.jpg",
+                        'Bridge pose': "image/BridgePose/5.jpg",
+                        'Pyramid pose': "image/Pyramidpose/6.jpg"
+            }
+            self.imagePath =  pose_images.get(self.type, "")
+            return [self.tips, self.imagePath]
+        
+
         for key,value in self.angle_def.items():
             if float(point3d[value[0]][3]) < 0.7 or float(point3d[value[1]][3]) <0.7 or float(point3d[value[2]][3]) <0.7 :
                 self.angle_dict[key] = -1
