@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -74,6 +75,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var score = 99.0
     private val handler = Handler()
     private var baseTime = SystemClock.elapsedRealtime()
+
+    lateinit var global: GlobalVariable
+    private lateinit var mediaPlayer: MediaPlayer
     private val finishTimer = object : Runnable {
         override fun run() {
             finishTime = (SystemClock.elapsedRealtime()-baseTime)/1000.0
@@ -86,9 +90,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var count_result : Int = 0
 
     fun lastpage(){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         textToSpeech.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
+        finish()
     }
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
@@ -287,6 +294,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
+
+        global = application as GlobalVariable
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.seekTo(global.currentMS)
+        mediaPlayer.start()
     }
     //文字轉語音用
     override fun onInit(status: Int) {
@@ -588,5 +601,18 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         // 释放TextToSpeech资源
         textToSpeech.stop()
         textToSpeech.shutdown()
+    }
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
     }
 }

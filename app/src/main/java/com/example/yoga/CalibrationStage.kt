@@ -14,6 +14,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import android.media.MediaPlayer
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.speech.tts.TextToSpeech
@@ -49,10 +50,16 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
 
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
+
+    lateinit var global: GlobalVariable
+    private lateinit var mediaPlayer: MediaPlayer
     fun nextpage(){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
         textToSpeech.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
+        finish()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +98,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         //})
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
+
         // 初始化 CameraX
         startCamera()
         //設定PoseLandmarkerHelper
@@ -106,6 +114,13 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                     poseLandmarkerHelperListener = this
             )
         }
+
+
+        global = application as GlobalVariable
+        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
+        mediaPlayer.isLooping = true // 設定音樂循環播放
+        mediaPlayer.seekTo(global.currentMS)
+        mediaPlayer.start()
 
     }
     private fun startCamera() {
@@ -218,13 +233,25 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         //關掉相機
         backgroundExecutor.shutdown()
     }
-
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {
             Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
             if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
                 viewModel.setDelegate(0)
             }
+        }
+    }
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
         }
     }
 
