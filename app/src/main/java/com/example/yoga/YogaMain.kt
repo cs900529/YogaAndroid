@@ -88,6 +88,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
     private var count_result : Int = 0
+    // yogamap return
+    private lateinit var heatmapReturn : PyObject
+    private var myThread: Thread? = null
 
     fun lastpage(){
         global.currentMS = mediaPlayer.currentPosition
@@ -237,6 +240,26 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             Python.start(AndroidPlatform(this))
         }
         python = Python.getInstance()
+
+        // yogamap return
+        heatmapReturn = python.getModule("heatmap")
+
+        // yogamap return
+        myThread = Thread {
+            try {
+                while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
+                    Thread.sleep(100)
+                    print("checkReturn")
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+            runOnUiThread {
+                lastpage()
+            }
+        }
+
+        myThread?.start()
 
         //初始化yogamainBinding
         yogamainBinding = ActivityYogaMainBinding.inflate(layoutInflater)
@@ -601,6 +624,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         // 释放TextToSpeech资源
         textToSpeech.stop()
         textToSpeech.shutdown()
+        // 在Activity銷毀時結束thread
+        myThread?.interrupt()
     }
     override fun onPause() {
         super.onPause()

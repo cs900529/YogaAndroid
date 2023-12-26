@@ -3,8 +3,10 @@ from mat_data import mat_point, mat_data
 
 def get_mat_data(rects, center):
     points = []
+    print(rects[0])
     for rect in rects:
-        point = mat_point([0], rect[1], rect[2], rect[3])
+        print((rect[2]))
+        point = mat_point(rect[0], rect[1], rect[2], rect[3])
         if(not is_boundary_point(point)):
             points.append(point)
 
@@ -13,5 +15,9 @@ def get_mat_data(rects, center):
     return mat
 
 def is_boundary_point(point):
-    return (point.width >= 900 or point.height >= 600)
-
+        flag = False
+        if(point.width >= 900):
+            flag = True
+        elif(point.height >= 600):
+            flag = True
+        return flag
