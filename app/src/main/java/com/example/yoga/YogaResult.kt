@@ -4,12 +4,18 @@ import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.databinding.ActivityYogaResultBinding
 
 class YogaResult : AppCompatActivity() {
     private lateinit var yogaResultBinding: ActivityYogaResultBinding
     lateinit var global: GlobalVariable
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var python : Python
+    private lateinit var heatmapReturn : PyObject
+    private var myThread: Thread? = null
     fun lastpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
@@ -23,6 +29,32 @@ class YogaResult : AppCompatActivity() {
         //初始化yogaResultBinding
         yogaResultBinding = ActivityYogaResultBinding.inflate(layoutInflater)
         setContentView(yogaResultBinding.root)
+
+        //啟動python
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+        python = Python.getInstance()
+
+        heatmapReturn = python.getModule("heatmap")
+
+        // yogamap return
+        myThread = Thread {
+            try {
+                while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
+                    Thread.sleep(100)
+                    print("checkReturn")
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+            runOnUiThread {
+                lastpage()
+            }
+        }
+
+        myThread?.start()
+
 
         val title = intent.getStringExtra("title")
         yogaResultBinding.title.text = title
@@ -41,6 +73,12 @@ class YogaResult : AppCompatActivity() {
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
         mediaPlayer.start()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // 在Activity銷毀時結束thread
+        myThread?.interrupt()
     }
     override fun onPause() {
         super.onPause()

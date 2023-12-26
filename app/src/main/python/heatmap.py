@@ -5,6 +5,7 @@ import json
 enlarge = 50
 need_center = np.array([])
 need_rects = np.array([])
+flag = False
 
 def test(data):
     data = np.array(json.loads(data))
@@ -32,8 +33,6 @@ def find_center(heatmap_arr):
 def get_heatmap(data):
     global need_center, need_rects
     data = np.array(json.loads(data))
-
-    print(data.shape)
     
     rescaled_array = cv2.resize(data.astype('uint8'), dsize=(18 * enlarge , 12 * enlarge)) 
     rescaled_array = cv2.normalize(rescaled_array, None, 0, 255, norm_type= cv2.NORM_MINMAX, dtype= cv2.CV_8U)
@@ -42,7 +41,7 @@ def get_heatmap(data):
     rects = find_bounding_box(heatmap)
     need_center = center
     need_rects = rects
-    print(herotwo_pose_evaluate(center ,rects))
+    #print(herotwo_pose_evaluate(center ,rects))
     if len(center)!=0 :
         cv2.circle(heatmap, (center[1], center[0]), 10, (255, 255, 255), 1)
     if  len(rects)> 1:
@@ -50,13 +49,14 @@ def get_heatmap(data):
             x , y , w , h = rect
             cv2.rectangle(heatmap, (x, y), (x + w, y + h), (36,255,12), 2)
     heatmap = cv2.rotate(heatmap, cv2.ROTATE_180)
-    print(heatmap.shape)
     is_success, im_buf_arr = cv2.imencode(".png", heatmap)
     bytes_data = im_buf_arr.tobytes()
     return bytes_data
 
 def find_bounding_box(heatmap):
-    #https://stackoverflow.com/questions/58419893/generating-bounding-boxes-from-heatmap-data
+    global flag
+    flag = False
+    # https://stackoverflow.com/questions/58419893/generating-bounding-boxes-from-heatmap-data
     # Grayscale then Otsu's threshold
     gray = cv2.cvtColor(heatmap, cv2.COLOR_BGR2GRAY)
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
@@ -69,9 +69,11 @@ def find_bounding_box(heatmap):
     for c in cnts:
         x,y,w,h =cv2.boundingRect(c)
         rects.append([x,y,w,h])
+        if (x > 700 and y > 400):
+            flag = True
     return np.array(rects)
 
-def herotwo_pose_evaluate(center ,rects):
+'''def herotwo_pose_evaluate(center ,rects):
     if len(rects) == 2 and abs( rects[0][2] - rects[1][2])>50:       
         if rects[0][2] > rects[1][2]:
             front_foot = rects[0]
@@ -83,7 +85,7 @@ def herotwo_pose_evaluate(center ,rects):
         rear2center = abs(rear_foot[0]+(rear_foot[3]/2)-center[1])
         if front2center<rear2center and abs(front2center-rear2center)<100:
             return True
-    return False
+    return False'''
 
 def get_rects():
     global need_rects
@@ -92,3 +94,7 @@ def get_rects():
 def get_center():
     global need_center
     return need_center
+
+def checkReturn():
+    global flag
+    return flag
