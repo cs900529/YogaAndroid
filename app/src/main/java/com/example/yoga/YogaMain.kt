@@ -84,8 +84,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             handler.postDelayed(this, 100) // update every 0.1 second
         }
     }
+    //平滑化
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
+    private var count_result : Int = 0
+
     fun lastpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
@@ -399,175 +402,189 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     override fun onResults(
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
-        this.runOnUiThread {
-            val heatmapexecutor : ExecutorService =Executors.newSingleThreadExecutor()
-            thread{
-                heatmapexecutor.execute {
-                    val fileName = "yourFile.txt"
-                    val file = File(this.filesDir, fileName)
-                    val filePath = file.path
+            if (count_result == 0){
+                count_result += 1
+                /*this.runOnUiThread {
+                    for (results in resultBundle.results.first().worldLandmarks()){
+                        println(results)
+                    }
+                }*/
+                this.runOnUiThread {
+                    val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
+                    thread {
+                        heatmapexecutor.execute {
+                            val fileName = "yourFile.txt"
+                            val file = File(this.filesDir, fileName)
+                            val filePath = file.path
 
-                    val readByteArray = readBytesFromFile(filePath)
+                            val readByteArray = readBytesFromFile(filePath)
 
-                    // 檢查 ByteArray 是否為空
-                    if ((readByteArray != null) && readByteArray.isNotEmpty()) {
-                        val bmp: Bitmap? =
-                            BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
+                            // 檢查 ByteArray 是否為空
+                            if ((readByteArray != null) && readByteArray.isNotEmpty()) {
+                                val bmp: Bitmap? =
+                                    BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
 
-                        // 檢查解碼的 Bitmap 是否為空
-                        if (bmp != null) {
-                            runOnUiThread{yogamainBinding.imageView2.setImageBitmap(bmp)}
+                                // 檢查解碼的 Bitmap 是否為空
+                                if (bmp != null) {
+                                    runOnUiThread { yogamainBinding.imageView2.setImageBitmap(bmp) }
+                                } else {
+                                    // 處理解碼失敗的情況
+                                    Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
+                                }
+                            } else {
+                                // 處理空的 ByteArray 情況
+                                Log.e("BitmapFactory", "ByteArray is null or empty")
+                            }
+                        }
+                    }
+
+                    if (resultBundle.results.first().landmarks().isNotEmpty()) {
+                        val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
+                            nlandmarks.map { landmark ->
+                                mutableListOf( landmark.x(), landmark.y(), landmark.z() , landmark.visibility().orElse((-1.0).toFloat()).toFloat())
+                            }
+                        }
+
+                        //val floatListList = resultBundle.results.first().landmarks()[0]
+                        var smooth_floatListList: MutableList<MutableList<Float>> = mutableListOf()
+                        //var middle_x_list: MutableList<Float> = mutableListOf()
+                        //var middle_y_list: MutableList<Float> = mutableListOf()
+                        //var middle_z_list: MutableList<Float> = mutableListOf()
+                        //var middle_list: MutableList<MutableList<Float>> = mutableListOf()
+                        if (norfloatListList.size != len_of_landmark && len_of_landmark != -1) {
+                            smoothedListQueue.clear()
+                            len_of_landmark = -1
+                        }
+
+                        len_of_landmark = norfloatListList.size
+                        smoothedListQueue.add(norfloatListList.toMutableList())
+                        if (smoothedListQueue.size > 3) {
+                            smoothedListQueue.removeFirst()
+
+                            smooth_floatListList = smoothedListQueue.first()
+                            for (Fll in smoothedListQueue) {
+                                if (Fll == smoothedListQueue.first())
+                                    continue
+                                else {
+                                    for (i in Fll.indices) {
+                                        smooth_floatListList[i][0] += Fll[i][0]
+                                        smooth_floatListList[i][1] += Fll[i][1]
+                                        smooth_floatListList[i][2] += Fll[i][2]
+                                        smooth_floatListList[i][3] += Fll[i][3]
+                                    }
+                                }
+                            }
+                            for (landmark in smooth_floatListList) {
+                                landmark[0] = landmark[0] / smoothedListQueue.size
+                                landmark[1] = landmark[1] / smoothedListQueue.size
+                                landmark[2] = landmark[2] / smoothedListQueue.size
+                                landmark[3] = landmark[3] / smoothedListQueue.size
+                            }
+                            // Pass necessary information to OverlayView for drawing on the canvas
+                            yogamainBinding.overlay.setResults(
+                                    //resultBundle.results.first(),
+                                    smooth_floatListList,
+                                    resultBundle.inputImageHeight,
+                                    resultBundle.inputImageWidth,
+                                    RunningMode.LIVE_STREAM
+                            )
+                        }
+
+                        //if (smoothedListQueue.size == 5) {
+                        //    for (i in smoothedListQueue[0].indices) {
+                        //        middle_x_list.clear()
+                        //        middle_y_list.clear()
+                        //        middle_z_list.clear()
+                        //        for (j in smoothedListQueue.indices) {
+                        //            middle_x_list.add(smoothedListQueue[j][i][0] )
+                        //            middle_y_list.add(smoothedListQueue[j][i][1] )
+                        //            middle_z_list.add(smoothedListQueue[j][i][2] )
+                        //        }
+                        //        //println(middle_z_list)
+                        //        middle_x_list = middle_x_list.sorted().toMutableList()
+                        //        middle_y_list = middle_y_list.sorted().toMutableList()
+                        //        middle_z_list = middle_z_list.sorted().toMutableList()
+                        //        //println(middle_z_list)
+                        //        middle_list.add(
+                        //                mutableListOf(
+                        //                        (middle_x_list[2]),
+                        //                        (middle_y_list[2]),
+                        //                        (middle_z_list[2])
+                        //                )
+                        //        )
+                        //    }
+
+                        // Pass necessary information to OverlayView for drawing on the canvas
+                        //yogamainBinding.overlay.setResults(
+                        //            //resultBundle.results.first(),
+                        //            middle_list,
+                        //            resultBundle.inputImageHeight,
+                        //            resultBundle.inputImageWidth,
+                        //            RunningMode.LIVE_STREAM
+                        //    )
+                    }
+
+                    // pass result to Yogapose
+                    if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
+                        val floatListList: List<MutableList<Any>> =
+                            resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                                landmarks.map { landmark ->
+                                    mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
+                                }
+                            }
+
+
+                        var guideStr = pose.callAttr(
+                                "detect", floatListList, heatmappy.callAttr("get_rects"),
+                                heatmappy.callAttr("get_center")
+                        ).toString()
+
+
+                        if (guideStr.iterator().hasNext()) {
+                            val re = guideStr.split(',')
+                            val re_0 = re[0].length
+                            val re_1 = re[1].length
+                            println(re[0].substring(2..re_0 - 2))
+                            println(re[1].substring(2..re_1 - 3))
+                            // Assume it behaves like a list and try accessing its elements
+                            try {
+                                yogamainBinding.guide.text = re[0].substring(2..re_0 - 2)
+                                if (lastText != yogamainBinding.guide.text)
+                                    TTSSpeak(yogamainBinding.guide.text.toString())
+                                lastText = yogamainBinding.guide.text.toString()
+
+                                val imagePath = re[1].substring(2..re_1 - 3)
+                                setImage(imagePath)
+
+                            } catch (e: Exception) {
+                                // Handle exceptions when accessing elements if the result doesn't behave like a list
+                                println("Result does not have expected list behavior: ${e.message}")
+                            }
                         } else {
-                            // 處理解碼失敗的情況
-                            Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
+                            // Handle cases where the result does not behave like an iterable (e.g., not a list)
+                            println("Result is not iterable like a list")
                         }
-                    } else {
-                        // 處理空的 ByteArray 情況
-                        Log.e("BitmapFactory", "ByteArray is null or empty")
+                        //var guideStr = "動作正確"
+                        /*yogamainBinding.guide.text = guideStr
+                        if (lastText != guideStr)
+                            TTSSpeak(guideStr)
+                        lastText = guideStr
+                        */
+
+                        //30秒計時器
+                        if (lastText.contains("動作正確")) {
+                            if (timer == null)
+                                startTimer()
+                            yogamainBinding.guide.text = lastText + " " + timeLeft_str
+                        } else
+                            resetTimer()
                     }
+
+
+                    // Force a redraw
+                    yogamainBinding.overlay.invalidate()
                 }
-            }
-            if(resultBundle.results.first().landmarks().isNotEmpty()){
-                val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
-                    nlandmarks.map { landmark ->
-                        mutableListOf( landmark.x(), landmark.y(), landmark.z())
-                    }
-                }
-
-                //val floatListList = resultBundle.results.first().landmarks()[0]
-                //var average_floatListList: MutableList<MutableList<Float>>
-                var middle_x_list:MutableList<Float> = mutableListOf()
-                var middle_y_list:MutableList<Float> = mutableListOf()
-                var middle_z_list:MutableList<Float> = mutableListOf()
-                var middle_list:MutableList<MutableList<Float>> = mutableListOf()
-                if(norfloatListList.size != len_of_landmark && len_of_landmark != -1){
-                    smoothedListQueue.clear()
-                    len_of_landmark = -1
-                }
-
-                len_of_landmark = norfloatListList.size
-                smoothedListQueue.add(norfloatListList.toMutableList())
-                if (smoothedListQueue.size > 5)
-                    smoothedListQueue.removeFirst()
-                //if(smoothedListQueue.size == 1)
-                //    average_floatListList = smoothedListQueue.first
-                //else{
-                //    average_floatListList = smoothedListQueue.first
-                //    for (Fll in smoothedListQueue){
-                //        if(Fll == smoothedListQueue.first)
-                //            continue
-                //        else{
-                //            for (i in Fll.indices){
-                //                average_floatListList[i][0] += Fll[i][0]
-                //                average_floatListList[i][1] += Fll[i][1]
-                //                average_floatListList[i][2] += Fll[i][2]
-                //            }
-                //        }
-                //    }
-                //    for (landmark in average_floatListList){
-                //        landmark[0] = landmark[0]/smoothedListQueue.size
-                //        landmark[1] = landmark[1]/smoothedListQueue.size
-                //        landmark[2] = landmark[2]/smoothedListQueue.size
-                //    }
-                //}
-                if(smoothedListQueue.size == 5 ) {
-                    for (i in smoothedListQueue[0].indices) {
-                        middle_x_list.clear()
-                        middle_y_list.clear()
-                        middle_z_list.clear()
-                        for (j in smoothedListQueue.indices) {
-                            middle_x_list.add(smoothedListQueue[j][i][0])
-                            middle_y_list.add(smoothedListQueue[j][i][1])
-                            middle_z_list.add(smoothedListQueue[j][i][2])
-                        }
-                        //println(middle_z_list)
-                        middle_x_list = middle_x_list.sorted().toMutableList()
-                        middle_y_list = middle_y_list.sorted().toMutableList()
-                        middle_z_list = middle_z_list.sorted().toMutableList()
-                        //println(middle_z_list)
-                        middle_list.add(
-                                mutableListOf(
-                                        middle_x_list[2],
-                                        middle_y_list[2],
-                                        middle_z_list[2]
-                                )
-                        )
-                    }
-                    println("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiihihihihh")
-                    // Pass necessary information to OverlayView for drawing on the canvas
-                    yogamainBinding.overlay.setResults(
-                            //resultBundle.results.first(),
-                            middle_list,
-                            resultBundle.inputImageHeight,
-                            resultBundle.inputImageWidth,
-                            RunningMode.LIVE_STREAM
-                    )
-                }
-            }
-
-
-
-            // pass result to Yogapose
-            if(resultBundle.results.first().worldLandmarks().isNotEmpty()){
-                val floatListList: List<MutableList<Float>> = resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
-                    landmarks.map { landmark ->
-                        mutableListOf( landmark.x(), landmark.y(), landmark.z())
-                    }
-                }
-
-
-
-
-
-                var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                        heatmappy.callAttr("get_center")).toString()
-
-
-                if (guideStr.iterator().hasNext()) {
-                    val re=guideStr.split(',')
-                    val re_0=re[0].length
-                    val re_1=re[1].length
-                    println(re[0].substring(2..re_0-2))
-                    println(re[1].substring(2..re_1-3))
-                    // Assume it behaves like a list and try accessing its elements
-                    try {
-                        yogamainBinding.guide.text = re[0].substring(2..re_0-2)
-                        if (lastText != yogamainBinding.guide.text)
-                            TTSSpeak(yogamainBinding.guide.text.toString())
-                        lastText = yogamainBinding.guide.text.toString()
-
-                        val imagePath = re[1].substring(2..re_1-3)
-                        setImage(imagePath)
-
-                    } catch (e: Exception) {
-                        // Handle exceptions when accessing elements if the result doesn't behave like a list
-                        println("Result does not have expected list behavior: ${e.message}")
-                    }
-                } else {
-                    // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                    println("Result is not iterable like a list")
-                }
-                //var guideStr = "動作正確"
-                /*yogamainBinding.guide.text = guideStr
-                if (lastText != guideStr)
-                    TTSSpeak(guideStr)
-                lastText = guideStr
-                */
-
-                //30秒計時器
-                if (lastText.contains("動作正確")){
-                    if (timer == null)
-                        startTimer()
-                    yogamainBinding.guide.text = lastText + " " + timeLeft_str
-                }
-                else
-                    resetTimer()
-            }
-
-
-            // Force a redraw
-            yogamainBinding.overlay.invalidate()
-        }
+        }else count_result = 0
     }
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {
