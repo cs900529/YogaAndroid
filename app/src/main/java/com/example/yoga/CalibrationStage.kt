@@ -44,9 +44,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     //private var surfaceView: SurfaceView? = null
     //private var surfaceHolder: SurfaceHolder? = null
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
-    //python 物件
-    private lateinit var python : Python
-    private lateinit var pose     : PyObject
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
 
@@ -63,19 +60,13 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         setContentView(R.layout.activity_calibration_stage)
         //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
-
-        val finish_button = findViewById<ImageButton>(R.id.finish)
-        finish_button.setOnClickListener {
-            nextpage()
-        }
-        //啟動python
-        if (!Python.isStarted()) {
-            Python.start(AndroidPlatform(this))
-        }
-        python = Python.getInstance()
-
         CalibrationStageBinding = ActivityCalibrationStageBinding.inflate(layoutInflater)
         setContentView(CalibrationStageBinding.root)
+        CalibrationStageBinding.finish.setOnClickListener {
+            nextpage()
+        }
+
+
 
         //// 連接前鏡頭
         //surfaceView = findViewById(R.id.camera)
@@ -215,6 +206,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                 {
                     // do some thing
                 }
+                println("hi result")
             }
         }
     }

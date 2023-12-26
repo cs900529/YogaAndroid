@@ -234,7 +234,7 @@ class YogaPose:
 
         con = sum(1 for i in point3d if i[3] < 0.7)
 
-        if(con>0):
+        if(con>16):  #half of all node
             self.tips="無法偵測到完整骨架"
             pose_images = {
                         'Tree Style': "image/TreePose/8.jpg",
