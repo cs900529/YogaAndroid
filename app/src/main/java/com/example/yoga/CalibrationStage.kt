@@ -221,7 +221,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                 {
                     // do some thing
                 }
-                println("hi result")
+
             }
         }
     }
