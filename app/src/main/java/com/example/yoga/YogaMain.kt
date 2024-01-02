@@ -571,7 +571,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         }
                     }
 
-                        var feet_data = yogamatProcessor.callAttr("get_feet_data", point2d, floatListList, heatmappy.callAttr("get_center"))
+                        var center = heatmappy.callAttr("get_center")
+                        println("center$center")
+                        var feet_data = yogamatProcessor.callAttr("get_feet_data", point2d, floatListList,center )
 
                         feetData.callAttr("build", feet_data)
 
