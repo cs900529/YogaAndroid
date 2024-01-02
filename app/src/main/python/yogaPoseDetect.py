@@ -232,7 +232,7 @@ class YogaPose:
                 ang.append(point.get(i).get(j))
             point3d.append(ang)
 
-        con = sum(1 for i in point3d if i[3] < 0.7)
+        con = sum(1 for i in point3d if i[3] < toolkit.MIN_DETECT_VISIBILITY)
 
         if(con>16):  #half of all node
             self.tips="無法偵測到完整骨架"
@@ -253,7 +253,7 @@ class YogaPose:
         
 
         for key,value in self.angle_def.items():
-            if float(point3d[value[0]][3]) < 0.7 or float(point3d[value[1]][3]) <0.7 or float(point3d[value[2]][3]) <0.7 :
+            if float(point3d[value[0]][3]) < toolkit.MIN_DETECT_VISIBILITY and float(point3d[value[1]][3]) <toolkit.MIN_DETECT_VISIBILITY and float(point3d[value[2]][3]) <toolkit.MIN_DETECT_VISIBILITY :
                 self.angle_dict[key] = -1
             else:
                 if (self.type == 'Reverse Plank')  or (self.type == 'Plank') or (self.type == "Child's pose"):
