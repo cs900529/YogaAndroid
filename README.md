@@ -7,3 +7,6 @@
 
 ${\textsf{\color{red}mediapipe 版本有做修改 請改成0.10.9}}$
 
+
+mediapipe 版本有做修改 請改成0.10.9
+3. 在 build.gradle 的 python pip  需新增 install "Pillow"

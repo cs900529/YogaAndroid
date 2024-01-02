@@ -2,7 +2,8 @@ from com.example.yoga import YogaMain
 import AngleNodeDef
 import toolkit
 import numpy as np
-from yogamat import get_mat_data
+from FeetData import FeetData
+
 class YogaPose:
     '''
     type: WarriorII, Tree, ReversePlank, Plank ...etc
@@ -219,12 +220,23 @@ class YogaPose:
             self.sample_angle_dict = toolkit.readSampleJsonFile(self.jsonfile_path)
         #return self.sample_angle_dict
 
-    def detect(self, point, rect , center):
+    def detect(self, point, rect , center, feet_data_json):
 
         self.tips = ""
         point3d = []
 
-        mat = get_mat_data(rect , center)
+        print("feet in detect json", feet_data_json)
+        feet_data = FeetData.from_dict(feet_data_json)
+        print("feet in detect", feet_data)
+
+        feet_data.center = [432, 222]
+
+
+        feet_count = feet_data.get_non_empty_feet_count()
+        print("feet : 非空腳的數量:", feet_count)
+
+        closer_foot = feet_data.get_closer_foot_to_center()
+        print("feet : 靠近重心的腳:", closer_foot)
 
         for i in range(point.size()):
             ang = []
@@ -267,7 +279,7 @@ class YogaPose:
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    #angle = toolkit.computeAngle(point3d.get(value[0]), point3d.get(value[1]), point3d.get(value[2]))
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.treePoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d, mat)
+            self.roi, self.tips, self.imagePath = toolkit.treePoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Warrior2 Style'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
