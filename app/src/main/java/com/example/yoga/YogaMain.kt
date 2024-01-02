@@ -457,7 +457,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
                                 // 檢查解碼的 Bitmap 是否為空
                                 if (bmp != null) {
-//                                    runOnUiThread { yogamainBinding.imageView2.setImageBitmap(bmp) }
+                                    runOnUiThread {
+//                                        yogamainBinding.imageView2.setImageBitmap(bmp)
+                                    }
                                 } else {
                                     // 處理解碼失敗的情況
                                     Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
