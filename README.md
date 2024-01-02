@@ -2,11 +2,32 @@
 # YogaAndroid
 安裝說明:
 1. 需自行導入.gitignore、app\build.gradle檔案
-2. 修改build.gradle中的python路徑和API level = 26
+2. 修改build.gradle如下
+    - 修改buildPython 和pip 
+    ```gradle = 
+    python {
 
-
-${\textsf{\color{red}mediapipe 版本有做修改 請改成0.10.9}}$
-
-
-mediapipe 版本有做修改 請改成0.10.9
-3. 在 build.gradle 的 python pip  需新增 install "Pillow"
+        buildPython "你的python可執行檔路徑"
+        version "3.8"
+        pip {
+            // A requirement specifier, with or without a version number:
+            install "numpy"
+            install "opencv-python"
+            install "Pillow"
+        }
+    }
+    ```
+    - 修改SDK版本
+    ```gradle = 
+    defaultConfig {
+        applicationId "com.example.yoga"
+        minSdk 26
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+    ```
+    - 修改mediaPipe版本${\textsf{\color{red}0.10.9}}$
+    ```gradle =
+    // MediaPipe Library
+    implementation 'com.google.mediapipe:tasks-vision:0.10.9'
+    ```
