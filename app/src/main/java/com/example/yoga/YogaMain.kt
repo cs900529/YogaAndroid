@@ -73,6 +73,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private var timer: CountDownTimer? = null
     private var timeLeft_ms: Long = 30000 // 初始計時為30秒
     private var timeLeft_str=""
+    private var countDown = BooleanArray(7){true}
     //結算分數時間
     private var finishTime = 0.0
     private var score = 99.0
@@ -103,6 +104,17 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         startActivity(intent)
         finish()
     }
+    fun nextpage(){
+        global.currentMS = mediaPlayer.currentPosition
+        mediaPlayer.stop()
+        val intent = Intent(this, YogaResult::class.java).apply {
+            putExtra("title" ,yogamainBinding.title.text)
+            putExtra("finishTime",finishTime)
+            putExtra("score",score)
+        }
+        startActivity(intent)
+        finish()
+    }
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -126,6 +138,35 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                 }
                 val barColor = Color.rgb(R,G,0f)
                 yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
+                //tts
+                if(ms_remain < 20000L && countDown[0]) {
+                    TTSSpeak("二十秒")
+                    countDown[0]=false
+                }
+                else if(ms_remain < 10000L && countDown[1]) {
+                    TTSSpeak("十秒")
+                    countDown[1]=false
+                }
+                else if(ms_remain < 5000L && countDown[2]) {
+                    TTSSpeak("五")
+                    countDown[2]=false
+                }
+                else if(ms_remain < 4000L && countDown[3]) {
+                    TTSSpeak("四")
+                    countDown[3]=false
+                }
+                else if(ms_remain < 3000L && countDown[4]) {
+                    TTSSpeak("三")
+                    countDown[4]=false
+                }
+                else if(ms_remain < 2000L && countDown[5]) {
+                    TTSSpeak("二")
+                    countDown[5]=false
+                }
+                else if(ms_remain < 1000L && countDown[6]) {
+                    TTSSpeak("一")
+                    countDown[6]=false
+                }
             }
             override fun onFinish() {
                 // 計時器倒數完畢時觸發的邏輯
@@ -139,6 +180,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         timer?.start()
     }
     private fun resetTimer() {
+        countDown = BooleanArray(7){true}
         // 重置計時器為30秒
         timeLeft_ms = 30000
         timeLeft_str = ""
@@ -157,13 +199,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             score = 100.0 - 40.0*(finishTime - 40.0)/60.0
         else
             score = 60.0
-        // 頁面跳轉
-        val intent = Intent(this, YogaResult::class.java).apply {
-            putExtra("title" ,yogamainBinding.title.text)
-            putExtra("finishTime",finishTime)
-            putExtra("score",score)
-        }
-        startActivity(intent)
+        nextpage()
     }
 
     //獲取影片檔案
@@ -421,7 +457,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         return fileBytes
     }
 
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         imageAnalyzer?.targetRotation =
@@ -615,14 +650,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                             // Handle cases where the result does not behave like an iterable (e.g., not a list)
                             println("Result is not iterable like a list")
                         }
-                        //var guideStr = "動作正確"
-                        /*yogamainBinding.guide.text = guideStr
-                        if (lastText != guideStr)
-                            TTSSpeak(guideStr)
-                        lastText = guideStr
-                        */
 
                         //30秒計時器
+                        //if(true){//debug
                         if (lastText.contains("動作正確")) {
                             if (timer == null)
                                 startTimer()

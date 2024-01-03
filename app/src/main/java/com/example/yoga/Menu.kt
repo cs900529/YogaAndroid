@@ -27,6 +27,9 @@ class Menu : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+    fun nextpage(){
+        nextpage(currentSelect.text.toString())
+    }
     fun nextpage(posename:String){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()

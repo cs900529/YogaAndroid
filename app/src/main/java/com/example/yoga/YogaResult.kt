@@ -45,11 +45,11 @@ class YogaResult : AppCompatActivity() {
                     Thread.sleep(100)
                     print("checkReturn")
                 }
+                runOnUiThread {
+                    lastpage()
+                }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
-            }
-            runOnUiThread {
-                lastpage()
             }
         }
 
