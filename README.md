@@ -26,7 +26,7 @@
         versionCode 1
         versionName "1.0"
     ```
-    - 修改mediaPipe版本${\textsf{\color{red}0.10.9}}$
+    - 修改mediaPipe版本 = 0.10.9
     ```gradle =
     // MediaPipe Library
     implementation 'com.google.mediapipe:tasks-vision:0.10.9'
