@@ -6,6 +6,7 @@ enlarge = 50
 need_center = np.array([])
 need_rects = np.array([])
 flag = False
+function = 0
 
 def test(data):
     data = np.array(json.loads(data))
@@ -54,8 +55,9 @@ def get_heatmap(data):
     return bytes_data
 
 def find_bounding_box(heatmap):
-    global flag
+    global flag, function
     flag = False
+    function = 0
     # https://stackoverflow.com/questions/58419893/generating-bounding-boxes-from-heatmap-data
     # Grayscale then Otsu's threshold
     gray = cv2.cvtColor(heatmap, cv2.COLOR_BGR2GRAY)
@@ -67,10 +69,51 @@ def find_bounding_box(heatmap):
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     rects = []
     for c in cnts:
-        x,y,w,h =cv2.boundingRect(c)
+        x,y,w,h = cv2.boundingRect(c)
         rects.append([x,y,w,h])
+
         if (x > 700 and y > 400):
             flag = True
+
+        if (y <= 150):
+            if (x >= 150 and x < 350):
+                function = 1
+            elif (x >= 350 and x < 550):
+                function = 2
+            elif (x >= 550 and x <= 750):
+                function = 3
+        elif (y >= 450):
+            if(x >= 350 and x <= 550):
+                function = 4
+
+    big = [[0,0,0,0], [0,0,0,0]]
+    for b in rects:
+        b0 = big[0][2]*big[0][3]
+        b1 = big[1][2]*big[1][3]
+        b3 = b[2]*b[3]
+
+        if (b3 >= b0 or b3 >= b1):
+            if (b0 >= b1):
+                big[1] = b
+            else :
+                big[0] = b
+
+    # 提取座標
+    point1 = np.array(big[0][:2])
+    point2 = np.array(big[1][:2])
+    print(point1)
+    print(point2)
+    # 计算两点之间的差异
+    delta = point2 - point1
+
+    # 计算夹角（弧度）
+    angle_radians = np.arctan2(delta[1], delta[0])
+
+    # 将弧度转换为度数
+    angle_degrees = np.degrees(angle_radians)
+
+    print("与X轴的夹角（度数）：", angle_degrees)
+
     return np.array(rects)
 
 '''def herotwo_pose_evaluate(center ,rects):
@@ -98,3 +141,7 @@ def get_center():
 def checkReturn():
     global flag
     return flag
+
+def checkFunction():
+    global function
+    return function

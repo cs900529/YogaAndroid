@@ -8,6 +8,9 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.widget.Button
 import android.widget.ImageButton
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.databinding.ActivityMenuBinding
 import com.example.yoga.databinding.ActivityYogaResultBinding
 
@@ -18,6 +21,13 @@ class Menu : AppCompatActivity() {
     //data class menuReference(var currentSelect: Button)
     //private lateinit var currentSelect:menuReference  //call by reference
     private lateinit var currentSelect:Button  //call by reference
+
+    // yogamap function
+    private lateinit var python : Python
+    private lateinit var heatmapFunction : PyObject
+    private var functionThread: Thread? = null
+    private var functionNumber: Int = 0
+
     fun lastpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
@@ -178,6 +188,45 @@ class Menu : AppCompatActivity() {
         mediaPlayer.start()
 
         select()
+
+        //啟動python
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+        python = Python.getInstance()
+
+        // yogamap nextpage
+        heatmapFunction = python.getModule("heatmap")
+
+        // yogamap nextpage
+        functionThread = Thread {
+            Thread.sleep(2000)
+            try {
+                while (true) {
+                    functionNumber = heatmapFunction.callAttr("checkFunction").toInt()
+                    runOnUiThread {
+                        if (functionNumber == 1) {
+                            right()
+                        } else if (functionNumber == 2) {
+                            up()
+                        } else if (functionNumber == 3) {
+                            left()
+                        } else if (functionNumber == 4) {
+                            down()
+                        }
+                    }
+                    if (heatmapFunction.callAttr("checkReturn").toBoolean()) {
+                        nextpage()
+                        break
+                    }
+                    Thread.sleep(500)
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+        }
+
+        functionThread?.start()
     }
     override fun onPause() {
         super.onPause()

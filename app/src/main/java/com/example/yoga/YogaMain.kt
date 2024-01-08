@@ -280,26 +280,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         }
         python = Python.getInstance()
 
-        // yogamap return
-        heatmapReturn = python.getModule("heatmap")
-
-        // yogamap return
-        myThread = Thread {
-            try {
-                while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
-                    Thread.sleep(100)
-                    print("checkReturn")
-                }
-                runOnUiThread {
-                    lastpage()
-                }
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-        }
-
-        myThread?.start()
-
         //初始化yogamainBinding
         yogamainBinding = ActivityYogaMainBinding.inflate(layoutInflater)
         setContentView(yogamainBinding.root)
@@ -345,6 +325,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         // 初始化 CameraX
         startCamera()
 
+
         //設定PoseLandmarkerHelper
         backgroundExecutor.execute {
             poseLandmarkerHelper = PoseLandmarkerHelper(
@@ -367,6 +348,27 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
         mediaPlayer.start()
+
+        // yogamap return
+        heatmapReturn = python.getModule("heatmap")
+
+        // yogamap return
+        myThread = Thread {
+            try {
+                Thread.sleep(2000)
+                while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
+                    Thread.sleep(100)
+                    print("checkReturn")
+                }
+                runOnUiThread {
+                    lastpage()
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+        }
+
+        myThread?.start()
     }
     //文字轉語音用
     override fun onInit(status: Int) {

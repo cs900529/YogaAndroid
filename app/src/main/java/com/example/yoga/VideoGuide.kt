@@ -10,10 +10,21 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.VideoView
 
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+
 class VideoGuide : AppCompatActivity() {
     lateinit var global: GlobalVariable
     private lateinit var mediaPlayer: MediaPlayer
-    fun nextpage(poseName:String){
+    var poseName=""
+
+    // yogamap next
+    private lateinit var python : Python
+    private lateinit var heatmapNext : PyObject
+    private var nextThread: Thread? = null
+
+    fun nextpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
         val intent = Intent(this, YogaMain::class.java).apply {
@@ -43,7 +54,7 @@ class VideoGuide : AppCompatActivity() {
         supportActionBar?.hide() // 隐藏title bar
         setContentView(R.layout.activity_video_guide)
 
-        val poseName = intent.getStringExtra("poseName")
+        poseName = intent.getStringExtra("poseName").toString()
 
         val title = findViewById<TextView>(R.id.videoTitle)
         title.text = poseName
@@ -60,7 +71,14 @@ class VideoGuide : AppCompatActivity() {
 
         val finish = findViewById<ImageButton>(R.id.finish)
         finish.setOnClickListener {
-            nextpage(poseName.toString())
+            nextpage()
+
+            try {
+                nextThread?.interrupt()
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+
         }
 
         global = application as GlobalVariable
@@ -68,6 +86,32 @@ class VideoGuide : AppCompatActivity() {
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
         mediaPlayer.start()
+
+        //啟動python
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+        /*python = Python.getInstance()
+
+        // yogamap return
+        heatmapNext = python.getModule("heatmap")
+
+        // yogamap return
+        nextThread = Thread {
+            try {
+                Thread.sleep(1000)
+                while (!heatmapNext.callAttr("checkReturn").toBoolean()) {
+                    Thread.sleep(100)
+                }
+                runOnUiThread {
+                    nextpage()
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+        }
+
+        nextThread?.start()*/
     }
     override fun onPause() {
         super.onPause()
