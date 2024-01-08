@@ -4,9 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
-import androidx.appcompat.app.AppCompatActivity
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.widget.ImageButton
+import android.speech.tts.TextToSpeech
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -14,21 +18,13 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import android.media.MediaPlayer
-import android.view.SurfaceHolder
-import android.view.SurfaceView
-import android.speech.tts.TextToSpeech
-import android.view.LayoutInflater
-import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.databinding.ActivityCalibrationStageBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -53,6 +49,12 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     lateinit var global: GlobalVariable
     private var delate_count : Int = 0
     private lateinit var mediaPlayer: MediaPlayer
+
+    // yogamap next
+    private lateinit var python : Python
+    private lateinit var heatmapNext : PyObject
+    private var nextThread: Thread? = null
+
     fun nextpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
@@ -71,6 +73,11 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         setContentView(CalibrationStageBinding.root)
         CalibrationStageBinding.finish.setOnClickListener {
             nextpage()
+            try {
+                nextThread?.interrupt()
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
         }
 
 
@@ -121,6 +128,32 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
         mediaPlayer.start()
+
+        //啟動python
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+        python = Python.getInstance()
+
+        // yogamap return
+        heatmapNext = python.getModule("heatmap")
+
+        // yogamap return
+        nextThread = Thread {
+            try {
+                Thread.sleep(2000)
+                while (!heatmapNext.callAttr("checkReturn").toBoolean()) {
+                    Thread.sleep(100)
+                }
+                runOnUiThread {
+                    nextpage()
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+        }
+
+        nextThread?.start()
 
     }
     private fun startCamera() {
