@@ -468,13 +468,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     override fun onResults(
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
+            //interval sampling
             if (count_result == 0){
                 count_result += 1
-                /*this.runOnUiThread {
-                    for (results in resultBundle.results.first().worldLandmarks()){
-                        println(results)
-                    }
-                }*/
                 this.runOnUiThread {
                     val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
                     thread {
@@ -601,12 +597,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                                 }
                             }
 
-                val point2d: List<MutableList<Float>> =
-                    resultBundle.results.first().landmarks().flatMap { nlandmarks ->
-                        nlandmarks.map { landmark ->
-                            mutableListOf(landmark.x(), landmark.y())
-                        }
-                    }
+                        val point2d: List<MutableList<Float>> =
+                            resultBundle.results.first().landmarks().flatMap { nlandmarks ->
+                                nlandmarks.map { landmark ->
+                                    mutableListOf(landmark.x(), landmark.y())
+                                }
+                            }
 
                         var center = heatmappy.callAttr("get_center")
                         println("center$center")
@@ -647,8 +643,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                                 println("Result does not have expected list behavior: ${e.message}")
                             }
                         } else {
-                            // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                            println("Result is not iterable like a list")
+                                // Handle cases where the result does not behave like an iterable (e.g., not a list)
+                                println("Result is not iterable like a list")
                         }
 
                         //30秒計時器
