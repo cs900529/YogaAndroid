@@ -47,11 +47,11 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
-
     //文字轉語音
     private lateinit var textToSpeech: TextToSpeech
-
+    private var lastspeak:String = ""
     lateinit var global: GlobalVariable
+    private var delate_count : Int = 0
     private lateinit var mediaPlayer: MediaPlayer
     fun nextpage(){
         global.currentMS = mediaPlayer.currentPosition
@@ -208,22 +208,40 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     override fun onResults(
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ){
-        this.runOnUiThread{
-            if (resultBundle.results.first().landmarks().isNotEmpty()){
-                val count_node = resultBundle.results.first().landmarks()
-                    .flatMap { nlandmarks ->
-                        nlandmarks.map {
-                            mutableListOf(it.x(), it.y(), it.z(), it.visibility().orElse((-1.0).toFloat()).toFloat())
+        if(delate_count == 0){
+            delate_count++
+            this.runOnUiThread{
+                if (resultBundle.results.first().landmarks().isNotEmpty()){
+                    val count_node = resultBundle.results.first().landmarks()
+                        .flatMap { nlandmarks ->
+                            nlandmarks.map {
+                                mutableListOf( it.visibility().orElse((-1.0).toFloat()).toFloat())
+                            }
+                        }
+                        .count { it[0] > 0.5 }
+                    println(count_node)
+                    if (count_node < 16) //node 總數32, 先假設1/2沒偵測到,讓使用者調整人至鏡頭裡
+                    {
+                        lastspeak = CalibrationStageBinding.guide.text.toString()
+                        CalibrationStageBinding.guide.text = "請將人調整至鏡頭裡以完成校正"
+                        if (lastspeak != CalibrationStageBinding.guide.text) {
+                            textToSpeech.stop()
+                            textToSpeech.speak("請將人調整至鏡頭裡以完成校正",TextToSpeech.QUEUE_FLUSH, null, null)
                         }
                     }
-                    .count { it[3] > 0.5 }
-                if (count_node < 16) //node 總數32, 先假設一半沒偵測到,讓使用者調整人至鏡頭裡
-                {
-                    // do some thing
+                    else if (count_node > 16){
+                        lastspeak = CalibrationStageBinding.guide.text.toString()
+                        CalibrationStageBinding.guide.text = "完成校正"
+                        if (lastspeak != CalibrationStageBinding.guide.text) {
+                            textToSpeech.stop()
+                            textToSpeech.speak("完成校正",TextToSpeech.QUEUE_FLUSH, null, null)
+                        }
+                    }
                 }
-
             }
         }
+        else if (delate_count == 5)
+            delate_count=0
     }
     override fun onDestroy() {
         super.onDestroy()
