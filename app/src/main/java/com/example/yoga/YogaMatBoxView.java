@@ -33,6 +33,13 @@ public class YogaMatBoxView extends View {
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(5);
+
+        // 指定四边形的坐标
+        float[] defaultCoordinates = {0.9f , 0.97f ,
+                0.1f , 0.97f ,
+                0.15f , 0.76f ,
+                0.85f , 0.76f};
+        setCoordinates(defaultCoordinates);
     }
 
     public void setCoordinates(float[] coordinates) {
