@@ -12,9 +12,14 @@ import android.view.View;
 
 public class YogaMatView extends View {
 
+    private static final int BITMAP_WIDTH = 64;
+    private static final int BITMAP_HEIGHT = 100;
+
     private Paint paint;
     private Bitmap leftBitmap, rightBitmap;
     private float leftImageX, leftImageY, rightImageX, rightImageY;
+    private Matrix rotationMatrix;
+    private Bitmap rotatedBitmap1, rotatedBitmap2;
 
     public YogaMatView(Context context) {
         super(context);
@@ -35,35 +40,37 @@ public class YogaMatView extends View {
         paint = new Paint();
         paint.setColor(Color.GREEN);
 
-        // 加載兩張 PNG 圖片
+        // 加载两张 PNG 图片
         leftBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.left_feet);
         rightBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.right_feet);
+
+        rotationMatrix = new Matrix();
+        rotatedBitmap1 = rotateBitmap(leftBitmap);
+        rotatedBitmap2 = rotateBitmap(rightBitmap);
+    }
+
+    private Bitmap rotateBitmap(Bitmap originalBitmap) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(0);
+        return Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.getWidth(), originalBitmap.getHeight(), matrix, true);
+    }
+
+    private Bitmap scaleBitmap(Bitmap originalBitmap) {
+        return Bitmap.createScaledBitmap(originalBitmap, BITMAP_WIDTH, BITMAP_HEIGHT, true);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // 繪製綠色背景
+        // 绘制绿色背景
         canvas.drawColor(Color.GREEN);
 
-        // 旋轉 bitmap1 180 度
-        Matrix matrix = new Matrix();
-        matrix.postRotate(0);
+        // 绘制 PNG 图片，调整大小和位置
+        canvas.drawBitmap(scaleBitmap(rotatedBitmap1), leftImageX - 0.5f * BITMAP_WIDTH, leftImageY - 0.5f * BITMAP_HEIGHT, paint);
+        canvas.drawBitmap(scaleBitmap(rotatedBitmap2), rightImageX - 0.5f * BITMAP_WIDTH, rightImageY - 0.5f * BITMAP_HEIGHT, paint);
 
-        // 繪製 PNG 圖片，並調整大小和位置
-        int width = 64; // 設定寬度
-        int height = 100; // 設定高度
-
-        Bitmap rotatedBitmap1 = Bitmap.createBitmap(leftBitmap, 0, 0, leftBitmap.getWidth(), leftBitmap.getHeight(), matrix, true);
-        Bitmap scaledBitmap1 = Bitmap.createScaledBitmap(rotatedBitmap1, width, height, true);
-        canvas.drawBitmap(scaledBitmap1, leftImageX, leftImageY, paint);
-
-        Bitmap rotatedBitmap2 = Bitmap.createBitmap(rightBitmap, 0, 0, rightBitmap.getWidth(), rightBitmap.getHeight(), matrix, true);
-        Bitmap scaledBitmap2 = Bitmap.createScaledBitmap(rotatedBitmap2, width, height, true);
-        canvas.drawBitmap(scaledBitmap2, rightImageX, rightImageY, paint);
-
-        // 繪製文字
+        // 绘制文字
         paint.setColor(Color.BLACK);
         paint.setTextSize(100);
 
@@ -74,19 +81,17 @@ public class YogaMatView extends View {
 //        canvas.drawText(text2, 10, getHeight() - 10, paint);
     }
 
-    // 新增方法：設定第一張圖片位置
+    // 新增方法：设置第一张图片位置
     public void setLeftFeetPosition(float x, float y) {
         leftImageX = x * getWidth();
-        leftImageY = (1-y) * getHeight();
-
-        invalidate(); // 通知 View 重新繪製
+        leftImageY = (1 - y) * getHeight();
+        invalidate(); // 通知 View 重新绘制
     }
 
-    // 新增方法：設定第二張圖片位置
+    // 新增方法：设置第二张图片位置
     public void setRightFeetPosition(float x, float y) {
         rightImageX = x * getWidth();
-        rightImageY = (1-y) * getHeight();
-
-        invalidate(); // 通知 View 重新繪製
+        rightImageY = (1 - y) * getHeight();
+        invalidate(); // 通知 View 重新绘制
     }
 }
