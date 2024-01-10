@@ -88,6 +88,16 @@
         app:layout_constraintTop_toBottomOf="@+id/guide_picture"
         app:layout_constraintWidth_percent="0.47" />
 
+    <com.example.yoga.YogaMatBoxView
+        android:id="@+id/yogaMatBoxView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.65"
+        app:layout_constraintStart_toEndOf="@+id/guide_picture"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintWidth_percent="0.47" />
+
     <ImageView
         android:id="@+id/timeLeftBar"
         android:layout_width="0dp"
