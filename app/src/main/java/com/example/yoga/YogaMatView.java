@@ -67,8 +67,8 @@ public class YogaMatView extends View {
         canvas.drawColor(Color.GREEN);
 
         // 绘制 PNG 图片，调整大小和位置
-        canvas.drawBitmap(scaleBitmap(rotatedBitmap1), leftImageX - 0.5f * BITMAP_WIDTH, leftImageY - 0.5f * BITMAP_HEIGHT, paint);
-        canvas.drawBitmap(scaleBitmap(rotatedBitmap2), rightImageX - 0.5f * BITMAP_WIDTH, rightImageY - 0.5f * BITMAP_HEIGHT, paint);
+        canvas.drawBitmap(scaleBitmap(rotatedBitmap1), leftImageX - 0.5f * BITMAP_WIDTH, leftImageY -  BITMAP_HEIGHT, paint);
+        canvas.drawBitmap(scaleBitmap(rotatedBitmap2), rightImageX - 0.5f * BITMAP_WIDTH, rightImageY - BITMAP_HEIGHT, paint);
 
         // 绘制文字
         paint.setColor(Color.BLACK);
