@@ -96,7 +96,7 @@ class YogaMatProcessor:
                                       [0.15 , 0.76 ],
                                       [0.85 , 0.76 ]], dtype=np.float32)
 
-        print(default_mat_point)
+        # print(default_mat_point)
         # 轉換矩陣
         self.transform_matrix = cv2.getPerspectiveTransform(default_mat_point, self.camera_flat_points)
 
@@ -118,7 +118,7 @@ class YogaMatProcessor:
             point2d.append(ang)
 
         feet_dict = self.get_feet_points_on_mat(point2d, point3d)
-        print("feet_dict", feet_dict)
+        # print("feet_dict", feet_dict)
 
         feet_data = FeetData(feet_dict[AngleNodeDef.LEFT_HEEL], feet_dict[AngleNodeDef.RIGHT_HEEL], center)
         feet_data.get_closer_foot_to_center()
@@ -132,8 +132,8 @@ class YogaMatProcessor:
             feet_points = self.get_feet_points(point2d)
             transform_points = self.transform_point(feet_points)
             raise_feet_dict = check_raise_feet(point3d)
-            print("feet_points", feet_points)
-            print("feet transform_points", transform_points)
+            # print("feet_points", feet_points)
+            # print("feet transform_points", transform_points)
 
             feet_points_dict = {
                 AngleNodeDef.LEFT_HEEL: (transform_points[0][0], transform_points[0][1]),
@@ -170,7 +170,7 @@ class YogaMatProcessor:
 
     # 將鏡頭中的座標點，轉換到瑜珈墊上面
     def transform_point(self, input_points):
-        print("feet self.transform_matrix", self.transform_matrix)
+        # print("feet self.transform_matrix", self.transform_matrix)
         transformed_points = [cv2.perspectiveTransform(np.array([np.float32([p])]), self.transform_matrix)[0][0] for p
                               in input_points]
 
@@ -180,7 +180,7 @@ class YogaMatProcessor:
     # 從 MediaPipe 的點中，取得在鏡頭中腳的點
     def get_feet_points(self, point2d):
         if not isinstance(point2d, int):
-#             print("feet get_feet_points L: " + str(point2d[AngleNodeDef.LEFT_HEEL]) + "R:" + str(point2d[AngleNodeDef.RIGHT_HEEL]))
+#             # print("feet get_feet_points L: " + str(point2d[AngleNodeDef.LEFT_HEEL]) + "R:" + str(point2d[AngleNodeDef.RIGHT_HEEL]))
             return [[point2d[AngleNodeDef.LEFT_HEEL][0] , point2d[AngleNodeDef.LEFT_HEEL][1] ],
             [point2d[AngleNodeDef.RIGHT_HEEL][0] , point2d[AngleNodeDef.RIGHT_HEEL][1] ]]
         else:
