@@ -101,8 +101,8 @@ def find_bounding_box(heatmap):
     # 提取座標
     point1 = np.array(big[0][:2])
     point2 = np.array(big[1][:2])
-    print(point1)
-    print(point2)
+    #print(point1)
+    #print(point2)
     # 计算两点之间的差异
     delta = point2 - point1
 
@@ -112,7 +112,7 @@ def find_bounding_box(heatmap):
     # 将弧度转换为度数
     angle_degrees = np.degrees(angle_radians)
 
-    print("与X轴的夹角（度数）：", angle_degrees)
+    #print("与X轴的夹角（度数）：", angle_degrees)
 
     return np.array(rects)
 

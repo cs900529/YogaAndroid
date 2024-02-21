@@ -54,7 +54,7 @@ public class BluetoothClient {
             FileOutputStream fos = new FileOutputStream(filePath);
             fos.write(bytes);
             fos.close();
-            System.out.println("save file done!" + filePath);
+            //System.out.println("save file done!" + filePath); //20240221
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -251,8 +251,8 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             # imagePath = f"{imageFolder}/8.JPG"
         if key == 'LEFT_ANKLE': #1
             tolerance_val = 5
-            hip_x,_,_,hip_vi, =  point3d[AngleNodeDef.RIGHT_HIP]
-            knee_x,_,_,knee_vi =  point3d[AngleNodeDef.RIGHT_KNEE]
+            hip_x,_,_,hip_vi, =  point3d[AngleNodeDef.LEFT_HIP]
+            knee_x,_,_,knee_vi =  point3d[AngleNodeDef.LEFT_KNEE]
             # min_angle = sample_angle_dict[key]-tolerance_val
             # max_angle = sample_angle_dict[key]+tolerance_val
             if knee_vi  < MIN_DETECT_VISIBILITY and hip_vi < MIN_DETECT_VISIBILITY:
