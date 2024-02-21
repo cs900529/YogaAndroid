@@ -35,8 +35,9 @@ class FinishTimer{
     }
 }
 class KSecCountdownTimer(k: Long) {
-    interface TimerCallback {
+    interface TimerCallback {//回調函式，跨class傳遞參數用
         fun onTimerFinished()
+        fun updateColorBar(currentMS:Long,maxMS:Long)
     }
     private var timer: CountDownTimer? = null
     private var k=k
@@ -44,31 +45,16 @@ class KSecCountdownTimer(k: Long) {
     private var timeLeft_str = ""
     private var countDown = BooleanArray(7) { true }
     private var callback: TimerCallback? = null
+    private var color=ColorGenerator()
 
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
             @RequiresApi(Build.VERSION_CODES.O)
-            override fun onTick(ms_remain: Long) {
+            override fun onTick(ms_remain: Long) {// 每0.1秒执行一次的逻辑，例如更新 UI 显示剩余时间
                 timeLeft_ms = ms_remain
-                // 每0.1秒执行一次的逻辑，例如更新 UI 显示剩余时间
                 timeLeft_str = (ms_remain / 1000f).toString()
-                //timeLeftBar
 
-                var G = 0f
-                var R = 0f
-                if (ms_remain > k*500) {
-                    G = 1f
-                    R = (k*1000 - ms_remain) / (k*500f)
-                } else {
-                    R = 1f
-                    G = ms_remain / (k*500f)
-                }
-                val barColor = Color.rgb(R, G, 0f)
-
-                /*val layoutParams = yogamainBinding.timeLeftBar.layoutParams as ConstraintLayout.LayoutParams
-                layoutParams.matchConstraintPercentWidth = 0.47f*(ms_remain/30000f)
-                yogamainBinding.timeLeftBar.layoutParams = layoutParams
-                yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)*/
+                callback?.updateColorBar(ms_remain,k*1000)
                 //tts
                 if (ms_remain < 20000L && countDown[0]) {
                     //TTSSpeak("二十秒")
@@ -118,4 +104,5 @@ class KSecCountdownTimer(k: Long) {
     fun getRemainTimeStr():String{return timeLeft_str}
     fun setRemainTimeStr(str:String){timeLeft_str=str}
     fun isNotRunning():Boolean{return timer==null}
+    fun getCurrentColor(currentMS: Long):Int{return color.G2Y2R(currentMS,k*1000)}
 }

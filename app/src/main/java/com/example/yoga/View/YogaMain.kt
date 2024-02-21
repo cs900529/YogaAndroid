@@ -7,7 +7,6 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.media.MediaPlayer
@@ -25,6 +24,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
@@ -111,6 +111,14 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         timerCurrent.handlerStop()
         score = timerCurrent.getScore()
         nextpage()
+    }
+    //更新倒數條的顏色
+    override fun updateColorBar(currentMs:Long,maxMS:Long) {
+        val barColor = timer30S.getCurrentColor(currentMs)
+        val layoutParams = yogamainBinding.timeLeftBar.layoutParams as ConstraintLayout.LayoutParams
+        layoutParams.matchConstraintPercentWidth = 0.47f*(currentMs/(1f*maxMS))
+        yogamainBinding.timeLeftBar.layoutParams = layoutParams
+        yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
     }
     //獲取影片檔案
     private fun getfile(filename: String): Int {
