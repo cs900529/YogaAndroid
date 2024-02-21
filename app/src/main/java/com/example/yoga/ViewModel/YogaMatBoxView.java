@@ -1,4 +1,4 @@
-package com.example.yoga;
+package com.example.yoga.ViewModel;
 
 import android.content.Context;
 import android.graphics.Canvas;

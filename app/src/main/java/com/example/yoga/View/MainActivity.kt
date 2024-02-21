@@ -1,4 +1,4 @@
-package com.example.yoga
+package com.example.yoga.View
 
 import android.Manifest
 import android.content.Intent
@@ -10,6 +10,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.yoga.discover.BluetoothActivity
 import android.media.MediaPlayer
+import com.example.yoga.Model.GlobalVariable
+import com.example.yoga.R
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer

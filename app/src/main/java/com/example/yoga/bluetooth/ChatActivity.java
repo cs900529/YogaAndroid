@@ -5,8 +5,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.yoga.CalibrationStage;
-import com.example.yoga.GlobalVariable;
+import com.example.yoga.View.CalibrationStage;
+import com.example.yoga.Model.GlobalVariable;
 import com.example.yoga.R;
 
 public class ChatActivity extends AppCompatActivity {

@@ -1,4 +1,4 @@
-package com.example.yoga
+package com.example.yoga.Model
 
 import android.app.Application
 class GlobalVariable: Application() {

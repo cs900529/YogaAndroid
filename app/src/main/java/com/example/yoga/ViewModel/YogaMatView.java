@@ -1,4 +1,4 @@
-package com.example.yoga;
+package com.example.yoga.ViewModel;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +9,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.example.yoga.R;
 
 public class YogaMatView extends View {
 

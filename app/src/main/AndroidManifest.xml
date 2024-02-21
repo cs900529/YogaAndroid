@@ -18,7 +18,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 
     <application
-        android:name=".GlobalVariable"
+        android:name=".Model.GlobalVariable"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -28,7 +28,7 @@
         android:theme="@style/Theme.Yoga"
         tools:targetApi="31">
         <activity
-            android:name=".YogaResult"
+            android:name=".View.YogaResult"
             android:exported="false"
             android:screenOrientation="landscape"/>
         <activity
@@ -36,23 +36,23 @@
             android:screenOrientation="landscape" />
         <activity android:name=".bluetooth.ChatActivity" />
         <activity
-            android:name=".YogaMain"
+            android:name=".View.YogaMain"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".VideoGuide"
+            android:name=".View.VideoGuide"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".Menu"
+            android:name=".View.Menu"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".CalibrationStage"
+            android:name=".View.CalibrationStage"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".MainActivity"
+            android:name=".View.MainActivity"
             android:exported="true"
             android:screenOrientation="landscape">
             <intent-filter>

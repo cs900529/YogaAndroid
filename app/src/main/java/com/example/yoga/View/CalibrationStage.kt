@@ -1,4 +1,4 @@
-package com.example.yoga
+package com.example.yoga.View
 
 import android.content.Context
 import android.content.Intent
@@ -22,6 +22,10 @@ import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import com.example.yoga.Model.GlobalVariable
+import com.example.yoga.Model.MainViewModel
+import com.example.yoga.Model.PoseLandmarkerHelper
+import com.example.yoga.R
 import com.example.yoga.databinding.ActivityCalibrationStageBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import java.util.Locale

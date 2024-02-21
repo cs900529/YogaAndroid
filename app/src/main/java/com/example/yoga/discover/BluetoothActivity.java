@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
-import com.example.yoga.GlobalVariable;
+import com.example.yoga.Model.GlobalVariable;
 import com.example.yoga.bluetooth.ChatActivity;
 import com.example.yoga.R;
 

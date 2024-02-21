@@ -1,4 +1,4 @@
-package com.example.yoga
+package com.example.yoga.View
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -7,6 +7,8 @@ import android.os.Bundle
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import com.example.yoga.Model.GlobalVariable
+import com.example.yoga.R
 import com.example.yoga.databinding.ActivityYogaResultBinding
 
 class YogaResult : AppCompatActivity() {

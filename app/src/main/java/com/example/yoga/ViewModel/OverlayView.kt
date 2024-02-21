@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.yoga
+package com.example.yoga.ViewModel
 
 import android.content.Context
 import android.graphics.Canvas
@@ -22,9 +22,9 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.example.yoga.R
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 
 class OverlayView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {

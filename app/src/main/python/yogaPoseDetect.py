@@ -1,4 +1,4 @@
-from com.example.yoga import YogaMain
+from com.example.yoga.View import YogaMain
 import AngleNodeDef
 import toolkit
 import numpy as np
