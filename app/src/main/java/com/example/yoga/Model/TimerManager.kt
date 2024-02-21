@@ -34,12 +34,13 @@ class FinishTimer{
             return 60.0
     }
 }
-class KSecCountdownTimer(K: Long) {
+class KSecCountdownTimer(k: Long) {
     interface TimerCallback {
         fun onTimerFinished()
     }
     private var timer: CountDownTimer? = null
-    private var timeLeft_ms: Long = K * 1000 // 初始计时为K秒
+    private var k=k
+    private var timeLeft_ms: Long = k * 1000 // 初始计时为K秒
     private var timeLeft_str = ""
     private var countDown = BooleanArray(7) { true }
     private var callback: TimerCallback? = null
@@ -55,12 +56,12 @@ class KSecCountdownTimer(K: Long) {
 
                 var G = 0f
                 var R = 0f
-                if (ms_remain > 15000) {
+                if (ms_remain > k*500) {
                     G = 1f
-                    R = (30000 - ms_remain) / 15000f
+                    R = (k*1000 - ms_remain) / (k*500f)
                 } else {
                     R = 1f
-                    G = ms_remain / 15000f
+                    G = ms_remain / (k*500f)
                 }
                 val barColor = Color.rgb(R, G, 0f)
 
@@ -95,28 +96,13 @@ class KSecCountdownTimer(K: Long) {
 
             override fun onFinish() {
                 // 计时器倒数完毕时触发的逻辑
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-                println("+++++++++++++++++++++++++++++")
-
-
                 callback?.onTimerFinished()
             }
         }
     }
 
-    fun startTimer() {
+    fun startTimer(callback: TimerCallback) {
+        this.callback=callback
         initializeTimer()
         // 开始计时器
         timer?.start()

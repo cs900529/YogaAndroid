@@ -72,13 +72,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //計時器
     private var timerCurrent = FinishTimer()
     private var timer30S = KSecCountdownTimer(30)
-    //結算分數時間
-
+    //結算分數
     private var score = 99.0
 
     lateinit var global: GlobalVariable
     private lateinit var mediaPlayer: MediaPlayer
-
     //平滑化
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
@@ -169,10 +167,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         val pic = am.open(imagePath.toString())
         // Decode the input stream into a Drawable
         val drawable = Drawable.createFromStream(pic, null)
-
         // Set the drawable as the image source for the ImageView
         picturePath.setImageDrawable(drawable)
-
         // Close the input stream when you're done
         pic.close()
     }
@@ -181,7 +177,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         textToSpeech.stop()
         textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
@@ -214,9 +209,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         yogamainBinding.title.text = poseName
 
-        yogamainBinding.back.setOnClickListener {
-            lastpage()
-        }
+        yogamainBinding.back.setOnClickListener { lastpage() }
 
         //guide_picture init
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
@@ -533,7 +526,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                         if(true){//debug
                         //if (lastText.contains("動作正確")) {
                             if (timer30S.isNotRunning())
-                                timer30S.startTimer()
+                                timer30S.startTimer(this)
                             yogamainBinding.guide.text = lastText + " " + timer30S.getRemainTimeStr()
                         } else
                             timer30S.resetTimer()
