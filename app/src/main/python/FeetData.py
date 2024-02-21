@@ -8,13 +8,13 @@ class FeetData:
         # TODO : 由於目前 輸入的 MediaPipe 座標左右相反， 先階段決定先維持現狀，因此在 FeetData 中將左右腳設定相反
         self.left_foot = self.convert_to_int(right_foot)
         self.right_foot = self.convert_to_int(left_foot)
-        print("center in ", type(center_of_gravity))
+        # print("center in ", type(center_of_gravity))
         if center_of_gravity is None or (isinstance(center_of_gravity, np.ndarray) and np.size(center_of_gravity) == 0):
             self.center_of_gravity = [0, 0]
         else:
-            print("center in ", center_of_gravity)
+            # print("center in ", center_of_gravity)
             self.center_of_gravity = center_of_gravity
-            print("center af ", self.center_of_gravity)
+            # print("center af ", self.center_of_gravity)
 
     def build(self, data):
         self.left_foot = data["left_foot"]
@@ -32,7 +32,7 @@ class FeetData:
         return non_empty_feet_count
 
     def get_closer_foot_to_center(self):
-        print("center", self.center_of_gravity)
+        # print("center", self.center_of_gravity)
         # 回傳是左腳還是右腳比較靠近重心座標
         right_foot_distance = (
                 abs(self.right_foot[0] - self.center_of_gravity[0]) +
