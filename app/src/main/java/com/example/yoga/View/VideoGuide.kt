@@ -18,7 +18,7 @@ import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
 
 class VideoGuide : AppCompatActivity() {
-    lateinit var global: GlobalVariable
+    private var global=GlobalVariable.getInstance()
     private lateinit var mediaPlayer: MediaPlayer
     var poseName=""
 
@@ -70,7 +70,6 @@ class VideoGuide : AppCompatActivity() {
 
         }
 
-        global = application as GlobalVariable
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
@@ -104,6 +103,7 @@ class VideoGuide : AppCompatActivity() {
     }
     override fun onPause() {
         super.onPause()
+        global.TTS.stop()
         if (mediaPlayer.isPlaying) {
             mediaPlayer.pause()
         }

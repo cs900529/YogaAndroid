@@ -6,8 +6,6 @@ import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,11 +26,10 @@ import com.example.yoga.Model.PoseLandmarkerHelper
 import com.example.yoga.R
 import com.example.yoga.databinding.ActivityCalibrationStageBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener{
+class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener{
     //databinding 讓xml調用不綁R.id.xxx
     private lateinit var CalibrationStageBinding: ActivityCalibrationStageBinding
     //拿mediapipe model
@@ -47,10 +44,9 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
-    //文字轉語音
-    private lateinit var textToSpeech: TextToSpeech
+
     private var lastspeak:String = ""
-    lateinit var global: GlobalVariable
+    private var global=GlobalVariable.getInstance()
     private var delate_count : Int = 0
     private lateinit var mediaPlayer: MediaPlayer
 
@@ -62,7 +58,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     fun nextpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
-        textToSpeech.stop()
+        global.TTS.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
         finish()
@@ -71,9 +67,10 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
         setContentView(R.layout.activity_calibration_stage)
-        //文字轉語音設定
-        textToSpeech = TextToSpeech(this, this)
         CalibrationStageBinding = ActivityCalibrationStageBinding.inflate(layoutInflater)
+
+        global.TTS.speak(CalibrationStageBinding.guide.text.toString())
+
         setContentView(CalibrationStageBinding.root)
         CalibrationStageBinding.finish.setOnClickListener {
             nextpage()
@@ -103,7 +100,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         }
 
 
-        global = application as GlobalVariable
+        //global = application as GlobalVariable
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
@@ -195,24 +192,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
             )
         }
     }
-    //文字轉語音用
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            // 设置语言
-            val result = textToSpeech.setLanguage(Locale.TAIWAN)
-
-            // 检查语音数据是否可用
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                // 如果语音数据不可用，可以提示用户下载相应的数据
-            } else {
-                // 文字转语音
-                var text = findViewById<TextView>(R.id.guide).text
-                textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-            }
-        } else {
-            // 初始化失败，可以处理错误情况
-        }
-    }
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         imageAnalyzer?.targetRotation =
@@ -238,16 +217,16 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                         lastspeak = CalibrationStageBinding.guide.text.toString()
                         CalibrationStageBinding.guide.text = "請將人調整至鏡頭裡以完成校正"
                         if (lastspeak != CalibrationStageBinding.guide.text) {
-                            textToSpeech.stop()
-                            textToSpeech.speak("請將人調整至鏡頭裡以完成校正",TextToSpeech.QUEUE_FLUSH, null, null)
+                            global.TTS.stop()
+                            global.TTS.speak("請將人調整至鏡頭裡以完成校正")
                         }
                     }
                     else if (count_node > 16){
                         lastspeak = CalibrationStageBinding.guide.text.toString()
                         CalibrationStageBinding.guide.text = "完成校正"
                         if (lastspeak != CalibrationStageBinding.guide.text) {
-                            textToSpeech.stop()
-                            textToSpeech.speak("完成校正",TextToSpeech.QUEUE_FLUSH, null, null)
+                            global.TTS.stop()
+                            global.TTS.speak("完成校正")
                         }
                     }
                 }
@@ -258,9 +237,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     }
     override fun onDestroy() {
         super.onDestroy()
-        // 释放TextToSpeech资源
-        textToSpeech.stop()
-        textToSpeech.shutdown()
         //關掉相機
         backgroundExecutor.shutdown()
     }
@@ -274,6 +250,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     }
     override fun onPause() {
         super.onPause()
+        global.TTS.stop()
         if (mediaPlayer.isPlaying) {
             mediaPlayer.pause()
         }

@@ -16,7 +16,7 @@ import com.example.yoga.R
 class MainActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
-    lateinit var global: GlobalVariable
+    private var global=GlobalVariable.getInstance()
     fun nextpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
@@ -39,9 +39,6 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST_CODE)
         }
 
-        //val playMusic = intent.getBooleanExtra("playMusic",true)
-
-        global = application as GlobalVariable
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)

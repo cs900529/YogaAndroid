@@ -11,7 +11,6 @@ import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
@@ -46,7 +45,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
-class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener,KSecCountdownTimer.TimerCallback{
+class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,KSecCountdownTimer.TimerCallback{
     //拿mediapipe model
     private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
     private val viewModel : MainViewModel by viewModels()
@@ -66,8 +65,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     private lateinit var yogamatProcessor : PyObject
     private lateinit var feetData : PyObject
 
-    //文字轉語音
-    private lateinit var textToSpeech: TextToSpeech
     //判別文字是否更動用
     private var lastText="提示文字在這"
     //計時器
@@ -76,7 +73,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //結算分數
     private var score = 99.0
 
-    lateinit var global: GlobalVariable
+    private var global=GlobalVariable.getInstance()
     private lateinit var mediaPlayer: MediaPlayer
     //平滑化
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
@@ -91,7 +88,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     fun lastpage(){
         global.currentMS = mediaPlayer.currentPosition
         mediaPlayer.stop()
-        textToSpeech.stop()
+        timer30S.stopTimer()
+        timerCurrent.handlerStop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
         finish()
@@ -110,6 +108,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     //30秒倒數結束
     override fun onTimerFinished() {
         timer30S.setRemainTimeStr("结束")
+        timer30S.stopTimer()
         //停止计时
         timerCurrent.handlerStop()
         score = timerCurrent.getScore()
@@ -142,8 +141,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     }
 
     private fun TTSSpeak(str:String){
-        textToSpeech.stop()
-        textToSpeech.speak(str, TextToSpeech.QUEUE_FLUSH, null, null)
+        global.TTS.stop()
+        global.TTS.speak(str)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -172,8 +171,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         yogamatProcessor = python.getModule("YogaMatProcessor").callAttr("YogaMatProcessor", 1920, 1080)
         feetData = python.getModule("FeetData").callAttr("FeetData", null, null)
-
-        // drawYogaMat = python.getModule("draw_yoga_mat").callAttr("ImageProcessor", 1920, 1080)
 
         yogamainBinding.title.text = poseName
 
@@ -210,10 +207,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     poseLandmarkerHelperListener = this
             )
         }
-        //文字轉語音設定
-        textToSpeech = TextToSpeech(this, this)
 
-        global = application as GlobalVariable
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
@@ -240,22 +234,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
 
         myThread?.start()
     }
-    //文字轉語音用
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            // 设置语言
-            val result = textToSpeech.setLanguage(Locale.TAIWAN)
-
-            // 检查语音数据是否可用
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                // 如果语音数据不可用，可以提示用户下载相应的数据
-            } else {
-                // 文字转语音
-            }
-        } else {
-            // 初始化失败，可以处理错误情况
-        }
-    }
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -264,11 +242,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             val cameraProvider :ProcessCameraProvider = cameraProviderFuture.get()
             val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
             val cameraFacing = cameraManager.cameraIdList[0].toInt()
-
             // 配置预览
             //val aspectRatio: Rational = Rational(16, 9) // 指定16:9的寬高比
             //val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
-
             val preview :Preview = Preview.Builder()
                 //.setTargetResolution(size)
                 .build()
@@ -305,7 +281,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
             }
         }, ContextCompat.getMainExecutor(this))
     }
-
     private fun detectPose(imageProxy: ImageProxy) {
         if(this::poseLandmarkerHelper.isInitialized) {
             poseLandmarkerHelper.detectLiveStream(
@@ -513,16 +488,16 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     }
     override fun onDestroy() {
         super.onDestroy()
+        timer30S.stopTimer()
+        timerCurrent.handlerStop()
         //關掉相機
         backgroundExecutor.shutdown()
-        // 释放TextToSpeech资源
-        textToSpeech.stop()
-        textToSpeech.shutdown()
         // 在Activity銷毀時結束thread
         myThread?.interrupt()
     }
     override fun onPause() {
         super.onPause()
+        global.TTS.stop()
         if (mediaPlayer.isPlaying) {
             mediaPlayer.pause()
         }

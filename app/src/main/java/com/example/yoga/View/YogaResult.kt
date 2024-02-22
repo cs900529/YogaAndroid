@@ -13,7 +13,7 @@ import com.example.yoga.databinding.ActivityYogaResultBinding
 
 class YogaResult : AppCompatActivity() {
     private lateinit var yogaResultBinding: ActivityYogaResultBinding
-    lateinit var global: GlobalVariable
+    private var global=GlobalVariable.getInstance()
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var python : Python
     private lateinit var heatmapReturn : PyObject
@@ -70,7 +70,6 @@ class YogaResult : AppCompatActivity() {
             lastpage()
         }
 
-        global = application as GlobalVariable
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)

@@ -102,6 +102,11 @@ class KSecCountdownTimer(k: Long) {
         timer?.cancel()
         timer = null
     }
+    fun stopTimer(){
+        timer?.cancel()
+        timer = null
+        callback = null
+    }
     fun getRemainTimeStr():String{return timeLeft_str}
     fun setRemainTimeStr(str:String){timeLeft_str=str}
     fun isNotRunning():Boolean{return timer==null}

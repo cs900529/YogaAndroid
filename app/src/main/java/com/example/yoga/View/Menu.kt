@@ -16,7 +16,7 @@ import com.example.yoga.databinding.ActivityMenuBinding
 class Menu : AppCompatActivity() {
     private lateinit var menuBinding: ActivityMenuBinding
     private lateinit var mediaPlayer: MediaPlayer
-    lateinit var global: GlobalVariable
+    private var global=GlobalVariable.getInstance()
     private lateinit var currentSelect:Button  //call by reference
 
     // yogamap function
@@ -172,7 +172,6 @@ class Menu : AppCompatActivity() {
             selectTo(menuBinding.button10)
             nextpage("Bridge pose")
         }
-        global = application as GlobalVariable
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
         mediaPlayer.seekTo(global.currentMS)
