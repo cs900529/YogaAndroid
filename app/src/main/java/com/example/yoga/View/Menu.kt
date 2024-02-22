@@ -17,8 +17,6 @@ class Menu : AppCompatActivity() {
     private lateinit var menuBinding: ActivityMenuBinding
     private lateinit var mediaPlayer: MediaPlayer
     lateinit var global: GlobalVariable
-    //data class menuReference(var currentSelect: Button)
-    //private lateinit var currentSelect:menuReference  //call by reference
     private lateinit var currentSelect:Button  //call by reference
 
     // yogamap function
@@ -120,12 +118,6 @@ class Menu : AppCompatActivity() {
         supportActionBar?.hide() // 隐藏title bar
 
         currentSelect = menuBinding.button1
-
-        //controller debug
-        //menuBinding.btnUp.setOnClickListener { up() }
-        //menuBinding.btnDown.setOnClickListener { down() }
-        //menuBinding.btnLeft.setOnClickListener { left() }
-        //menuBinding.btnRight.setOnClickListener { right() }
 
         menuBinding.back.setOnClickListener {
             lastpage()

@@ -83,30 +83,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                 e.printStackTrace()
             }
         }
-
-
-
-        //// 連接前鏡頭
-        //surfaceView = findViewById(R.id.camera)
-        //surfaceHolder = surfaceView?.holder
-        //surfaceHolder?.addCallback(object : SurfaceHolder.Callback {
-        //    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        //        // 在此处配置相机参数，例如设置摄像头预览尺寸
-        //    }
-//
-        //    override fun surfaceCreated(holder: SurfaceHolder) {
-        //        // 打开前置摄像头
-        //        camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
-        //        camera?.setPreviewDisplay(holder)
-        //        camera?.startPreview()
-        //    }
-//
-        //    override fun surfaceDestroyed(holder: SurfaceHolder) {
-        //        // 释放相机资源
-        //        camera?.stopPreview()
-        //        camera?.release()
-        //    }
-        //})
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
 

@@ -34,6 +34,7 @@ import com.example.yoga.Model.MainViewModel
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.Model.KSecCountdownTimer
 import com.example.yoga.Model.PoseLandmarkerHelper
+import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
 import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -84,6 +85,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
     // yogamap return
     private lateinit var heatmapReturn : PyObject
     private var myThread: Thread? = null
+    //file getter
+    private var fileGetter=fileNameGetter()
 
     fun lastpage(){
         global.currentMS = mediaPlayer.currentPosition
@@ -120,54 +123,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         yogamainBinding.timeLeftBar.layoutParams = layoutParams
         yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
     }
-    //獲取影片檔案
-    private fun getfile(filename: String): Int {
-        return when (filename) {
-            "Tree Style" -> R.raw.tree_style_show
-            "Warrior2 Style" -> R.raw.warrior2_style_show
-            "Plank" -> R.raw.plank_show
-            "Reverse Plank" -> R.raw.reverse_plank_show
-            "Child's pose" -> R.raw.child_show
-            "Seated Forward Bend" -> R.raw.seated_forward_bend_show
-            "Low Lunge" -> R.raw.low_lunge_show
-            "Downward dog" -> R.raw.downward_dog_show
-            "Pyramid pose" -> R.raw.pyramid_pose_show
-            "Bridge pose" -> R.raw.bridge_show
-            else -> R.raw.tree_style
-        }
-    }
-    // Function to get image resource based on poseName
-    private fun getDefaultPic(filename: String?): String {
-        return when (filename) {
-            "Tree Style" -> "TreePose/8"
-            "Warrior2 Style" -> "WarriorIIRulePic/8"
-            "Plank" -> "PlankPose/10"
-            "Reverse Plank" -> "ReversePlankPose/6"
-            "Child's pose" -> "ChildsPose/5"
-            "Seated Forward Bend" -> "SeatedForwardBendPose/5"
-            "Low Lunge" -> "LowLungePose/5"
-            "Downward dog" -> "DownwardDogPose/6"
-            "Pyramid pose" -> "Pyramidpose/6"
-            "Bridge pose" -> "BridgePose/5"
-            else -> "TreePose/8"
-        }
-    }
-    // Function to get image resource based on poseName
-    private fun getPoseFolder(filename: String?): String {
-        return when (filename) {
-            "Tree Style" -> "TreePose"
-            "Warrior2 Style" -> "WarriorIIRulePic"
-            "Plank" -> "PlankPose"
-            "Reverse Plank" -> "ReversePlankPose"
-            "Child's pose" -> "ChildsPose"
-            "Seated Forward Bend" -> "SeatedForwardBendPose"
-            "Low Lunge" -> "LowLungePose"
-            "Downward dog" -> "DownwardDogPose"
-            "Pyramid pose" -> "Pyramidpose"
-            "Bridge pose" -> "BridgePose"
-            else -> "TreePose"
-        }
-    }
+
     private fun setImage(imagePath: String?) {
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
         var am: AssetManager? = null
@@ -224,7 +180,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         var am: AssetManager? = null
         am = assets
 
-        val pic = am.open("image/"+getDefaultPic(poseName)+".jpg")
+        val pic = am.open("image/"+fileGetter.getDefaultPic(poseName)+".jpg")
         // Decode the input stream into a Drawable
         val drawable = Drawable.createFromStream(pic, null)
         // Set the drawable as the image source for the ImageView
@@ -232,12 +188,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         // Close the input stream when you're done
         pic.close()
 
-
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
         // 初始化 CameraX
         startCamera()
-
 
         //設定PoseLandmarkerHelper
         backgroundExecutor.execute {
@@ -252,7 +206,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
                     poseLandmarkerHelperListener = this
             )
         }
-
         //文字轉語音設定
         textToSpeech = TextToSpeech(this, this)
 
