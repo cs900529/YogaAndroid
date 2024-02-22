@@ -123,7 +123,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener, 
         yogamainBinding.timeLeftBar.layoutParams = layoutParams
         yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
     }
-
+    //Timer TTS speak
+    override fun timerSpeak(str: String) {
+        if(str != "")
+            TTSSpeak(str)
+    }
     private fun setImage(imagePath: String?) {
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
         var am: AssetManager? = null

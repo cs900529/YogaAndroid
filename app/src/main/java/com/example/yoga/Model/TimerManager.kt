@@ -38,6 +38,7 @@ class KSecCountdownTimer(k: Long) {
     interface TimerCallback {//回調函式，跨class傳遞參數用
         fun onTimerFinished()
         fun updateColorBar(currentMS:Long,maxMS:Long)
+        fun timerSpeak(str: String)
     }
     private var timer: CountDownTimer? = null
     private var k=k
@@ -46,7 +47,6 @@ class KSecCountdownTimer(k: Long) {
     private var countDown = BooleanArray(7) { true }
     private var callback: TimerCallback? = null
     private var color=ColorGenerator()
-
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -55,36 +55,37 @@ class KSecCountdownTimer(k: Long) {
                 timeLeft_str = (ms_remain / 1000f).toString()
 
                 callback?.updateColorBar(ms_remain,k*1000)
-                //tts
-                if (ms_remain < 20000L && countDown[0]) {
-                    //TTSSpeak("二十秒")
-                    countDown[0] = false
-                } else if (ms_remain < 10000L && countDown[1]) {
-                    //TTSSpeak("十秒")
-                    countDown[1] = false
-                } else if (ms_remain < 5000L && countDown[2]) {
-                    //TTSSpeak("五")
-                    countDown[2] = false
-                } else if (ms_remain < 4000L && countDown[3]) {
-                    //TTSSpeak("四")
-                    countDown[3] = false
-                } else if (ms_remain < 3000L && countDown[4]) {
-                    //TTSSpeak("三")
-                    countDown[4] = false
-                } else if (ms_remain < 2000L && countDown[5]) {
-                    //TTSSpeak("二")
-                    countDown[5] = false
-                } else if (ms_remain < 1000L && countDown[6]) {
-                    //TTSSpeak("一")
-                    countDown[6] = false
-                }
+                callback?.timerSpeak(generateSpeakStr(ms_remain))
             }
-
-            override fun onFinish() {
-                // 计时器倒数完毕时触发的逻辑
+            override fun onFinish() {// 计时器倒数完毕时触发的逻辑
                 callback?.onTimerFinished()
             }
         }
+    }
+    private fun generateSpeakStr(currentMS: Long):String{
+        if (currentMS < 20000L && countDown[0]) {
+            countDown[0] = false
+            return "二十秒"
+        } else if (currentMS < 10000L && countDown[1]) {
+            countDown[1] = false
+            return "十秒"
+        } else if (currentMS < 5000L && countDown[2]) {
+            countDown[2] = false
+            return "五"
+        } else if (currentMS < 4000L && countDown[3]) {
+            countDown[3] = false
+            return "四"
+        } else if (currentMS < 3000L && countDown[4]) {
+            countDown[4] = false
+            return "三"
+        } else if (currentMS < 2000L && countDown[5]) {
+            countDown[5] = false
+            return "二"
+        } else if (currentMS < 1000L && countDown[6]) {
+            countDown[6] = false
+            return "一"
+        }
+        return ""
     }
 
     fun startTimer(callback: TimerCallback) {
@@ -96,7 +97,7 @@ class KSecCountdownTimer(k: Long) {
     fun resetTimer() {
         countDown = BooleanArray(7) { true }
         // 重置计时器为K秒
-        timeLeft_ms = 30000
+        timeLeft_ms = k*1000
         timeLeft_str = ""
         timer?.cancel()
         timer = null
