@@ -1,15 +1,12 @@
 package com.example.yoga.View
 
-import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.VideoView
-
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -19,7 +16,6 @@ import com.example.yoga.R
 
 class VideoGuide : AppCompatActivity() {
     private var global=GlobalVariable.getInstance()
-    private lateinit var mediaPlayer: MediaPlayer
     var poseName=""
 
     // yogamap next
@@ -29,8 +25,6 @@ class VideoGuide : AppCompatActivity() {
     private var fileGetter=fileNameGetter()
 
     fun nextpage(){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         val intent = Intent(this, YogaMain::class.java).apply {
             putExtra("poseName",poseName)
         }
@@ -70,11 +64,6 @@ class VideoGuide : AppCompatActivity() {
 
         }
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.seekTo(global.currentMS)
-        mediaPlayer.start()
-
         //啟動python
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
@@ -104,15 +93,11 @@ class VideoGuide : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         global.TTS.stop()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
+        global.backgroundMusic.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
+        global.backgroundMusic.play()
     }
 }

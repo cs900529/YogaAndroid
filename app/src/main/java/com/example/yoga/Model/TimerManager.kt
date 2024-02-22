@@ -1,16 +1,10 @@
 package com.example.yoga.Model
 
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.SystemClock
 import androidx.annotation.RequiresApi
-
-class TimerManager {
-
-}
 
 class FinishTimer{
     private var finishTime = 0.0

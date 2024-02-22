@@ -1,7 +1,6 @@
 package com.example.yoga.View
 
 import android.content.Intent
-import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.chaquo.python.PyObject
@@ -14,13 +13,10 @@ import com.example.yoga.databinding.ActivityYogaResultBinding
 class YogaResult : AppCompatActivity() {
     private lateinit var yogaResultBinding: ActivityYogaResultBinding
     private var global=GlobalVariable.getInstance()
-    private lateinit var mediaPlayer: MediaPlayer
     private lateinit var python : Python
     private lateinit var heatmapReturn : PyObject
     private var myThread: Thread? = null
     fun lastpage(){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
         finish()
@@ -69,11 +65,6 @@ class YogaResult : AppCompatActivity() {
         yogaResultBinding.back.setOnClickListener {
             lastpage()
         }
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.seekTo(global.currentMS)
-        mediaPlayer.start()
     }
     override fun onDestroy() {
         super.onDestroy()
@@ -83,15 +74,10 @@ class YogaResult : AppCompatActivity() {
     }
     override fun onPause() {
         super.onPause()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
+        global.backgroundMusic.pause()
     }
-
     override fun onResume() {
         super.onResume()
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
+        global.backgroundMusic.play()
     }
 }

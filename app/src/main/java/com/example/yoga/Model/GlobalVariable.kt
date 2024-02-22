@@ -2,12 +2,9 @@ package com.example.yoga.Model
 
 import MyTTS
 import android.app.Application
-import android.media.MediaPlayer
-import android.speech.tts.TextToSpeech
-
 class GlobalVariable: Application() {
-    var currentMS = 0
     lateinit var TTS:MyTTS
+    lateinit var backgroundMusic:MyMediaPlayer
     companion object {//單例模式
         @Volatile
         private var instance: GlobalVariable? = null
@@ -23,7 +20,10 @@ class GlobalVariable: Application() {
         super.onCreate()
         instance = this
 
-        TTS = MyTTS(applicationContext)
+        TTS = MyTTS()
         TTS.init(applicationContext)
+
+        backgroundMusic = MyMediaPlayer()
+        backgroundMusic.init(applicationContext)
     }
 }

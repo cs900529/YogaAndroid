@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -39,8 +38,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     private var imageAnalyzer: ImageAnalysis? = null
     //前鏡頭
     private var camera: Camera? = null
-    //private var surfaceView: SurfaceView? = null
-    //private var surfaceHolder: SurfaceHolder? = null
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     //開個thread
     private lateinit var backgroundExecutor: ExecutorService
@@ -48,16 +45,12 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     private var lastspeak:String = ""
     private var global=GlobalVariable.getInstance()
     private var delate_count : Int = 0
-    private lateinit var mediaPlayer: MediaPlayer
-
     // yogamap next
     private lateinit var python : Python
     private lateinit var heatmapNext : PyObject
     private var nextThread: Thread? = null
 
     fun nextpage(){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         global.TTS.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
@@ -98,13 +91,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                     poseLandmarkerHelperListener = this
             )
         }
-
-
-        //global = application as GlobalVariable
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.seekTo(global.currentMS)
-        mediaPlayer.start()
 
         //啟動python
         if (!Python.isStarted()) {
@@ -251,16 +237,12 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     override fun onPause() {
         super.onPause()
         global.TTS.stop()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
+        global.backgroundMusic.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
+        global.backgroundMusic.play()
     }
 
 }

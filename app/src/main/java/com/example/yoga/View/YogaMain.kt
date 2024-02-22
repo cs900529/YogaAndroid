@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -40,7 +39,6 @@ import com.google.mediapipe.tasks.vision.core.RunningMode
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -74,7 +72,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var score = 99.0
 
     private var global=GlobalVariable.getInstance()
-    private lateinit var mediaPlayer: MediaPlayer
     //平滑化
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
@@ -86,8 +83,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var fileGetter=fileNameGetter()
 
     fun lastpage(){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         timer30S.stopTimer()
         timerCurrent.handlerStop()
         val intent = Intent(this, Menu::class.java)
@@ -95,8 +90,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -207,12 +200,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     poseLandmarkerHelperListener = this
             )
         }
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.seekTo(global.currentMS)
-        mediaPlayer.start()
-
         // yogamap return
         heatmapReturn = python.getModule("heatmap")
 
@@ -290,7 +277,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             )
         }
     }
-
     private fun readBytesFromFile(filePath: String): ByteArray? {
         var fileBytes: ByteArray? = null
         try {
@@ -303,7 +289,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         }
         return fileBytes
     }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         imageAnalyzer?.targetRotation =
@@ -436,7 +421,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
                                 heatmappy.callAttr("get_center"), feet_data).toString()
 
-                        
                         if (guideStr.iterator().hasNext()) {
                             val re = guideStr.split(',')
                             val re_0 = re[0].length
@@ -461,18 +445,15 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 // Handle cases where the result does not behave like an iterable (e.g., not a list)
                                 println("Result is not iterable like a list")
                         }
-
                         //30秒計時器
-                        if(true){//debug
-                        //if (lastText.contains("動作正確")) {
+                        //if(true){//debug
+                        if (lastText.contains("動作正確")) {
                             if (timer30S.isNotRunning())
                                 timer30S.startTimer(this)
                             yogamainBinding.guide.text = lastText + " " + timer30S.getRemainTimeStr()
                         } else
                             timer30S.resetTimer()
                     }
-
-
                     // Force a redraw
                     yogamainBinding.overlay.invalidate()
                 }
@@ -498,15 +479,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     override fun onPause() {
         super.onPause()
         global.TTS.stop()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
+        global.backgroundMusic.pause()
     }
-
     override fun onResume() {
         super.onResume()
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
+        global.backgroundMusic.play()
     }
 }

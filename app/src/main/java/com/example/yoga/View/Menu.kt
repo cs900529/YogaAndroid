@@ -2,7 +2,6 @@ package com.example.yoga.View
 
 import android.content.Intent
 import android.graphics.Color
-import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -10,12 +9,10 @@ import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
-import com.example.yoga.R
 import com.example.yoga.databinding.ActivityMenuBinding
 
 class Menu : AppCompatActivity() {
     private lateinit var menuBinding: ActivityMenuBinding
-    private lateinit var mediaPlayer: MediaPlayer
     private var global=GlobalVariable.getInstance()
     private lateinit var currentSelect:Button  //call by reference
 
@@ -26,8 +23,6 @@ class Menu : AppCompatActivity() {
     private var functionNumber: Int = 0
 
     fun lastpage(){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("playMusic",false)
         }
@@ -38,8 +33,6 @@ class Menu : AppCompatActivity() {
         nextpage(currentSelect.text.toString())
     }
     fun nextpage(posename:String){
-        global.currentMS = mediaPlayer.currentPosition
-        mediaPlayer.stop()
         val intent = Intent(this, VideoGuide::class.java).apply {
             putExtra("poseName",posename)
         }
@@ -172,10 +165,6 @@ class Menu : AppCompatActivity() {
             selectTo(menuBinding.button10)
             nextpage("Bridge pose")
         }
-        mediaPlayer = MediaPlayer.create(this, R.raw.background_music)
-        mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.seekTo(global.currentMS)
-        mediaPlayer.start()
 
         select()
 
@@ -220,15 +209,11 @@ class Menu : AppCompatActivity() {
     }
     override fun onPause() {
         super.onPause()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
+        global.backgroundMusic.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
+        global.backgroundMusic.play()
     }
 }

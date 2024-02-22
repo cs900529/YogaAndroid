@@ -2,7 +2,7 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 
-class MyTTS(private val context: Context){
+class MyTTS(){
     private var textToSpeech: TextToSpeech? = null
     fun init(context: Context) {
         if (textToSpeech == null) {
