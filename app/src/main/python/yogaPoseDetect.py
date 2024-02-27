@@ -40,7 +40,7 @@ class YogaPose:
             jsonfile_path = f"JsonFile/TreePose/sample.json"
         elif type == 'Warrior2 Style':
             roi = {
-                'RIGHT_ANKLE': False,
+                'LEFT_ANKLE': False,
                 'RIGHT_KNEE': False,
                 'LEFT_KNEE': False,
                 'LEFT_HIP': False,
