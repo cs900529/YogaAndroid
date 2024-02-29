@@ -223,4 +223,8 @@ class Menu : AppCompatActivity() {
         super.onResume()
         global.backgroundMusic.play()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
 }

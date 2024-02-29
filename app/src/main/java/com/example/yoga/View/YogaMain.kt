@@ -67,7 +67,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var lastText="提示文字在這"
     //計時器
     private var timerCurrent = FinishTimer()
-    private var timer30S = KSecCountdownTimer(30)
+    private var timer30S = KSecCountdownTimer(3)
     //結算分數
     private var score = 99.0
 
@@ -90,6 +90,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
+        println("call# nextpage")
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -100,6 +101,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     }
     //30秒倒數結束
     override fun onTimerFinished() {
+        println("call# ontimerfinish")
         timer30S.setRemainTimeStr("结束")
         timer30S.stopTimer()
         //停止计时
@@ -448,8 +450,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 println("Result is not iterable like a list")
                         }
                         //30秒計時器
-                        //if(true){//debug
-                        if (lastText.contains("動作正確")) {
+                        if(true){//debug
+                        //if (lastText.contains("動作正確")) {
                             if (timer30S.isNotRunning())
                                 timer30S.startTimer(this)
                             yogamainBinding.guide.text = lastText + " " + timer30S.getRemainTimeStr()
@@ -473,6 +475,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         super.onDestroy()
         timer30S.stopTimer()
         timerCurrent.handlerStop()
+
         //關掉相機
         backgroundExecutor.shutdown()
         // 在Activity銷毀時結束thread
