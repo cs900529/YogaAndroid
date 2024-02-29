@@ -179,7 +179,7 @@ class Menu : AppCompatActivity() {
 
         // yogamap nextpage
         functionThread = Thread {
-            Thread.sleep(2000)
+            Thread.sleep(1000)
             try {
                 while (true) {
                     functionNumber = heatmapFunction.callAttr("checkFunction").toInt()
@@ -198,7 +198,6 @@ class Menu : AppCompatActivity() {
                         nextpage()
                         break
                     }
-                    Thread.sleep(500)
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()

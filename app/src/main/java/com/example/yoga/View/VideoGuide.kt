@@ -13,6 +13,7 @@ import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
+import kotlinx.coroutines.delay
 
 class VideoGuide : AppCompatActivity() {
     private var global=GlobalVariable.getInstance()
@@ -61,14 +62,13 @@ class VideoGuide : AppCompatActivity() {
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
-
         }
 
         //啟動python
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
         }
-        /*python = Python.getInstance()
+        python = Python.getInstance()
 
         // yogamap return
         heatmapNext = python.getModule("heatmap")
@@ -88,7 +88,7 @@ class VideoGuide : AppCompatActivity() {
             }
         }
 
-        nextThread?.start()*/
+        nextThread?.start()
     }
     override fun onPause() {
         super.onPause()
