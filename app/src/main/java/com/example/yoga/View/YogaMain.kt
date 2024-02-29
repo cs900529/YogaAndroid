@@ -67,7 +67,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var lastText="提示文字在這"
     //計時器
     private var timerCurrent = FinishTimer()
-    private var timer30S = KSecCountdownTimer(30)
+    private var timer30S = KSecCountdownTimer(7)
     //結算分數
     private var score = 99.0
 
@@ -208,7 +208,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         // yogamap return
         myThread = Thread {
             try {
-                Thread.sleep(1500)
+                Thread.sleep(2000)
                 while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
                     Thread.sleep(100)
                     print("checkReturn")

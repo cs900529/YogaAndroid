@@ -62,13 +62,13 @@ class KSecCountdownTimer(k: Long) {
         }
     }
     private fun generateSpeakStr(currentMS: Long):String{
-        if (currentMS < 20000L && countDown[0]) {
+        /*if(currentMS < 20000L && countDown[0]) {
             countDown[0] = false
             return "二十秒"
         } else if (currentMS < 10000L && countDown[1]) {
             countDown[1] = false
             return "十秒"
-        } else if (currentMS < 5000L && countDown[2]) {
+        } else */if (currentMS < 5000L && countDown[2]) {
             countDown[2] = false
             return "五"
         } else if (currentMS < 4000L && countDown[3]) {

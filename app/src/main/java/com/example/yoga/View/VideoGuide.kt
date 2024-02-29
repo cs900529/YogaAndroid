@@ -77,7 +77,7 @@ class VideoGuide : AppCompatActivity() {
         // yogamap return
         nextThread = Thread {
             try {
-                Thread.sleep(1000)
+                Thread.sleep(2000)
                 while (!heatmapNext.callAttr("checkReturn").toBoolean()) {
                     Thread.sleep(100)
                 }
