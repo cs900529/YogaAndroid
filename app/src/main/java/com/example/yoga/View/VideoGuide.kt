@@ -26,6 +26,13 @@ class VideoGuide : AppCompatActivity() {
     private var fileGetter=fileNameGetter()
 
     fun nextpage(){
+
+        try {
+            nextThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, YogaMain::class.java).apply {
             putExtra("poseName",poseName)
         }
@@ -56,12 +63,6 @@ class VideoGuide : AppCompatActivity() {
         val finish = findViewById<ImageButton>(R.id.finish)
         finish.setOnClickListener {
             nextpage()
-
-            try {
-                nextThread?.interrupt()
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
         }
 
         //啟動python
