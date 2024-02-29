@@ -67,7 +67,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var lastText="提示文字在這"
     //計時器
     private var timerCurrent = FinishTimer()
-    private var timer30S = KSecCountdownTimer(3)
+    private var timer30S = KSecCountdownTimer(30)
     //結算分數
     private var score = 99.0
 
@@ -450,8 +450,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 println("Result is not iterable like a list")
                         }
                         //30秒計時器
-                        if(true){//debug
-                        //if (lastText.contains("動作正確")) {
+                        //if(true){//debug
+                        if (lastText.contains("動作正確")) {
                             if (timer30S.isNotRunning())
                                 timer30S.startTimer(this)
                             yogamainBinding.guide.text = lastText + " " + timer30S.getRemainTimeStr()

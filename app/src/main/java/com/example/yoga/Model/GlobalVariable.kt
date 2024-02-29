@@ -26,4 +26,10 @@ class GlobalVariable: Application() {
         backgroundMusic = MyMediaPlayer()
         backgroundMusic.init(applicationContext)
     }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        backgroundMusic.stop()
+        TTS.stop()
+    }
 }
