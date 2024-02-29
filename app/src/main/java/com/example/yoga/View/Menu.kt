@@ -33,6 +33,13 @@ class Menu : AppCompatActivity() {
         nextpage(currentSelect.text.toString())
     }
     fun nextpage(posename:String){
+
+        try {
+            functionThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, VideoGuide::class.java).apply {
             putExtra("poseName",posename)
         }
@@ -198,6 +205,7 @@ class Menu : AppCompatActivity() {
                         nextpage()
                         break
                     }
+                    Thread.sleep(500)
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
