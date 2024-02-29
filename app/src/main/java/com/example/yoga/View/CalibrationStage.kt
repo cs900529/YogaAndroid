@@ -51,6 +51,13 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     private var nextThread: Thread? = null
 
     fun nextpage(){
+
+        try {
+            nextThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         global.TTS.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
@@ -67,11 +74,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         setContentView(CalibrationStageBinding.root)
         CalibrationStageBinding.finish.setOnClickListener {
             nextpage()
-            try {
-                nextThread?.interrupt()
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
         }
         backgroundExecutor = Executors.newSingleThreadExecutor()
 

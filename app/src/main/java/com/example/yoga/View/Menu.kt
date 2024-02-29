@@ -23,6 +23,13 @@ class Menu : AppCompatActivity() {
     private var functionNumber: Int = 0
 
     fun lastpage(){
+
+        try {
+            functionThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("playMusic",false)
         }
@@ -186,7 +193,7 @@ class Menu : AppCompatActivity() {
 
         // yogamap nextpage
         functionThread = Thread {
-            Thread.sleep(1000)
+            Thread.sleep(2000)
             try {
                 while (true) {
                     functionNumber = heatmapFunction.callAttr("checkFunction").toInt()
@@ -205,7 +212,7 @@ class Menu : AppCompatActivity() {
                         nextpage()
                         break
                     }
-                    Thread.sleep(500)
+                    Thread.sleep(750)
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()

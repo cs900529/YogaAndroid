@@ -17,6 +17,13 @@ class YogaResult : AppCompatActivity() {
     private lateinit var heatmapReturn : PyObject
     private var myThread: Thread? = null
     fun lastpage(){
+
+        try {
+            myThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
         finish()
