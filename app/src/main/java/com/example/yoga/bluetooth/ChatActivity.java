@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.yoga.View.CalibrationStage;
 import com.example.yoga.R;
 
+import java.util.Objects;
+
 public class ChatActivity extends AppCompatActivity {
     private BluetoothClient client;
 
@@ -20,8 +22,11 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String remoteAddress = intent.getStringExtra("remoteAddress");
         String filePath = getFilesDir().getPath() + "/yourFile.txt";
-        client = new BluetoothClient(remoteAddress); //mHandler,
-        client.begin_listen(filePath);
+
+        if(!Objects.equals(remoteAddress, "0")){
+            client = new BluetoothClient(remoteAddress); //mHandler,
+            client.begin_listen(filePath);
+        }
 
         // intent 回瑜珈主程式
         Intent intent_main = new Intent(this, CalibrationStage.class);

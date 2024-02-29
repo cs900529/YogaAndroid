@@ -206,7 +206,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         // yogamap return
         myThread = Thread {
             try {
-                Thread.sleep(2000)
+                Thread.sleep(1500)
                 while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
                     Thread.sleep(100)
                     print("checkReturn")
@@ -246,7 +246,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             // ImageAnalysis. Using RGBA 8888 to match how our models work
             imageAnalyzer =
                 ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                    .setTargetRotation(yogamainBinding.camera.display.rotation)
+                    //.setTargetRotation(yogamainBinding.camera.display.rotation) // 模擬器需要指定旋轉
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .build()
@@ -304,7 +304,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             if (count_result == 0){
                 count_result += 1
                 this.runOnUiThread {
-                    val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+                    // heatmap 顯示 (目前沒用到)
+                    /*val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
                     thread {
                         heatmapexecutor.execute {
                             val fileName = "yourFile.txt"
@@ -321,7 +323,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 // 檢查解碼的 Bitmap 是否為空
                                 if (bmp != null) {
                                     runOnUiThread {
-//                                        yogamainBinding.imageView2.setImageBitmap(bmp)
+                                        //yogamainBinding.imageView2.setImageBitmap(bmp)
                                     }
                                 } else {
                                     // 處理解碼失敗的情況
@@ -332,7 +334,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 Log.e("BitmapFactory", "ByteArray is null or empty")
                             }
                         }
-                    }
+                    }*/
 
                     if (resultBundle.results.first().landmarks().isNotEmpty()) {
                         val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
