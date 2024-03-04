@@ -164,8 +164,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
         heatmappy = python.getModule("heatmap")
 
-        yogamatProcessor = python.getModule("YogaMatProcessor").callAttr("YogaMatProcessor", 1920, 1080)
-        feetData = python.getModule("FeetData").callAttr("FeetData", null, null)
+        yogamatProcessor = python.getModule("YogaMatProcessor").callAttr("YogaMatProcessor")
 
         yogamainBinding.title.text = poseName
 
@@ -409,21 +408,20 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             }
 
                         var center = heatmappy.callAttr("get_center")
-                        println("center$center")
-                        var feet_data = yogamatProcessor.callAttr("get_feet_data", point2d, floatListList,center )
+                        // 取得腳在瑜珈墊上面的座標
+                        var feet_data_str = yogamatProcessor.callAttr("generate_feet_data", point2d, floatListList)
 
-                        feetData.callAttr("build", feet_data)
-
-                        var left_x = feetData.callAttr("get_left_foot_x").toFloat()
-                        var left_y = feetData.callAttr("get_left_foot_y").toFloat()
-                        var right_x = feetData.callAttr("get_right_foot_x").toFloat()
-                        var right_y = feetData.callAttr("get_right_foot_y").toFloat()
+                        // 如果沒有該腳的資料，會回傳 -999999
+                        var left_x = yogamatProcessor.callAttr("get_left_foot_x").toFloat()
+                        var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
+                        var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
+                        var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
 
                         yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
                         yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
 
                         var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                                heatmappy.callAttr("get_center"), feet_data).toString()
+                                center, feet_data_str).toString()
 
                         if (guideStr.iterator().hasNext()) {
                             val re = guideStr.split(',')
