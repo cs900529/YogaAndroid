@@ -221,22 +221,16 @@ class YogaPose:
         #return self.sample_angle_dict
 
     def detect(self, point, rect , center, feet_data_json):
-
         self.tips = ""
         point3d = []
 
-        print("feet in detect json", feet_data_json)
         feet_data = FeetData.from_dict(feet_data_json)
-        print("feet in detect", feet_data)
 
-        feet_data.center = [432, 222]
+        feet_count = feet_data.get_feet_count_on_mat()
+        # print("feet : 瑜珈墊上的腳數量:", feet_count)
 
-
-        feet_count = feet_data.get_non_empty_feet_count()
-        print("feet : 非空腳的數量:", feet_count)
-
-        closer_foot = feet_data.get_closer_foot_to_center()
-        print("feet : 靠近重心的腳:", closer_foot)
+        closer_foot = feet_data.get_closer_foot_to_center(center)
+        # print("feet : 靠近重心的腳:", closer_foot)
 
         for i in range(point.size()):
             ang = []
