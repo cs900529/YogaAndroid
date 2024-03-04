@@ -51,6 +51,13 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
     private var nextThread: Thread? = null
 
     fun nextpage(){
+
+        try {
+            nextThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         global.TTS.stop()
         val intent = Intent(this, Menu::class.java)
         startActivity(intent)
@@ -67,11 +74,6 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         setContentView(CalibrationStageBinding.root)
         CalibrationStageBinding.finish.setOnClickListener {
             nextpage()
-            try {
-                nextThread?.interrupt()
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
         }
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -146,7 +148,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
             // ImageAnalysis. Using RGBA 8888 to match how our models work
             imageAnalyzer =
                 ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                    .setTargetRotation(CalibrationStageBinding.camera.display.rotation)
+                    //.setTargetRotation(CalibrationStageBinding.camera.display.rotation) // 模擬器需要指定旋轉
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .build()

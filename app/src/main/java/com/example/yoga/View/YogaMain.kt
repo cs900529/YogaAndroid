@@ -67,7 +67,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var lastText="提示文字在這"
     //計時器
     private var timerCurrent = FinishTimer()
-    private var timer30S = KSecCountdownTimer(30)
+    private var timer30S = KSecCountdownTimer(7)
     //結算分數
     private var score = 99.0
 
@@ -90,6 +90,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
+        println("call# nextpage")
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -100,6 +101,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     }
     //30秒倒數結束
     override fun onTimerFinished() {
+        println("call# ontimerfinish")
         timer30S.setRemainTimeStr("结束")
         timer30S.stopTimer()
         //停止计时
@@ -245,7 +247,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             // ImageAnalysis. Using RGBA 8888 to match how our models work
             imageAnalyzer =
                 ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                    .setTargetRotation(yogamainBinding.camera.display.rotation)
+                    //.setTargetRotation(yogamainBinding.camera.display.rotation) // 模擬器需要指定旋轉
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .build()
@@ -303,7 +305,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             if (count_result == 0){
                 count_result += 1
                 this.runOnUiThread {
-                    val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+                    // heatmap 顯示 (目前沒用到)
+                    /*val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
                     thread {
                         heatmapexecutor.execute {
                             val fileName = "yourFile.txt"
@@ -320,7 +324,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 // 檢查解碼的 Bitmap 是否為空
                                 if (bmp != null) {
                                     runOnUiThread {
-//                                        yogamainBinding.imageView2.setImageBitmap(bmp)
+                                        //yogamainBinding.imageView2.setImageBitmap(bmp)
                                     }
                                 } else {
                                     // 處理解碼失敗的情況
@@ -331,7 +335,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                 Log.e("BitmapFactory", "ByteArray is null or empty")
                             }
                         }
-                    }
+                    }*/
 
                     if (resultBundle.results.first().landmarks().isNotEmpty()) {
                         val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
@@ -469,6 +473,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         super.onDestroy()
         timer30S.stopTimer()
         timerCurrent.handlerStop()
+
         //關掉相機
         backgroundExecutor.shutdown()
         // 在Activity銷毀時結束thread

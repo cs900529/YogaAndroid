@@ -13,6 +13,7 @@ import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
+import kotlinx.coroutines.delay
 
 class VideoGuide : AppCompatActivity() {
     private var global=GlobalVariable.getInstance()
@@ -25,6 +26,13 @@ class VideoGuide : AppCompatActivity() {
     private var fileGetter=fileNameGetter()
 
     fun nextpage(){
+
+        try {
+            nextThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, YogaMain::class.java).apply {
             putExtra("poseName",poseName)
         }
@@ -55,20 +63,13 @@ class VideoGuide : AppCompatActivity() {
         val finish = findViewById<ImageButton>(R.id.finish)
         finish.setOnClickListener {
             nextpage()
-
-            try {
-                nextThread?.interrupt()
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-
         }
 
         //啟動python
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
         }
-        /*python = Python.getInstance()
+        python = Python.getInstance()
 
         // yogamap return
         heatmapNext = python.getModule("heatmap")
@@ -76,7 +77,7 @@ class VideoGuide : AppCompatActivity() {
         // yogamap return
         nextThread = Thread {
             try {
-                Thread.sleep(1000)
+                Thread.sleep(2000)
                 while (!heatmapNext.callAttr("checkReturn").toBoolean()) {
                     Thread.sleep(100)
                 }
@@ -88,7 +89,7 @@ class VideoGuide : AppCompatActivity() {
             }
         }
 
-        nextThread?.start()*/
+        nextThread?.start()
     }
     override fun onPause() {
         super.onPause()

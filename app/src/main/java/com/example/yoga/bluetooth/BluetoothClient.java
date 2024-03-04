@@ -42,7 +42,8 @@ public class BluetoothClient {
         // 取得 yogamat 的data
         //int[][] test = pyObject.callAttr("get_rects").toJava(int[][].class);
 
-        savePNG();
+        // save heatmap (目前用不到)
+        //savePNG();
 
         // 回傳給 raspberrypi "done"
         send_msg("done");
@@ -92,7 +93,7 @@ public class BluetoothClient {
                 while (!mSocket.isConnected()) {
                     connect();
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         System.out.println("bluetooth connecting");

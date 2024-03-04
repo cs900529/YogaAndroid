@@ -23,6 +23,13 @@ class Menu : AppCompatActivity() {
     private var functionNumber: Int = 0
 
     fun lastpage(){
+
+        try {
+            functionThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("playMusic",false)
         }
@@ -33,6 +40,13 @@ class Menu : AppCompatActivity() {
         nextpage(currentSelect.text.toString())
     }
     fun nextpage(posename:String){
+
+        try {
+            functionThread?.interrupt()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
         val intent = Intent(this, VideoGuide::class.java).apply {
             putExtra("poseName",posename)
         }
@@ -198,7 +212,7 @@ class Menu : AppCompatActivity() {
                         nextpage()
                         break
                     }
-                    Thread.sleep(500)
+                    Thread.sleep(750)
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
@@ -215,5 +229,9 @@ class Menu : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         global.backgroundMusic.play()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

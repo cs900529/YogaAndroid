@@ -72,10 +72,10 @@ def find_bounding_box(heatmap):
         x,y,w,h = cv2.boundingRect(c)
         rects.append([x,y,w,h])
 
-        if (x > 700 and y > 400):
+        if (x > 750 and y > 450):
             flag = True
 
-        if (y <= 150):
+        if (y <= 100):
             if (x >= 150 and x < 350):
                 function = 1
             elif (x >= 350 and x < 550):

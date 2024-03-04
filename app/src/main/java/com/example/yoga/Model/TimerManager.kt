@@ -41,10 +41,12 @@ class KSecCountdownTimer(k: Long) {
     private var countDown = BooleanArray(7) { true }
     private var callback: TimerCallback? = null
     private var color=ColorGenerator()
+    private var finished=false
     private fun initializeTimer() {
         timer = object : CountDownTimer(timeLeft_ms, 100) {
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onTick(ms_remain: Long) {// 每0.1秒执行一次的逻辑，例如更新 UI 显示剩余时间
+
                 timeLeft_ms = ms_remain
                 timeLeft_str = (ms_remain / 1000f).toString()
 
@@ -52,18 +54,21 @@ class KSecCountdownTimer(k: Long) {
                 callback?.timerSpeak(generateSpeakStr(ms_remain))
             }
             override fun onFinish() {// 计时器倒数完毕时触发的逻辑
-                callback?.onTimerFinished()
+                if(!finished) {
+                    finished=true
+                    callback?.onTimerFinished()
+                }
             }
         }
     }
     private fun generateSpeakStr(currentMS: Long):String{
-        if (currentMS < 20000L && countDown[0]) {
+        /*if(currentMS < 20000L && countDown[0]) {
             countDown[0] = false
             return "二十秒"
         } else if (currentMS < 10000L && countDown[1]) {
             countDown[1] = false
             return "十秒"
-        } else if (currentMS < 5000L && countDown[2]) {
+        } else */if (currentMS < 5000L && countDown[2]) {
             countDown[2] = false
             return "五"
         } else if (currentMS < 4000L && countDown[3]) {
@@ -93,8 +98,7 @@ class KSecCountdownTimer(k: Long) {
         // 重置计时器为K秒
         timeLeft_ms = k*1000
         timeLeft_str = ""
-        timer?.cancel()
-        timer = null
+        stopTimer()
     }
     fun stopTimer(){
         timer?.cancel()
