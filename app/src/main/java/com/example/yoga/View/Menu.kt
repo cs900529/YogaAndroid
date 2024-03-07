@@ -5,11 +5,14 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.databinding.ActivityMenuBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class Menu : AppCompatActivity() {
     private lateinit var menuBinding: ActivityMenuBinding
@@ -221,6 +224,14 @@ class Menu : AppCompatActivity() {
 
         functionThread?.start()
     }
+
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
+        }
+    }
     override fun onPause() {
         super.onPause()
         global.backgroundMusic.pause()
@@ -233,5 +244,6 @@ class Menu : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        global.backgroundMusic.pause()
     }
 }

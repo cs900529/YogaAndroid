@@ -9,7 +9,7 @@ class MyMediaPlayer {
     fun init(context: Context){
         mediaPlayer = MediaPlayer.create(context, R.raw.background_music)
         mediaPlayer.isLooping = true // 設定音樂循環播放
-        mediaPlayer.start()
+        //mediaPlayer.start()
     }
     fun play(){
         if(!mediaPlayer.isPlaying)

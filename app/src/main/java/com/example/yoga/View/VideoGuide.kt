@@ -4,18 +4,18 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.VideoView
+import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.Model.fileNameGetter
-import com.example.yoga.R
+import com.example.yoga.databinding.ActivityVideoGuideBinding
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class VideoGuide : AppCompatActivity() {
+    private lateinit var videoGuideBinding: ActivityVideoGuideBinding
     private var global=GlobalVariable.getInstance()
     var poseName=""
 
@@ -43,25 +43,24 @@ class VideoGuide : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide() // 隐藏title bar
-        setContentView(R.layout.activity_video_guide)
+
+        videoGuideBinding = ActivityVideoGuideBinding.inflate(layoutInflater)
+        setContentView(videoGuideBinding.root)
 
         poseName = intent.getStringExtra("poseName").toString()
 
-        val title = findViewById<TextView>(R.id.videoTitle)
-        title.text = poseName
+        videoGuideBinding.videoTitle.text = poseName
 
         //video player init
-        val videoPlayer = findViewById<VideoView>(R.id.videoPlayer)
-        val videoPath = "android.resource://" + packageName + "/" +  fileGetter.getfile(this, poseName.toString() )
-        videoPlayer.setVideoURI(Uri.parse(videoPath))
-        videoPlayer.start()
+        val videoPath = "android.resource://" + packageName + "/" +  fileGetter.getfile(this, poseName)
+        videoGuideBinding.videoPlayer.setVideoURI(Uri.parse(videoPath))
+        videoGuideBinding.videoPlayer.start()
         // 设置循环播放
-        videoPlayer.setOnPreparedListener { mp -> // mp = mediaplayer
+        videoGuideBinding.videoPlayer.setOnPreparedListener { mp -> // mp = mediaplayer
             mp.isLooping = true
         }
 
-        val finish = findViewById<ImageButton>(R.id.finish)
-        finish.setOnClickListener {
+        videoGuideBinding.finish.setOnClickListener {
             nextpage()
         }
 
@@ -90,6 +89,18 @@ class VideoGuide : AppCompatActivity() {
         }
 
         nextThread?.start()
+    }
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        global.backgroundMusic.pause()
     }
     override fun onPause() {
         super.onPause()

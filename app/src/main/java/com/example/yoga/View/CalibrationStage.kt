@@ -16,6 +16,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -25,6 +26,8 @@ import com.example.yoga.Model.PoseLandmarkerHelper
 import com.example.yoga.R
 import com.example.yoga.databinding.ActivityCalibrationStageBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -227,6 +230,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
         super.onDestroy()
         //關掉相機
         backgroundExecutor.shutdown()
+        global.backgroundMusic.pause()
     }
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {
@@ -234,6 +238,13 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
             if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
                 viewModel.setDelegate(0)
             }
+        }
+    }
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
         }
     }
     override fun onPause() {

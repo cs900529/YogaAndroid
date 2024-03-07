@@ -5,12 +5,9 @@ import android.content.Intent
 import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -24,6 +21,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -36,12 +34,13 @@ import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
 import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.concurrent.thread
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,KSecCountdownTimer.TimerCallback{
     //拿mediapipe model
@@ -469,11 +468,19 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             }
         }
     }
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
         timer30S.stopTimer()
         timerCurrent.handlerStop()
 
+        global.backgroundMusic.pause()
         //關掉相機
         backgroundExecutor.shutdown()
         // 在Activity銷毀時結束thread
