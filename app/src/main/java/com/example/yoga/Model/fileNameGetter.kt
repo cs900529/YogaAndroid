@@ -20,22 +20,6 @@ class fileNameGetter {
             else -> R.raw.tree_style
         }
     }
-    //獲取影片檔案
-    fun getfile(filename: String): Int {
-        return when (filename) {
-            "Tree Style" -> R.raw.tree_style_show
-            "Warrior2 Style" -> R.raw.warrior2_style_show
-            "Plank" -> R.raw.plank_show
-            "Reverse Plank" -> R.raw.reverse_plank_show
-            "Child's pose" -> R.raw.child_show
-            "Seated Forward Bend" -> R.raw.seated_forward_bend_show
-            "Low Lunge" -> R.raw.low_lunge_show
-            "Downward dog" -> R.raw.downward_dog_show
-            "Pyramid pose" -> R.raw.pyramid_pose_show
-            "Bridge pose" -> R.raw.bridge_show
-            else -> R.raw.tree_style
-        }
-    }
     // Function to get image resource based on poseName
     fun getDefaultPic(filename: String?): String {
         return when (filename) {
