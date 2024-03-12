@@ -8,6 +8,8 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.util.Rational
+import android.util.Size
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -230,10 +232,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
             val cameraFacing = cameraManager.cameraIdList[0].toInt()
             // 配置预览
-            //val aspectRatio: Rational = Rational(16, 9) // 指定16:9的寬高比
-            //val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
+            val aspectRatio: Rational = Rational(4, 3) // 指定4:3的寬高比
+            val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
             val preview :Preview = Preview.Builder()
-                //.setTargetResolution(size)
+                .setTargetResolution(size)
                 .build()
                 .also {
                     it.setSurfaceProvider(yogamainBinding.camera.getSurfaceProvider())
