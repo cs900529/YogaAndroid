@@ -299,27 +299,37 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 roi[key] = False
                 tips = "請將頭轉向彎曲腳的方向並直視前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
-        elif key == 'LEFT_SHOULDER' or key == 'RIGHT_SHOULDER': #6
-            tolerance_val = 10
-            if angle_dict[key] == -1 :
+        elif key == 'LEFT_SHOULDER': #6
+            _,left_shoulder_y,_,left_shoulder_vi =  (point3d[AngleNodeDef.LEFT_SHOULDER])
+            _,left_elbow_y,_,left_elbow_vi =  (point3d[AngleNodeDef.LEFT_ELBOW])
+            if angle_dict[key]==-1:
                continue
-            if(key=='LEFT_SHOULDER'):
-                min_angle=angle_dict['RIGHT_SHOULDER']-tolerance_val
-                max_angle=angle_dict['RIGHT_SHOULDER']+tolerance_val
-            else:
-                min_angle=angle_dict['LEFT_SHOULDER']-tolerance_val
-                max_angle=angle_dict['LEFT_SHOULDER']+tolerance_val
-            direction = "右" if key == 'LEFT_SHOULDER' else "左"
-            if angle_dict[key]>=min_angle and angle_dict[key] <=max_angle:
+            if angle_dict[key]>=150:
                 roi[key] = True
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
-            elif angle_dict[key]<min_angle:
+            elif angle_dict[key]<150 and (left_elbow_y-left_shoulder_y)>0.05:
                 roi[key] = False
-                tips = f"請將{direction}手抬高，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
+                tips = f"請將右手抬高，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
-            elif angle_dict[key]>max_angle:
+            else:
                 roi[key] = False
-                tips = f"請將{direction}手放低，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
+                tips = f"請將右手放低 ，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
+                imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
+        elif key == 'RIGHT_SHOULDER': #6
+            _,right_shoulder_y,_,right_shoulder_vi =  (point3d[AngleNodeDef.RIGHT_SHOULDER])
+            _,right_elbow_y,_,right_elbow_vi =  (point3d[AngleNodeDef.RIGHT_ELBOW])
+            if angle_dict[key]==-1:
+                continue
+            if angle_dict[key]>=150:
+                roi[key] = True
+                imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<150 and (right_elbow_y-right_shoulder_y)>0.05:
+                roi[key] = False
+                tips = f"請將左手抬高，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
+                imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = f"請將左手放低，與肩膀呈水平，並將身體挺直朝向前方" if tip_flag else tips
                 imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
         elif key == 'LEFT_ELBOW' or key == 'RIGHT_ELBOW': #7
             if angle_dict[key] == -1 :
@@ -863,23 +873,23 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             tip_flag = True
         #detect the side for the pose
         if key == 'NOSE':
-            _,_,left_hip_z,left_hip_vi = point3d[AngleNodeDef.LEFT_HIP]
-            _,_,right_hip_z,right_hip_vi = point3d[AngleNodeDef.RIGHT_HIP]
-            if left_hip_vi <MIN_DETECT_VISIBILITY or right_hip_vi <MIN_DETECT_VISIBILITY:
+            _,left_knee_y,_,left_knee_vi = point3d[AngleNodeDef.LEFT_KNEE]
+            _,right_knee_y,_,right_knee_vi = point3d[AngleNodeDef.RIGHT_KNEE]
+            if left_knee_vi <MIN_DETECT_VISIBILITY or right_knee_vi <MIN_DETECT_VISIBILITY:
                 roi[key] = False
                 tips = "請將身體面向右方或左方成低弓箭步姿，並將雙手向上舉起" if tip_flag else tips
                 imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
                 break
             else:
-                if left_hip_z<right_hip_z:
-                    roi[key] = True
-                    side = "LEFT"
-                    side_back = "RIGHT"
-                    imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
-                elif left_hip_z>right_hip_z:
+                if left_knee_y<right_knee_y:
                     roi[key] = True
                     side = "RIGHT"
                     side_back = "LEFT"
+                    imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
+                elif left_knee_y>right_knee_y:
+                    roi[key] = True
+                    side = "LEFT"
+                    side_back = "RIGHT"
                     imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
                 else:
                     roi[key] = False
