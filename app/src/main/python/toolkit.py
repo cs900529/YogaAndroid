@@ -4,6 +4,8 @@ from os.path import dirname, join
 import math as m
 import AngleNodeDef
 
+from yogaFileGetter import get_image_path
+
 
 MIN_DETECT_VISIBILITY = 0.7
 
@@ -93,7 +95,7 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/TreePose"
+    imageFolder = "image/Tree Style"
     imagePath = ""
     for key, _ in roi.items():
         tip_flag = False
@@ -226,7 +228,7 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         imagePath(str): temporary use to demo, skip it
     """
     # imageFolder temporary use to demo
-    imageFolder = "image/WarriorIIRulePic"
+    imageFolder = "image/Warrior2 Style"
     imagePath = ""
     for key, _ in roi.items():
         tip_flag = False
@@ -361,7 +363,7 @@ def plankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/PlankPose"
+    imageFolder = "image/Plank"
     imagePath = ""
     side = ''
     for key, value in roi.items():
@@ -497,7 +499,7 @@ def reversePlankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/ReversePlankPose"
+    imageFolder = "image/Reverse Plank"
     imagePath = ""
     side = ""
     for key, _ in roi.items():
@@ -640,7 +642,7 @@ def ChildsPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
 		roi (dict)
 		tips (str)
     """
-    imageFolder = "image/ChildsPose"
+    imageFolder = "image/Child's pose"
     imagePath = ""
     side = ""
     for key, _ in roi.items():
@@ -745,7 +747,7 @@ def DownwardDogRule(roi, tips, sample_angle_dict, angle_dict, point3d):
 		roi (dict)
 		tips (str)
     """
-    imageFolder = "image/DownwardDogPose"
+    imageFolder = "image/Downward dog"
     imagePath = ""
     side = ""
     for key, _ in roi.items():
@@ -863,7 +865,7 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/LowLungePose"
+    imageFolder = "image/Low Lunge"
     imagePath = ""
     side = ""
     side_back = ""
@@ -979,7 +981,7 @@ def SeatedForwardBendRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/SeatedForwardBendPose"
+    imageFolder = "image/Seated Forward Bend"
     imagePath=""
     side = "LEFT"
     for key, _ in roi.items():
@@ -1076,7 +1078,7 @@ def BridgeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/BridgePose"
+    imageFolder = "image/Bridge Pose"
     imagePath = ""
     side = ""
     for key, _ in roi.items():
@@ -1173,7 +1175,7 @@ def PyramidRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         roi (dict)
         tips (str)
     """
-    imageFolder = "image/Pyramidpose"
+    imageFolder = "image/Pyramid pose"
     imagePath = ""
     side = ""
     for key, _ in roi.items():

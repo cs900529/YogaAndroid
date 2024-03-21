@@ -1,8 +1,7 @@
-from com.example.yoga.View import YogaMain
-import AngleNodeDef
 import toolkit
-import numpy as np
 from FeetData import FeetData
+from yogaFileGetter import *
+
 
 class YogaPose:
     '''
@@ -11,187 +10,15 @@ class YogaPose:
     def __init__(self, type):
         self.type = type
         self.tips = ""
-        self.roi, self.angle_def, self.jsonfile_path = self.initialize(type)
+        self.roi = get_roi(type)
+        self.angle_def = get_angle_def(type)
+        self.jsonfile_path = get_jsonfile_path(type) + "/sample.json"
+
         self.angle_dict = self.initialAngleDict()
         self.sample_angle_dict = {}#initialAngleDict
         self.imagePath = ""# temporary use to demo, skip it
         self.initialDetect()
 
-    def initialize(self, type):
-        roi = {}
-        angle_def = None
-        jsonfile_path = ""
-
-        if type == 'Tree Style':
-            roi = {
-                'LEFT_KNEE': False,
-                'LEFT_HIP': False,
-                'LEFT_FOOT_INDEX': False,
-                'RIGHT_KNEE': False,
-                'RIGHT_HIP': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_INDEX': False,
-                'RIGHT_INDEX': False,
-            }
-            angle_def = AngleNodeDef.TREE_ANGLE
-            jsonfile_path = f"JsonFile/TreePose/sample.json"
-
-        elif type == 'Warrior2 Style':
-            roi = {
-                'LEFT_ANKLE': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False
-            }
-            angle_def = AngleNodeDef.WARRIOR_II_ANGLE
-            jsonfile_path = f"JsonFile/WarriorIIPose/sample.json"
-
-        elif type == "Plank":
-            roi = {
-                'NOSE': False,
-                'LEFT_EYE':False, 
-                'RIGHT_EYE':False, 
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'LEFT_KNEE': False,
-                'RIGHT_KNEE': False,
-                'LEFT_ANKLE': False,
-                'RIGHT_ANKLE': False,
-            }
-            angle_def = AngleNodeDef.PLANK_ANGLE
-            jsonfile_path = f"JsonFile/PlankPose/sample_v3.json"
-
-        elif type == 'Reverse Plank':
-            roi = {
-                'NOSE': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_INDEX': False,
-                'RIGHT_INDEX': False,
-                'LEFT_WRIST': False,
-                'RIGHT_WRIST': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'LEFT_KNEE': False,
-                'RIGHT_KNEE': False
-            }
-            angle_def = AngleNodeDef.REVERSE_PLANK_ANGLE
-            jsonfile_path = f"JsonFile/ReversePlankPose/sample.json"
-
-        elif type == "Child's pose":
-            roi = {
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_WRIST': False,
-                'RIGHT_WRIST': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-                'LEFT_ANKLE': False,
-                'RIGHT_ANKLE': False,
-            }
-            angle_def = AngleNodeDef.CHILDS_ANGLE
-            jsonfile_path = f"JsonFile/ChildsPose/sample.json"
-
-        elif type == "Downward dog":
-            roi = {
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_WRIST': False,
-                'RIGHT_WRIST': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-                'RIGHT_ANKLE':False,
-                'LEFT_ANKLE':False,
-            }
-            angle_def = AngleNodeDef.DOWNWARDDOG_ANGLE 
-            jsonfile_path = f"JsonFile/DownwardDogPose/sample.json"\
-            
-        elif type == "Low Lunge":
-            roi = {
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-            }
-            angle_def = AngleNodeDef.LOWLUNGE_ANGLE 
-            jsonfile_path = f"JsonFile/LowLungePose/sample.json"
-
-        elif type == "Seated Forward Bend":
-            roi = {
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-                'RIGHT_ANKLE':False,
-                'LEFT_ANKLE':False,
-            }
-            angle_def = AngleNodeDef.SEATEDFORWARDBEND_ANGLE
-            jsonfile_path = f"JsonFile/SeatedForwardBendPose/sample.json"
-
-        elif type == "Bridge pose":
-            roi = {
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-            }
-            angle_def = AngleNodeDef.BRIDGE_ANGLE 
-            jsonfile_path = f"JsonFile/BridgePose/sample.json"
-        elif type == "Pyramid pose":
-            roi = {
-                'NOSE': False,
-                'LEFT_SHOULDER': False,
-                'RIGHT_SHOULDER': False,
-                'LEFT_ELBOW': False,
-                'RIGHT_ELBOW': False,
-                'LEFT_HIP': False,
-                'RIGHT_HIP': False,
-                'RIGHT_KNEE': False,
-                'LEFT_KNEE': False,
-                'LEG': False,
-            }
-            angle_def = AngleNodeDef.PYRAMID_ANGLE 
-            jsonfile_path = f"JsonFile/PyramidPose/sample.json"
-        return roi, angle_def, jsonfile_path
-    
     def initialAngleDict(self, dict={}):
         index = 0
         for key,_ in self.angle_def.items():
@@ -228,19 +55,7 @@ class YogaPose:
 
         if(con>16):  #half of all node
             self.tips="無法偵測到完整骨架"
-            pose_images = {
-                        'Tree Style': "image/TreePose/8.jpg",
-                        'Warrior2 Style': "image/WarriorIIRulePic/8.jpg",
-                        'Reverse Plank': "image/ReversePlankPose/6.jpg",
-                        'Plank': "image/PlankPose/10.jpg",
-                        "Child's pose": "image/ChildsPose/5.jpg",
-                        'Downward dog': "image/DownwardDogPose/6.jpg",
-                        'Low Lunge': "image/LowLungePose/5.jpg",
-                        "Seated Forward Bend": "image/SeatedForwardBendPose/5.jpg",
-                        'Bridge pose': "image/BridgePose/5.jpg",
-                        'Pyramid pose': "image/Pyramidpose/6.jpg"
-            }
-            self.imagePath =  pose_images.get(self.type, "")
+            self.imagePath =  get_image_path(self.type)
             return [self.tips, self.imagePath]
         
 
