@@ -8,9 +8,12 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.yoga.discover.BluetoothActivity
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private  val CAMERA_PERMISSION_REQUEST_CODE = 1001  //據說是隨便設定就好
@@ -33,6 +36,15 @@ class MainActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST_CODE)
         }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
+        }
     }
     override fun onPause() {
         super.onPause()
@@ -45,5 +57,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        global.backgroundMusic.pause()
     }
 }

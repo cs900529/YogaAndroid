@@ -5,12 +5,11 @@ import android.content.Intent
 import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
-import android.util.Log
+import android.util.Rational
+import android.util.Size
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -24,6 +23,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -36,12 +36,13 @@ import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
 import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.concurrent.thread
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,KSecCountdownTimer.TimerCallback{
     //拿mediapipe model
@@ -164,8 +165,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
         heatmappy = python.getModule("heatmap")
 
-        yogamatProcessor = python.getModule("YogaMatProcessor").callAttr("YogaMatProcessor", 1920, 1080)
-        feetData = python.getModule("FeetData").callAttr("FeetData", null, null)
+        yogamatProcessor = python.getModule("YogaMatProcessor").callAttr("YogaMatProcessor")
 
         yogamainBinding.title.text = poseName
 
@@ -232,10 +232,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
             val cameraFacing = cameraManager.cameraIdList[0].toInt()
             // 配置预览
-            //val aspectRatio: Rational = Rational(16, 9) // 指定16:9的寬高比
-            //val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
+            val aspectRatio: Rational = Rational(4, 3) // 指定4:3的寬高比
+            val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
             val preview :Preview = Preview.Builder()
-                //.setTargetResolution(size)
+                .setTargetResolution(size)
                 .build()
                 .also {
                     it.setSurfaceProvider(yogamainBinding.camera.getSurfaceProvider())
@@ -409,21 +409,20 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             }
 
                         var center = heatmappy.callAttr("get_center")
-                        println("center$center")
-                        var feet_data = yogamatProcessor.callAttr("get_feet_data", point2d, floatListList,center )
+                        // 取得腳在瑜珈墊上面的座標
+                        var feet_data_str = yogamatProcessor.callAttr("generate_feet_data", point2d, floatListList)
 
-                        feetData.callAttr("build", feet_data)
-
-                        var left_x = feetData.callAttr("get_left_foot_x").toFloat()
-                        var left_y = feetData.callAttr("get_left_foot_y").toFloat()
-                        var right_x = feetData.callAttr("get_right_foot_x").toFloat()
-                        var right_y = feetData.callAttr("get_right_foot_y").toFloat()
+                        // 如果沒有該腳的資料，會回傳 -999999
+                        var left_x = yogamatProcessor.callAttr("get_left_foot_x").toFloat()
+                        var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
+                        var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
+                        var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
 
                         yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
                         yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
 
                         var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                                heatmappy.callAttr("get_center"), feet_data).toString()
+                                center, feet_data_str).toString()
 
                         if (guideStr.iterator().hasNext()) {
                             val re = guideStr.split(',')
@@ -471,11 +470,19 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             }
         }
     }
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
         timer30S.stopTimer()
         timerCurrent.handlerStop()
 
+        global.backgroundMusic.pause()
         //關掉相機
         backgroundExecutor.shutdown()
         // 在Activity銷毀時結束thread

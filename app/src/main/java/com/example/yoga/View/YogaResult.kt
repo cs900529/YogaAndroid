@@ -3,12 +3,14 @@ package com.example.yoga.View
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
-import com.example.yoga.R
 import com.example.yoga.databinding.ActivityYogaResultBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class YogaResult : AppCompatActivity() {
     private lateinit var yogaResultBinding: ActivityYogaResultBinding
@@ -73,9 +75,16 @@ class YogaResult : AppCompatActivity() {
             lastpage()
         }
     }
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            delay(800)
+            global.backgroundMusic.play()
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
-
+        global.backgroundMusic.pause()
         // 在Activity銷毀時結束thread
         myThread?.interrupt()
     }

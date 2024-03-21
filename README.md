@@ -31,3 +31,8 @@
     // MediaPipe Library
     implementation 'com.google.mediapipe:tasks-vision:0.10.9'
     ```
+    - 加上dependency
+    ```gradle =
+    //delay
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
+    ```

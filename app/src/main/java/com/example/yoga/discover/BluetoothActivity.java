@@ -5,13 +5,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 import com.example.yoga.Model.GlobalVariable;
@@ -44,6 +44,7 @@ public class BluetoothActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_bluetooth);
         Objects.requireNonNull(getSupportActionBar()).hide();
         requestPermissions(permissions, 1);
+
 
         // 初始化 python 環境
         if(!Python.isStarted()){
@@ -119,7 +120,19 @@ public class BluetoothActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
+        global.backgroundMusic.pause();
         super.onDestroy();
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                global.backgroundMusic.play();
+            }
+        }, 800);
     }
     @Override
     protected void onPause() {
