@@ -196,9 +196,9 @@ class Menu : AppCompatActivity() {
 
         // yogamap nextpage
         functionThread = Thread {
-            Thread.sleep(2000)
             try {
                 while (true) {
+                    Thread.sleep(2000)
                     functionNumber = heatmapFunction.callAttr("checkFunction").toInt()
                     runOnUiThread {
                         if (functionNumber == 1) {
