@@ -1,0 +1,12 @@
+{
+    "LEFT_ELBOW": 1,
+    "RIGHT_ELBOW": 1,
+    "LEFT_SHOULDER": 1,
+    "RIGHT_SHOULDER": 1,
+    "LEFT_HIP":5,
+    "RIGHT_HIP": 5,
+    "LEFT_KNEE": 5,
+    "RIGHT_KNEE": 5,
+    "LEFT_ANKLE": 1,
+    "RIGHT_ANKLE": 1
+}
