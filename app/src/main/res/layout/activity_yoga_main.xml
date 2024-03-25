@@ -102,7 +102,7 @@
         android:id="@+id/score"
         android:layout_width="122dp"
         android:layout_height="26dp"
-        android:text="分數"
+        android:text=""
         android:textColor="#FF0000"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
