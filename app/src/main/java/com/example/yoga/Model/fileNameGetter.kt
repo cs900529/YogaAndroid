@@ -23,33 +23,33 @@ class fileNameGetter {
     // Function to get image resource based on poseName
     fun getDefaultPic(filename: String?): String {
         return when (filename) {
-            "Tree Style" -> "TreePose/8"
-            "Warrior2 Style" -> "WarriorIIRulePic/8"
-            "Plank" -> "PlankPose/10"
-            "Reverse Plank" -> "ReversePlankPose/6"
-            "Child's pose" -> "ChildsPose/5"
-            "Seated Forward Bend" -> "SeatedForwardBendPose/5"
-            "Low Lunge" -> "LowLungePose/5"
-            "Downward dog" -> "DownwardDogPose/6"
-            "Pyramid pose" -> "Pyramidpose/6"
-            "Bridge pose" -> "BridgePose/5"
-            else -> "TreePose/8"
+            "Tree Style" -> "Tree Style/8"
+            "Warrior2 Style" -> "Warrior2 Style/8"
+            "Plank" -> "Plank/10"
+            "Reverse Plank" -> "Reverse Plank/6"
+            "Child's pose" -> "Child's pose/5"
+            "Seated Forward Bend" -> "Seated Forward Bend/5"
+            "Low Lunge" -> "Low Lunge/5"
+            "Downward dog" -> "Downward dog/6"
+            "Pyramid pose" -> "Pyramid pose/6"
+            "Bridge pose" -> "Bridge pose/5"
+            else -> "Tree Style/8"
         }
     }
     // Function to get image resource based on poseName
     fun getPoseFolder(filename: String?): String {
         return when (filename) {
-            "Tree Style" -> "TreePose"
-            "Warrior2 Style" -> "WarriorIIRulePic"
-            "Plank" -> "PlankPose"
-            "Reverse Plank" -> "ReversePlankPose"
-            "Child's pose" -> "ChildsPose"
-            "Seated Forward Bend" -> "SeatedForwardBendPose"
-            "Low Lunge" -> "LowLungePose"
-            "Downward dog" -> "DownwardDogPose"
-            "Pyramid pose" -> "Pyramidpose"
-            "Bridge pose" -> "BridgePose"
-            else -> "TreePose"
+            "Tree Style" -> "Tree Style"
+            "Warrior2 Style" -> "Warrior2 Style"
+            "Plank" -> "Plank"
+            "Reverse Plank" -> "Reverse Plank"
+            "Child's pose" -> "Child's pose"
+            "Seated Forward Bend" -> "Seated Forward Bend"
+            "Low Lunge" -> "Low Lunge"
+            "Downward dog" -> "Downward dog"
+            "Pyramid pose" -> "Pyramid pose"
+            "Bridge pose" -> "Bridge pose"
+            else -> "Tree Style"
         }
     }
 }

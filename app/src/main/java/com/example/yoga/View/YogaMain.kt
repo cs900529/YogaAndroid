@@ -63,6 +63,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private lateinit var heatmappy : PyObject
     private lateinit var yogamatProcessor : PyObject
     private lateinit var feetData : PyObject
+    private lateinit var scoreCalculator : PyObject
 
     //判別文字是否更動用
     private var lastText="提示文字在這"
@@ -170,6 +171,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         yogamainBinding.title.text = poseName
 
         yogamainBinding.back.setOnClickListener { lastpage() }
+
+        // 啟動分數計算器
+        scoreCalculator = python.getModule("ScoreCalculator" ).callAttr("ScoreCalculator",poseName)
 
         //guide_picture init
         val picturePath = findViewById<ImageView>(R.id.guide_picture)
@@ -417,6 +421,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
                         var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
                         var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
+
+                        // 分數計算器
+                        var score = scoreCalculator.callAttr("calculate_score", floatListList)
+                        println("score ${score}")
+//                        yogamainBinding.score.text = "分數 ${score}"
+                        yogamainBinding.score.text = ""
 
                         yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
                         yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
