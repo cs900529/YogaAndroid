@@ -11,8 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="String"
-        android:textSize="30sp"
+        android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/camera"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:textColor="#0000FF"
@@ -24,118 +25,84 @@
         android:layout_height="0dp"
         android:src="@drawable/back"
         android:scaleType="fitXY"
-        android:text="String"
         android:padding="0dp"
-        app:layout_constraintWidth_percent="0.1"
-        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintWidth_percent="0.05"
+        app:layout_constraintHeight_percent="0.07"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/camera"/>
 
-    <ImageView
-        android:id="@+id/guide_picture"
+    <TextView
+        android:id="@+id/angle_show"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintEnd_toStartOf="@+id/camera"
-        app:layout_constraintHeight_percent="0.65"
+        android:layout_marginTop="1dp"
+        android:text="TextViewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/camera"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintWidth_percent="0.47"  />
+        app:layout_constraintBottom_toTopOf="@id/imageView2"/>
 
     <androidx.camera.view.PreviewView
         android:id="@+id/camera"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="4:3"
+        android:layout_width="587dp"
+        android:layout_height="330dp"
+        android:layout_marginEnd="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintStart_toEndOf="@+id/guide_picture"
-        app:layout_constraintTop_toBottomOf="@+id/title" />
-
-    <com.example.yoga.ViewModel.OverlayView
-        android:id="@+id/overlay"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="4:3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintStart_toEndOf="@+id/guide_picture"
-        app:layout_constraintTop_toBottomOf="@+id/title" />
-
+        app:layout_constraintStart_toEndOf="@id/angle_show"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintBottom_toTopOf="@id/yogaMat"/>
     <com.example.yoga.ViewModel.YogaMatBoxView
         android:id="@+id/yogaMatBoxView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="4:3"
+        android:layout_width="587dp"
+        android:layout_height="330dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintStart_toEndOf="@+id/guide_picture"
-        app:layout_constraintTop_toBottomOf="@+id/title"/>
+        app:layout_constraintStart_toEndOf="@id/angle_show"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintBottom_toTopOf="@id/yogaMat"/>
+    <com.example.yoga.ViewModel.OverlayView
+        android:id="@+id/overlay"
+        android:layout_width="587dp"
+        android:layout_height="330dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/angle_show"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintBottom_toTopOf="@id/yogaMat"/>
 
     <com.example.yoga.ViewModel.YogaMatView
         android:id="@+id/yogaMat"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitXY"
-        app:layout_constraintWidth_percent="0.47"
-        app:layout_constraintHeight_percent="0.15"
-        app:layout_constraintStart_toEndOf="@+id/guide"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/camera"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <TextView
-        android:id="@+id/guide"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:text="提示文字在這"
-        android:textColor="#0000FF"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/yogaMat"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.15"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guide_picture"
-        app:layout_constraintWidth_percent="0.47" />
+        app:layout_constraintStart_toEndOf="@id/imageView2"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
     <TextView
         android:id="@+id/score"
-        android:layout_width="122dp"
-        android:layout_height="26dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text=""
         android:textColor="#FF0000"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/yogaMat"
-        app:layout_constraintHeight_percent="0.15"
-        app:layout_constraintHorizontal_bias="0.912"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guide_picture"
-        app:layout_constraintVertical_bias="0.356"
-        app:layout_constraintWidth_percent="0.47" />
+        app:layout_constraintTop_toBottomOf="@+id/camera" />
 
     <ImageView
-        android:id="@+id/timeLeftBar"
+        android:id="@+id/imageView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#00FF00"
-        app:layout_constraintStart_toStartOf="@+id/guide"
-        app:layout_constraintBottom_toBottomOf="@+id/guide"
-        app:layout_constraintHeight_percent="0.03"
-        app:layout_constraintWidth_percent="0.47" />
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/yogaMat"
+        app:layout_constraintTop_toBottomOf="@+id/angle_show"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-<!--    <ImageView-->
-<!--        android:id="@+id/imageView2"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:scaleType="fitXY"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHeight_percent="0.15"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/guide"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/camera"-->
-<!--        app:layout_constraintVertical_bias="0.504"-->
-<!--        app:layout_constraintWidth_percent="0.47"-->
-<!--        app:srcCompat="@android:drawable/divider_horizontal_bright" />-->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

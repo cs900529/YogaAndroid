@@ -31,7 +31,6 @@ class FinishTimer{
 class KSecCountdownTimer(k: Long) {
     interface TimerCallback {//回調函式，跨class傳遞參數用
         fun onTimerFinished()
-        fun updateColorBar(currentMS:Long,maxMS:Long)
         fun timerSpeak(str: String)
     }
     private var timer: CountDownTimer? = null
@@ -49,8 +48,6 @@ class KSecCountdownTimer(k: Long) {
 
                 timeLeft_ms = ms_remain
                 timeLeft_str = (ms_remain / 1000f).toString()
-
-                callback?.updateColorBar(ms_remain,k*1000)
                 callback?.timerSpeak(generateSpeakStr(ms_remain))
             }
             override fun onFinish() {// 计时器倒数完毕时触发的逻辑

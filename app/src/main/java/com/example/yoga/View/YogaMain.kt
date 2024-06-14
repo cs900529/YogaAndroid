@@ -67,6 +67,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
     //判別文字是否更動用
     private var lastText="提示文字在這"
+    private var nextText=""
     //計時器
     private var timerCurrent = FinishTimer()
     private var timer30S = KSecCountdownTimer(7)
@@ -92,7 +93,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
-        println("call# nextpage")
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -103,7 +103,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     }
     //30秒倒數結束
     override fun onTimerFinished() {
-        println("call# ontimerfinish")
         timer30S.setRemainTimeStr("结束")
         timer30S.stopTimer()
         //停止计时
@@ -111,30 +110,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         score = timerCurrent.getScore()
         nextpage()
     }
-    //更新倒數條的顏色
-    override fun updateColorBar(currentMs:Long,maxMS:Long) {
-        val barColor = timer30S.getCurrentColor(currentMs)
-        val layoutParams = yogamainBinding.timeLeftBar.layoutParams as ConstraintLayout.LayoutParams
-        layoutParams.matchConstraintPercentWidth = 0.47f*(currentMs/(1f*maxMS))
-        yogamainBinding.timeLeftBar.layoutParams = layoutParams
-        yogamainBinding.timeLeftBar.backgroundTintList = ColorStateList.valueOf(barColor)
-    }
     //Timer TTS speak
     override fun timerSpeak(str: String) {
         if(str != "")
             TTSSpeak(str)
-    }
-    private fun setImage(imagePath: String?) {
-        val picturePath = findViewById<ImageView>(R.id.guide_picture)
-        var am: AssetManager? = null
-        am = assets
-        val pic = am.open(imagePath.toString())
-        // Decode the input stream into a Drawable
-        val drawable = Drawable.createFromStream(pic, null)
-        // Set the drawable as the image source for the ImageView
-        picturePath.setImageDrawable(drawable)
-        // Close the input stream when you're done
-        pic.close()
     }
 
     private fun TTSSpeak(str:String){
@@ -163,31 +142,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
         //啟動yogapose
         pose = python.getModule("yogaPoseDetect" ).callAttr("YogaPose",poseName)
-
         heatmappy = python.getModule("heatmap")
-
         yogamatProcessor = python.getModule("YogaMatProcessor").callAttr("YogaMatProcessor")
-
         yogamainBinding.title.text = poseName
-
         yogamainBinding.back.setOnClickListener { lastpage() }
-
         // 啟動分數計算器
         scoreCalculator = python.getModule("ScoreCalculator" ).callAttr("ScoreCalculator",poseName)
-
-        //guide_picture init
-        val picturePath = findViewById<ImageView>(R.id.guide_picture)
-        var am: AssetManager? = null
-        am = assets
-
-        val pic = am.open("image/"+fileGetter.getDefaultPic(poseName)+".jpg")
-        // Decode the input stream into a Drawable
-        val drawable = Drawable.createFromStream(pic, null)
-        // Set the drawable as the image source for the ImageView
-        picturePath.setImageDrawable(drawable)
-        // Close the input stream when you're done
-        pic.close()
-
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
         // 初始化 CameraX
@@ -442,13 +402,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             println(re[1].substring(2..re_1 - 3))
                             // Assume it behaves like a list and try accessing its elements
                             try {
-                                yogamainBinding.guide.text = re[0].substring(2..re_0 - 2)
-                                if (lastText != yogamainBinding.guide.text)
-                                    TTSSpeak(yogamainBinding.guide.text.toString())
-                                lastText = yogamainBinding.guide.text.toString()
-
-                                val imagePath = re[1].substring(2..re_1 - 3)
-                                setImage(imagePath)
+                                nextText = re[0].substring(2..re_0 - 2)
+                                if (lastText != nextText)
+                                    TTSSpeak(nextText)
+                                lastText = nextText
 
                             } catch (e: Exception) {
                                 // Handle exceptions when accessing elements if the result doesn't behave like a list
@@ -463,7 +420,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         if (lastText.contains("動作正確")) {
                             if (timer30S.isNotRunning())
                                 timer30S.startTimer(this)
-                            yogamainBinding.guide.text = lastText + " " + timer30S.getRemainTimeStr()
                         } else
                             timer30S.resetTimer()
                     }

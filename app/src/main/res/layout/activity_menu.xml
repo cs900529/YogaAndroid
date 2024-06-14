@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="Menu"
         android:textSize="40sp"
-        android:textColor="#800080"
+        android:textColor="#0000FF"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
