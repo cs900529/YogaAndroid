@@ -5,9 +5,12 @@ import android.content.Intent
 import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.widget.ImageView
@@ -82,6 +85,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     // yogamap return
     private lateinit var heatmapReturn : PyObject
     private var myThread: Thread? = null
+    private var heatThread: Thread? = null
     //file getter
     private var fileGetter=fileNameGetter()
 
@@ -186,6 +190,46 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         }
 
         myThread?.start()
+
+        heatThread = Thread {
+            try {
+                while (true) {
+                    val fileName = "yourFile.txt"
+                    val file = File(this.filesDir, fileName)
+                    val filePath = file.path
+
+                    val readByteArray = readBytesFromFile(filePath)
+                    runOnUiThread {
+                        // 檢查 ByteArray 是否為空
+                        if ((readByteArray != null) && readByteArray.isNotEmpty()) {
+                            val bmp: Bitmap? =
+                                BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
+
+                            // 檢查解碼的 Bitmap 是否為空
+                            if (bmp != null) {
+                                runOnUiThread {
+                                    yogamainBinding.imageView2.setImageBitmap(bmp)
+                                }
+                            } else {
+                                // 處理解碼失敗的情況
+                                Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
+                            }
+                        } else {
+                            // 處理空的 ByteArray 情況
+                            Log.e("BitmapFactory", "ByteArray is null or empty")
+                        }
+                    }
+
+                    Thread.sleep(250)
+                    println("NEXT")
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+
+        }
+
+        heatThread?.start()
     }
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -272,8 +316,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                 this.runOnUiThread {
 
                     // heatmap 顯示 (目前沒用到)
-                    /*val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
-                    thread {
+                    val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
+                    /*thread {
                         heatmapexecutor.execute {
                             val fileName = "yourFile.txt"
                             val file = File(this.filesDir, fileName)
@@ -459,6 +503,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         backgroundExecutor.shutdown()
         // 在Activity銷毀時結束thread
         myThread?.interrupt()
+        heatThread?.interrupt()
     }
     override fun onPause() {
         super.onPause()
