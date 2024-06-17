@@ -391,8 +391,13 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
                         yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
 
-                        var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
+                        // Change pose tips to show angle
+                        var allangle = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).toString()
+                        yogamainBinding.angleShow.text = allangle
+
+                        /*var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
                                 center, feet_data_str).toString()
+
 
                         if (guideStr.iterator().hasNext()) {
                             val re = guideStr.split(',')
@@ -414,7 +419,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         } else {
                                 // Handle cases where the result does not behave like an iterable (e.g., not a list)
                                 println("Result is not iterable like a list")
-                        }
+                        }*/
+
                         //30秒計時器
                         //if(true){//debug
                         if (lastText.contains("動作正確")) {
