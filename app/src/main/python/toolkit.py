@@ -78,7 +78,7 @@ def computeAngle(point1, centerPoint, point2):
 
     # angle
     cos_b = (x1*x2 + y1*y2 + z1*z2) / (m.sqrt(x1**2 + y1**2 + z1**2) *(m.sqrt(x2**2 + y2**2 + z2**2)))
-    B = m.degrees(m.acos(cos_b))
+    B = round(m.degrees(m.acos(cos_b)),3)
     return B
 
 def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):

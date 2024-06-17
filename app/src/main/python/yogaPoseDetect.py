@@ -18,6 +18,7 @@ class YogaPose:
         self.sample_angle_dict = {}#initialAngleDict
         self.imagePath = ""# temporary use to demo, skip it
         self.initialDetect()
+        self.angle_show = ""
 
     def initialAngleDict(self, dict={}):
         index = 0
@@ -55,20 +56,26 @@ class YogaPose:
 
         if(con>16):  #half of all node
             self.tips="無法偵測到完整骨架"
+            self.angle_show = "無法偵測到完整骨架"
             self.imagePath =  get_image_path(self.type)
-            return [self.tips, self.imagePath]
-        
+            # 不知道後面要接啥, 先弄成只有 self.angle_show
+            # return [self.angle_show,self.tips,self.imagePath]
+            return self.angle_show
+
 
         for key,value in self.angle_def.items():
             if float(point3d[value[0]][3]) < toolkit.MIN_DETECT_VISIBILITY and float(point3d[value[1]][3]) <toolkit.MIN_DETECT_VISIBILITY and float(point3d[value[2]][3]) <toolkit.MIN_DETECT_VISIBILITY :
                 self.angle_dict[key] = -1
+                self.angle_show = self.angle_show + f"{key}:-1\n"
             else:
                 if (self.type == 'Reverse Plank')  or (self.type == 'Plank') or (self.type == "Child's pose"):
                     angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
                 else:
                     angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
                 self.angle_dict[key] = angle
-
+                self.angle_show = self.angle_show + f"{key}:{angle}\n"
+        # 不知道後面要接啥, 先弄成只有 self.angle_show
+        return self.angle_show
         if(self.type == 'Tree Style'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
