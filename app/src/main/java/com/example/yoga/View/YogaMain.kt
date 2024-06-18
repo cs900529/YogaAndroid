@@ -230,6 +230,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         }
 
         heatThread?.start()
+
+        //縮小angle show 字體
+        yogamainBinding.angleShow.textSize = 12.0f
     }
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -311,7 +314,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
             //interval sampling
+            yogamainBinding.angleShow.text = "" //reset
+
             if (count_result == 0){
+                var ArrowList: List<Float> = listOf()
                 count_result += 1
                 this.runOnUiThread {
 
@@ -345,6 +351,83 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             }
                         }
                     }*/
+/*調換順序,先進行pose detect 得到各角度再丟到視圖上*/
+                    // pass result to Yogapose
+                    if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
+                        val floatListList: List<MutableList<Any>> =
+                            resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                                landmarks.map { landmark ->
+                                    mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
+                                }
+                            }
+
+                        val point2d: List<MutableList<Float>> =
+                            resultBundle.results.first().landmarks().flatMap { nlandmarks ->
+                                nlandmarks.map { landmark ->
+                                    mutableListOf(landmark.x(), landmark.y())
+                                }
+                            }
+
+                        var center = heatmappy.callAttr("get_center")
+                        // 取得腳在瑜珈墊上面的座標
+                        var feet_data_str = yogamatProcessor.callAttr("generate_feet_data", point2d, floatListList)
+
+                        // 如果沒有該腳的資料，會回傳 -999999
+                        var left_x = yogamatProcessor.callAttr("get_left_foot_x").toFloat()
+                        var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
+                        var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
+                        var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
+
+                        // 分數計算器
+                        var score = scoreCalculator.callAttr("calculate_score", floatListList)
+                        println("score ${score}")
+//                        yogamainBinding.score.text = "分數 ${score}"
+                        yogamainBinding.score.text = ""
+
+                        yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
+                        yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
+
+                        // Change pose tips to show angle
+                        var detectlist = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).asList()
+
+                        yogamainBinding.angleShow.text = detectlist[0].toString()
+                        ArrowList = detectlist[1].asList().map{it.toFloat()}
+
+                        /*舊的提示顯示, 應該是用不到了*/
+                        /*var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
+                                center, feet_data_str).toString()
+
+
+                        if (guideStr.iterator().hasNext()) {
+                            val re = guideStr.split(',')
+                            val re_0 = re[0].length
+                            val re_1 = re[1].length
+                            println(re[0].substring(2..re_0 - 2))
+                            println(re[1].substring(2..re_1 - 3))
+                            // Assume it behaves like a list and try accessing its elements
+                            try {
+                                nextText = re[0].substring(2..re_0 - 2)
+                                if (lastText != nextText)
+                                    TTSSpeak(nextText)
+                                lastText = nextText
+
+                            } catch (e: Exception) {
+                                // Handle exceptions when accessing elements if the result doesn't behave like a list
+                                println("Result does not have expected list behavior: ${e.message}")
+                            }
+                        } else {
+                                // Handle cases where the result does not behave like an iterable (e.g., not a list)
+                                println("Result is not iterable like a list")
+                        }*/
+
+                        //30秒計時器
+                        //if(true){//debug
+                        if (lastText.contains("動作正確")) {
+                            if (timer30S.isNotRunning())
+                                timer30S.startTimer(this)
+                        } else
+                            timer30S.resetTimer()
+                    }
 
                     if (resultBundle.results.first().landmarks().isNotEmpty()) {
                         val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
@@ -394,85 +477,13 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                                     smooth_floatListList,
                                     resultBundle.inputImageHeight,
                                     resultBundle.inputImageWidth,
-                                    RunningMode.LIVE_STREAM
+                                    RunningMode.LIVE_STREAM,
+                                    ArrowList
                             )
                         }
 
                     }
-
-                    // pass result to Yogapose
-                    if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
-                        val floatListList: List<MutableList<Any>> =
-                            resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
-                                landmarks.map { landmark ->
-                                    mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
-                                }
-                            }
-
-                        val point2d: List<MutableList<Float>> =
-                            resultBundle.results.first().landmarks().flatMap { nlandmarks ->
-                                nlandmarks.map { landmark ->
-                                    mutableListOf(landmark.x(), landmark.y())
-                                }
-                            }
-
-                        var center = heatmappy.callAttr("get_center")
-                        // 取得腳在瑜珈墊上面的座標
-                        var feet_data_str = yogamatProcessor.callAttr("generate_feet_data", point2d, floatListList)
-
-                        // 如果沒有該腳的資料，會回傳 -999999
-                        var left_x = yogamatProcessor.callAttr("get_left_foot_x").toFloat()
-                        var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
-                        var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
-                        var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
-
-                        // 分數計算器
-                        var score = scoreCalculator.callAttr("calculate_score", floatListList)
-                        println("score ${score}")
-//                        yogamainBinding.score.text = "分數 ${score}"
-                        yogamainBinding.score.text = ""
-
-                        yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
-                        yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
-
-                        // Change pose tips to show angle
-                        var allangle = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).toString()
-                        yogamainBinding.angleShow.text = allangle
-
-                        /*var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                                center, feet_data_str).toString()
-
-
-                        if (guideStr.iterator().hasNext()) {
-                            val re = guideStr.split(',')
-                            val re_0 = re[0].length
-                            val re_1 = re[1].length
-                            println(re[0].substring(2..re_0 - 2))
-                            println(re[1].substring(2..re_1 - 3))
-                            // Assume it behaves like a list and try accessing its elements
-                            try {
-                                nextText = re[0].substring(2..re_0 - 2)
-                                if (lastText != nextText)
-                                    TTSSpeak(nextText)
-                                lastText = nextText
-
-                            } catch (e: Exception) {
-                                // Handle exceptions when accessing elements if the result doesn't behave like a list
-                                println("Result does not have expected list behavior: ${e.message}")
-                            }
-                        } else {
-                                // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                                println("Result is not iterable like a list")
-                        }*/
-
-                        //30秒計時器
-                        //if(true){//debug
-                        if (lastText.contains("動作正確")) {
-                            if (timer30S.isNotRunning())
-                                timer30S.startTimer(this)
-                        } else
-                            timer30S.resetTimer()
-                    }
+/*調換順序結尾*/
                     // Force a redraw
                     yogamainBinding.overlay.invalidate()
                 }
