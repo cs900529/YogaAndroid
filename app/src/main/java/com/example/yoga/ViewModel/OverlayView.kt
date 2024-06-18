@@ -32,6 +32,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var results: MutableList<MutableList<Float>>? = null
     private var pointPaint = Paint()
     private var linePaint = Paint()
+    private var arrowPaint = Paint()
+    private var arrowPoints: List<Float> = emptyList()
 
     private var scaleFactor: Float = 1f
     private var scaleFactorX:Float = 1f
@@ -47,6 +49,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         results = null
         pointPaint.reset()
         linePaint.reset()
+        arrowPaint.reset()
         invalidate()
         initPaints()
     }
@@ -60,6 +63,29 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         pointPaint.color = Color.YELLOW
         pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
         pointPaint.style = Paint.Style.FILL
+
+        arrowPaint.color = Color.BLUE // 默认箭头颜色
+        arrowPaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        arrowPaint.style = Paint.Style.STROKE
+    }
+
+    private fun drawArrow(canvas: Canvas, startX: Float, startY: Float, endX: Float, endY: Float) {
+        val arrowHeadLength = 30f  // 箭头头部的长度
+        val arrowHeadAngle = Math.toRadians(45.0)  // 箭头头部的角度
+
+        // 画箭身
+        canvas.drawLine(startX, startY, endX, endY, arrowPaint)
+
+        // 算出箭头头部的两个点
+        val angle = Math.atan2((endY - startY).toDouble(), (endX - startX).toDouble())
+        val x1 = endX - arrowHeadLength * Math.cos(angle - arrowHeadAngle).toFloat()
+        val y1 = endY - arrowHeadLength * Math.sin(angle - arrowHeadAngle).toFloat()
+        val x2 = endX - arrowHeadLength * Math.cos(angle + arrowHeadAngle).toFloat()
+        val y2 = endY - arrowHeadLength * Math.sin(angle + arrowHeadAngle).toFloat()
+
+        // 画箭头头部的两条线
+        canvas.drawLine(endX, endY, x1, y1, arrowPaint)
+        canvas.drawLine(endX, endY, x2, y2, arrowPaint)
     }
 
     override fun draw(canvas: Canvas) {
@@ -92,13 +118,18 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 }
             }
         }
+        // 绘制箭头
+        if (arrowPoints.size == 4) {
+            drawArrow(canvas, arrowPoints[0], arrowPoints[1], arrowPoints[2], arrowPoints[3])
+        }
     }
 
     fun setResults(
         poseLandmarkerResults: MutableList<MutableList<Float>>,
         imageHeight: Int,
         imageWidth: Int,
-        runningMode: RunningMode = RunningMode.IMAGE
+        runningMode: RunningMode = RunningMode.IMAGE,
+        arrowPoints: List<Float>,
     ) {
         results = poseLandmarkerResults
 
@@ -123,6 +154,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
         scaleFactorX = width * 1f / imageWidth
         scaleFactorY = height * 1f / imageHeight
+
+        this.arrowPoints = arrowPoints
 
         invalidate()
     }
