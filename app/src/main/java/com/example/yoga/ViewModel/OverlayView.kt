@@ -25,6 +25,8 @@ import androidx.core.content.ContextCompat
 import com.example.yoga.R
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
+import kotlin.math.min
+import kotlin.math.max
 
 class OverlayView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
@@ -35,9 +37,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var arrowPaint = Paint()
     private var arrowPoints: List<Float> = emptyList()
 
-    private var scaleFactor: Float = 1f
-    private var scaleFactorX:Float = 1f
-    private var scaleFactorY:Float = 1f
+    //private var scaleFactor: Float = 1f
+    //private var scaleFactorX:Float = 1f
+    //private var scaleFactorY:Float = 1f
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
 
@@ -91,6 +93,38 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
+
+            //val imageAspectRatio = imageWidth.toFloat() / imageHeight.toFloat()
+            //val canvasAspectRatio = width.toFloat() / height.toFloat()
+
+            val offsetX: Float
+            val offsetY: Float
+
+            val scaleFactor: Float = max(width.toFloat() / imageWidth.toFloat(), height.toFloat() / imageHeight.toFloat())
+            offsetX = (width - imageWidth * scaleFactor) / 2
+            offsetY = (height - imageHeight * scaleFactor) / 2
+            for (normalizedLandmark in poseLandmarkerResult) {
+                if (normalizedLandmark[3] > 0.7) {
+                    canvas.drawPoint(
+                            normalizedLandmark[0] * imageWidth * scaleFactor + offsetX,
+                            normalizedLandmark[1] * imageHeight * scaleFactor + offsetY,
+                            pointPaint
+                    )
+                }
+
+                PoseLandmarker.POSE_LANDMARKS.forEach {
+                    if (poseLandmarkerResult[it.start()][3] > 0.7 && poseLandmarkerResult[it.end()][3] > 0.7) {
+                        canvas.drawLine(
+                                poseLandmarkerResult[it.start()][0] * imageWidth * scaleFactor + offsetX,
+                                poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactor + offsetY,
+                                poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactor + offsetX,
+                                poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactor + offsetY,
+                                linePaint
+                        )
+                    }
+                }
+            }
+            /*
             for(normalizedLandmark in poseLandmarkerResult) {
                 if (normalizedLandmark[3] > 0.7)
                 {
@@ -116,7 +150,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                         )
                     }
                 }
-            }
+            }*/
         }
         // 绘制箭头
         if (arrowPoints.size == 4) {
@@ -126,8 +160,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     fun setResults(
         poseLandmarkerResults: MutableList<MutableList<Float>>,
-        imageHeight: Int,
         imageWidth: Int,
+        imageHeight: Int,
         runningMode: RunningMode = RunningMode.IMAGE,
         arrowPoints: List<Float>,
     ) {
@@ -152,9 +186,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         //
         //println("H : "+(height * 1f / imageHeight).toString())//H : 1.3770833//H : 1.3645834
 
-        scaleFactorX = width * 1f / imageWidth
-        scaleFactorY = height * 1f / imageHeight
-
+        //scaleFactorX = width * 1f / imageWidth
+        //scaleFactorY = height * 1f / imageHeight
+        //println(width)
+        //println(height)
         this.arrowPoints = arrowPoints
 
         invalidate()
