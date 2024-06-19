@@ -247,14 +247,14 @@ def treePoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             elif index_x<right_shoulder_x:
                 roi[key] = False
                 pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_INDEX] if key=='LEFT_INDEX' else point3d[AngleNodeDef.RIGHT_INDEX]
-                pointsOut = [pointStart_x, pointStart_y, (pointStart_x-DISPLACEMENT_DISTANCE), pointStart_y] if tip_flag else pointsOut
-                tips = "請將雙手往左移動，保持在頭頂正上方" if tip_flag else tips
+                pointsOut = [pointStart_x, pointStart_y, (pointStart_x+DISPLACEMENT_DISTANCE), pointStart_y] if tip_flag else pointsOut
+                tips = "請將雙手往右移動，保持在頭頂正上方" if tip_flag else tips
                 imagePath = f"{imageFolder}/7.jpg" if tip_flag else imagePath
             elif index_x>left_shoulder_x:
                 roi[key] = False
                 pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_INDEX] if key=='LEFT_INDEX' else point3d[AngleNodeDef.RIGHT_INDEX]
-                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
-                tips = "請將雙手往右移動，保持在頭頂正上方" if tip_flag else tips
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                tips = "請將雙手往左移動，保持在頭頂正上方" if tip_flag else tips
                 imagePath = f"{imageFolder}/6.jpg" if tip_flag else imagePath
     if tips == "":
         tips = "動作正確"
@@ -301,9 +301,8 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             else:
                 roi[key] = False
                 tips = "請將右腳腳尖朝向右手邊" if tip_flag else tips
-                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_HEEL]
-                pointStart_x_end, pointStart_y_end, pointStart_z_end, _= point3d[AngleNodeDef.LEFT_FOOT_INDEX]
-                pointsOut = [pointStart_x, pointStart_y, pointStart_x_end, pointStart_y_end] if tip_flag else pointsOut
+                pointStart_x, pointStart_y, _, _= point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
                 imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
         elif key == 'LEFT_KNEE': #2
             ankle_x,_,_ ,ankle_vi=  (point3d[AngleNodeDef.LEFT_ANKLE])
@@ -387,7 +386,7 @@ def warriorIIPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 continue
             if angle_dict[key]>=150:
                 roi[key] = True
-                pointsOut=[] if tip_flag else pointsOut
+                pointsOut=[]
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
             elif angle_dict[key]<150 and (left_elbow_y-left_shoulder_y)>0.05:
                 roi[key] = False
@@ -600,8 +599,7 @@ def plankPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 roi['LEFT_KNEE'] = False
                 tips = "請將膝蓋伸直並讓腳踝到膝蓋成一直線"
                 pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.RIGHT_KNEE] if key=='RIGHT_KNEE' else point3d[AngleNodeDef.LEFT_KNEE]
-                pointStart_x_end, pointStart_y_end, pointStart_z_end, _= point3d[AngleNodeDef.RIGHT_ANKLE]  if key == 'RIGHT_KNEE' else point3d[AngleNodeDef.LEFT_ANKLE]
-                pointsOut=[pointStart_x,pointStart_y,pointStart_x_end,pointStart_y_end] if tip_flag else pointsOut
+                pointsOut=[pointStart_x,pointStart_y,pointStart_x,pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
                 imagePath = f"{imageFolder}/8.jpg" if tip_flag else imagePath
         elif key == side + 'ANKLE':
             min_angle = 30
@@ -840,13 +838,11 @@ def ChildsPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                     tips = "請將身體面向右方或左方趴下，並用雙手將臀部向前伸直" if tip_flag else tips
                     imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
                     break
-            imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
-
-
+            
         if key == f'{side}_KNEE':
             if angle_dict[key] == -1 :
                 continue
-            if angle_dict[key]<=45:
+            if angle_dict[key]<=30:
                 roi["LEFT_KNEE"] = True
                 roi["RIGHT_KNEE"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -903,7 +899,7 @@ def ChildsPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
 
             if angle_dict[key] == -1 or knee_vi<0.7 or elbow_vi<0.7:
                 continue
-            if angle_dict[key]>=130 and abs(knee_y-elbow_y)<0.1:
+            if angle_dict[key]>=130 and abs(knee_y-elbow_y)<0.2:
                 roi["LEFT_ELBOW"] = True
                 roi["RIGHT_ELBOW"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -1138,13 +1134,13 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         elif key == f'{side}_HIP':
             if(side=='LEFT'):
                 _,hip_y,_,hip_vi = point3d[AngleNodeDef.LEFT_HIP]
-                _,knee_y,_,knee_vi = point3d[AngleNodeDef.RIGHT_KNEE]
             else:
                 _,hip_y,_,hip_vi = point3d[AngleNodeDef.RIGHT_HIP]
-                _,knee_y,_,knee_vi = point3d[AngleNodeDef.LEFT_KNEE]
+            _,knee_l_y,_,knee_vi = point3d[AngleNodeDef.LEFT_KNEE]
+            _,knee_r_y,_,knee_vi = point3d[AngleNodeDef.RIGHT_KNEE]
             if hip_vi<MIN_DETECT_VISIBILITY or knee_vi<MIN_DETECT_VISIBILITY:
                 continue
-            if hip_y<=knee_y:
+            if (knee_l_y<=hip_y and hip_y<=knee_r_y) or ((knee_l_y>=hip_y and hip_y>=knee_r_y)):
                 roi[f"{side}_HIP"] = True
                 roi[f"{side_back}_HIP"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -1159,7 +1155,7 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         elif key == f'{side}_SHOULDER':
             if angle_dict[key] == -1 :
                 continue
-            if angle_dict[key]>=150:
+            if angle_dict[key]>=130:
                 roi["LEFT_SHOULDER"] = True
                 roi["RIGHT_SHOULDER"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -1178,7 +1174,7 @@ def LowLungeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
             _,l_elbow_y,_,l_elbow_vi = point3d[AngleNodeDef.LEFT_ELBOW]
             if nose_vi < MIN_DETECT_VISIBILITY:
                 continue
-            if abs(r_elbow_y)>=abs(nose_y) or abs(l_elbow_y)>=abs(nose_y):
+            if r_elbow_y<=nose_y or l_elbow_y<=nose_y:
                 roi["LEFT_ELBOW"] = True
                 roi["RIGHT_ELBOW"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -1243,10 +1239,29 @@ def SeatedForwardBendRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                     tips = "請將身體面向右方或左方坐下，並將腳伸直" if tip_flag else tips
                     imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
                     break
-        if key == f'{side}_SHOULDER':
+        if key == f'{side}_KNEE':
             if angle_dict[key] == -1 :
                 continue
-            if angle_dict[key]>=110:
+            if angle_dict[key]>=150:
+                roi["LEFT_KNEE"] = True
+                roi["RIGHT_KNEE"] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/5.jpg" if tip_flag else imagePath
+            else:
+                roi["LEFT_KNEE"] = False
+                roi["RIGHT_KNEE"] = False
+                tips = "請確認是否已經將雙腳向前伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_KNEE] if key=="LEFT_KNEE" else point3d[AngleNodeDef.RIGHT_KNEE]
+
+                if key=="LEFT_KNEE":
+                    pointsOut = [pointStart_x, pointStart_y ,pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                else:
+                    pointsOut = [pointStart_x, pointStart_y ,pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/3.jpg" if tip_flag else imagePath
+        elif key == f'{side}_SHOULDER':
+            if angle_dict[key] == -1 :
+                continue
+            if angle_dict[key]>=100:
                 roi["LEFT_SHOULDER"] = True
                 roi["RIGHT_SHOULDER"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -1329,7 +1344,7 @@ def SeatedForwardBendRule(roi, tips, sample_angle_dict, angle_dict, point3d):
 def BridgeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
     """Bridge pose rule
     Args:
-        roi (list): region of interesting joint for tree pose
+        roi (list): region of interesting joint for Bridge pose
         tips (str): tips
         sample_angle_dict (dict): sample angle dict
         angle_dict (dict): angle dict
@@ -1385,10 +1400,7 @@ def BridgeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 roi["RIGHT_KNEE"] = False
                 tips = "請確認是否已經將雙腳屈膝" if tip_flag else tips
                 pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_KNEE] if key=="LEFT_KNEE" else point3d[AngleNodeDef.RIGHT_KNEE]
-                if key=="LEFT_KNEE":
-                    pointsOut = [pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y ,pointStart_x, pointStart_y] if tip_flag else pointsOut
-                else:
-                    pointsOut = [pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y ,pointStart_x, pointStart_y] if tip_flag else pointsOut
+                pointsOut = [pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE ,pointStart_x, pointStart_y] if tip_flag else pointsOut
                 imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
         elif key == f'{side}_ELBOW':
             tolerance_val = 25
@@ -1447,7 +1459,7 @@ def BridgeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
 def PyramidRule(roi, tips, sample_angle_dict, angle_dict, point3d):
     """Pyramid pose rule
     Args:
-        roi (list): region of interesting joint for tree pose
+        roi (list): region of interesting joint for Pyramid pose
         tips (str): tips
         sample_angle_dict (dict): sample angle dict
         angle_dict (dict): angle dict
