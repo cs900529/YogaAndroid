@@ -19,19 +19,16 @@ class VideoGuide : AppCompatActivity() {
     private var global=GlobalVariable.getInstance()
     var poseName=""
 
-    // yogamap next
+    // yogaMat nextPage
     private lateinit var python : Python
-    private lateinit var heatmapNext : PyObject
-    private var nextThread: Thread? = null
+    private lateinit var yogaMat : PyObject
+    private var yogaMatThread: Thread? = null
+    private var threadFlag : Boolean = true
+
     private var fileGetter=fileNameGetter()
 
     fun nextpage(){
-
-        try {
-            nextThread?.interrupt()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
+        threadFlag = false // to stop thread
 
         val intent = Intent(this, YogaMain::class.java).apply {
             putExtra("poseName",poseName)
@@ -70,26 +67,30 @@ class VideoGuide : AppCompatActivity() {
         }
         python = Python.getInstance()
 
-        // yogamap return
-        heatmapNext = python.getModule("heatmap")
+        // get yogaMat python module
+        yogaMat = python.getModule("heatmap")
 
-        // yogamap return
-        nextThread = Thread {
+        // using yogaMat nextPage
+        yogaMatThread = Thread {
             try {
-                Thread.sleep(2000)
-                while (!heatmapNext.callAttr("checkReturn").toBoolean()) {
+                Thread.sleep(1000)
+                while (!yogaMat.callAttr("checkReturn").toBoolean() and threadFlag) {
                     Thread.sleep(100)
                 }
-                runOnUiThread {
-                    nextpage()
+                if(threadFlag){
+                    runOnUiThread {
+                        nextpage()
+                    }
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
+            println("!!! VideoGuide Done !!!")
         }
 
-        nextThread?.start()
+        yogaMatThread?.start()
     }
+
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch {

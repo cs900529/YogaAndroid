@@ -34,7 +34,9 @@
         <activity
             android:name=".discover.BluetoothActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".bluetooth.ChatActivity" />
+        <activity
+            android:name=".bluetooth.ChatActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".View.YogaMain"
             android:exported="false"
