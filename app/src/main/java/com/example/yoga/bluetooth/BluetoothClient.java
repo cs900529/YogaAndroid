@@ -39,9 +39,6 @@ public class BluetoothClient {
         PyObject pyObject = python.getModule("heatmap");
         bytes = pyObject.callAttr("get_heatmap", str).toJava(byte[].class);
 
-        // 取得 yogamat 的data
-        // int[][] test = pyObject.callAttr("get_rects").toJava(int[][].class);
-
         // save heatmap
         savePNG();
 
