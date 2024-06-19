@@ -82,14 +82,19 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
     private var count_result : Int = 0
-    // yogamap return
-    private lateinit var heatmapReturn : PyObject
-    private var myThread: Thread? = null
-    private var heatThread: Thread? = null
+
+    // yogaMat nextPage
+    private lateinit var yogaMat : PyObject
+    private var yogaMatThread: Thread? = null
+    private var heatMapThread: Thread? = null
+    private var threadFlag : Boolean = true
+
     //file getter
     private var fileGetter=fileNameGetter()
 
     fun lastpage(){
+        threadFlag = false // to stop thread
+
         timer30S.stopTimer()
         timerCurrent.handlerStop()
         val intent = Intent(this, Menu::class.java)
@@ -97,6 +102,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
+        threadFlag = false // to stop thread
+
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -170,30 +177,33 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     poseLandmarkerHelperListener = this
             )
         }
-        // yogamap return
-        heatmapReturn = python.getModule("heatmap")
 
-        // yogamap return
-        myThread = Thread {
+        // get yogaMat python module
+        yogaMat = python.getModule("heatmap")
+
+        // using yogaMat return
+        yogaMatThread = Thread {
             try {
-                Thread.sleep(2000)
-                while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
+                Thread.sleep(3000)
+                while (!yogaMat.callAttr("checkReturn").toBoolean() and threadFlag) {
                     Thread.sleep(100)
-                    print("checkReturn")
                 }
-                runOnUiThread {
-                    lastpage()
+                if(threadFlag){
+                    runOnUiThread {
+                        nextpage()
+                    }
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
+            println("!!! YogaMain Done !!!")
         }
 
-        myThread?.start()
+        yogaMatThread?.start()
 
-        heatThread = Thread {
+        heatMapThread = Thread {
             try {
-                while (true) {
+                while (threadFlag) {
                     val fileName = "yourFile.txt"
                     val file = File(this.filesDir, fileName)
                     val filePath = file.path
@@ -220,16 +230,15 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         }
                     }
 
-                    Thread.sleep(250)
-                    println("NEXT")
+                    Thread.sleep(1000)
                 }
             } catch (e: InterruptedException) {
-                e.printStackTrace()
+                Log.e("Thread", "Thread was interrupted", e)
             }
-
+            println("!!! heatMapThread Off !!!")
         }
 
-        heatThread?.start()
+        heatMapThread?.start()
 
         //縮小angle show 字體
         yogamainBinding.angleShow.textSize = 12.0f
@@ -511,9 +520,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         global.backgroundMusic.pause()
         //關掉相機
         backgroundExecutor.shutdown()
-        // 在Activity銷毀時結束thread
-        myThread?.interrupt()
-        heatThread?.interrupt()
     }
     override fun onPause() {
         super.onPause()
