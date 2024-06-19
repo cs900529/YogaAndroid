@@ -314,9 +314,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
             //interval sampling
-            yogamainBinding.angleShow.text = "" //reset
-
             if (count_result == 0){
+                yogamainBinding.angleShow.text = "" //reset
                 var ArrowList: List<Float> = listOf()
                 count_result += 1
                 this.runOnUiThread {
