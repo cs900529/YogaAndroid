@@ -58,8 +58,10 @@ class YogaPose:
             self.tips="無法偵測到完整骨架"
             self.angle_show = "無法偵測到完整骨架"
             self.imagePath =  get_image_path(self.type)
-            # 不知道後面要接啥, 先弄成只有 self.angle_show
             # return [self.angle_show,self.tips,self.imagePath]
+
+            # 不知道後面要接啥, 先弄成只有 self.angle_show
+            # 預想的return value = [self.angle_show, [arrow_start_X,arrow_start_Y,arrow_end_X,arrow_end_Y]]
             return [self.angle_show,[0.0,0.0,0.0]]
 
 
@@ -75,6 +77,7 @@ class YogaPose:
                 self.angle_dict[key] = angle
                 self.angle_show = self.angle_show + f"{key}:{angle}\n"
         # 不知道後面要接啥, 先弄成只有 self.angle_show
+        # 預想的return value = [self.angle_show, [arrow_start_X,arrow_start_Y,arrow_end_X,arrow_end_Y]]
         return [self.angle_show,[0.0,0.0,0.0]]
         if(self.type == 'Tree Style'):
             #for key,value in self.angle_def.items():
