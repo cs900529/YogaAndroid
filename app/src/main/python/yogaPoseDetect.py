@@ -60,7 +60,7 @@ class YogaPose:
             self.imagePath =  get_image_path(self.type)
             # 不知道後面要接啥, 先弄成只有 self.angle_show
             # return [self.angle_show,self.tips,self.imagePath]
-            return self.angle_show
+            return [self.angle_show,[0.0,0.0,0.0]]
 
 
         for key,value in self.angle_def.items():
@@ -75,7 +75,7 @@ class YogaPose:
                 self.angle_dict[key] = angle
                 self.angle_show = self.angle_show + f"{key}:{angle}\n"
         # 不知道後面要接啥, 先弄成只有 self.angle_show
-        return self.angle_show
+        return [self.angle_show,[0.0,0.0,0.0]]
         if(self.type == 'Tree Style'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
