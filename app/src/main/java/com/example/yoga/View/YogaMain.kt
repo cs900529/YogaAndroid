@@ -203,6 +203,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
         heatMapThread = Thread {
             try {
+                val assetManager = assets
+                val inputStream = assetManager.open("image/Other/NO_YOGA_MAT.jpg")
+                val noYogaMat = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
                 while (threadFlag) {
                     val fileName = "yourFile.txt"
                     val file = File(this.filesDir, fileName)
@@ -226,11 +230,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             }
                         } else {
                             // 處理空的 ByteArray 情況
-                            Log.e("BitmapFactory", "ByteArray is null or empty")
+                            yogamainBinding.imageView2.setImageBitmap(noYogaMat)
                         }
                     }
 
-                    Thread.sleep(1000)
+                    Thread.sleep(100)
                 }
             } catch (e: InterruptedException) {
                 Log.e("Thread", "Thread was interrupted", e)
