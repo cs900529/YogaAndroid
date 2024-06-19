@@ -315,11 +315,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     ) {
             //interval sampling
             if (count_result == 0){
-                yogamainBinding.angleShow.text = "" //reset
-                var ArrowList: List<Float> = listOf()
                 count_result += 1
                 this.runOnUiThread {
-
+                    yogamainBinding.angleShow.text = "" //reset
+                    var ArrowList: List<Float> = listOf()
                     // heatmap 顯示 (目前沒用到)
                     val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
                     /*thread {
@@ -427,7 +426,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         } else
                             timer30S.resetTimer()
                     }
-
                     if (resultBundle.results.first().landmarks().isNotEmpty()) {
                         val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
                             nlandmarks.map { landmark ->
@@ -474,8 +472,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             yogamainBinding.overlay.setResults(
                                     //resultBundle.results.first(),
                                     smooth_floatListList,
-                                    resultBundle.inputImageHeight,
                                     resultBundle.inputImageWidth,
+                                    resultBundle.inputImageHeight,
                                     RunningMode.LIVE_STREAM,
                                     ArrowList
                             )
@@ -486,7 +484,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     // Force a redraw
                     yogamainBinding.overlay.invalidate()
                 }
-        }else count_result = 0
+        }else {
+            count_result = 0
+        }
     }
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {
