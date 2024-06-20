@@ -36,10 +36,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var linePaint = Paint()
     private var arrowPaint = Paint()
     private var arrowPoints: List<Float> = emptyList()
-
-    //private var scaleFactor: Float = 1f
-    //private var scaleFactorX:Float = 1f
-    //private var scaleFactorY:Float = 1f
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
 
@@ -124,37 +120,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     }
                 }
             }
-            /*
-            for(normalizedLandmark in poseLandmarkerResult) {
-                if (normalizedLandmark[3] > 0.7)
-                {
-                    canvas.drawPoint(
-                            //normalizedLandmark.x() * imageWidth * scaleFactor,
-                            //normalizedLandmark.y() * imageHeight * scaleFactor,
-                            normalizedLandmark[0] * imageWidth * scaleFactorX,
-                            normalizedLandmark[1] * imageHeight * scaleFactorY,
-                            pointPaint
-                    )
-                }
-
-
-                PoseLandmarker.POSE_LANDMARKS.forEach {
-                    if (poseLandmarkerResult[it!!.start()][3] >0.7 && poseLandmarkerResult[it.end()][3] >0.7)
-                    {
-                        canvas.drawLine(
-                                poseLandmarkerResult[it!!.start()][0] * imageWidth * scaleFactorX,
-                                poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactorY,
-                                poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactorX,
-                                poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactorY,
-                                linePaint
-                        )
-                    }
-                }
-            }*/
         }
         // 绘制箭头
         if (arrowPoints.size == 4) {
-            drawArrow(canvas, arrowPoints[0], arrowPoints[1], arrowPoints[2], arrowPoints[3])
+            val offsetX: Float
+            val offsetY: Float
+            val scaleFactor: Float = max(width.toFloat() / imageWidth.toFloat(), height.toFloat() / imageHeight.toFloat())
+            offsetX = (width - imageWidth * scaleFactor) / 2
+            offsetY = (height - imageHeight * scaleFactor) / 2
+            val arrowstart_x=arrowPoints[0]* imageWidth* scaleFactor+offsetX
+            val arrowstart_y=arrowPoints[1]* imageHeight*scaleFactor+offsetY
+            val arrowend_x=arrowPoints[2]* imageWidth* scaleFactor+offsetX
+            val arrowend_y=arrowPoints[3]* imageHeight*scaleFactor+offsetY
+            println("draw Point: $arrowstart_x ,$arrowstart_y, $arrowend_x, $arrowend_y")
+            drawArrow(canvas, arrowstart_x, arrowstart_y, arrowend_x, arrowend_y)
         }
     }
 
@@ -169,27 +148,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
         this.imageHeight = imageHeight
         this.imageWidth = imageWidth
-
-        //scaleFactor = when (runningMode) {
-        //    RunningMode.IMAGE,
-        //    RunningMode.VIDEO -> {
-        //        min(width * 1f / imageWidth, height * 1f / imageHeight)
-        //    }
-        //    RunningMode.LIVE_STREAM -> {
-        //        // PreviewView is in FILL_START mode. So we need to scale up the
-        //        // landmarks to match with the size that the captured images will be
-        //        // displayed.
-        //        max(width * 1f / imageWidth, height * 1f / imageHeight)
-        //    }
-        //}
-        //println("W : "+(width * 1f / imageWidth).toString())//W : 1.70625//W : 1.4109375
-        //
-        //println("H : "+(height * 1f / imageHeight).toString())//H : 1.3770833//H : 1.3645834
-
-        //scaleFactorX = width * 1f / imageWidth
-        //scaleFactorY = height * 1f / imageHeight
-        //println(width)
-        //println(height)
         this.arrowPoints = arrowPoints
 
         invalidate()

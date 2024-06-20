@@ -70,7 +70,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
     //判別文字是否更動用
     private var lastText="提示文字在這"
-    private var nextText=""
+    private var TipsText=""
     //計時器
     private var timerCurrent = FinishTimer()
     private var timer30S = KSecCountdownTimer(7)
@@ -366,7 +366,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     // pass result to Yogapose
                     if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
                         val floatListList: List<MutableList<Any>> =
-                            resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                            resultBundle.results.first().landmarks().flatMap { landmarks ->
                                 landmarks.map { landmark ->
                                     mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
                                 }
@@ -401,35 +401,23 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         // Change pose tips to show angle
                         var detectlist = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).asList()
 
-                        yogamainBinding.angleShow.text = detectlist[0].toString()
-                        ArrowList = detectlist[1].asList().map{it.toFloat()}
+                        // yogamainBinding.angleShow.text = detectlist[0].toString()
 
-                        /*舊的提示顯示, 應該是用不到了*/
-                        /*var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                                center, feet_data_str).toString()
+                        ArrowList = detectlist[2].asList().map{it.toFloat()}
+                        println("ArrowList: $ArrowList")
 
+                        try {
+                            TipsText = detectlist[1].toString()
+                            println("TipsText: $TipsText")
+                            if (lastText != TipsText)
+                                TTSSpeak(TipsText)
+                            lastText = TipsText
 
-                        if (guideStr.iterator().hasNext()) {
-                            val re = guideStr.split(',')
-                            val re_0 = re[0].length
-                            val re_1 = re[1].length
-                            println(re[0].substring(2..re_0 - 2))
-                            println(re[1].substring(2..re_1 - 3))
-                            // Assume it behaves like a list and try accessing its elements
-                            try {
-                                nextText = re[0].substring(2..re_0 - 2)
-                                if (lastText != nextText)
-                                    TTSSpeak(nextText)
-                                lastText = nextText
-
-                            } catch (e: Exception) {
-                                // Handle exceptions when accessing elements if the result doesn't behave like a list
-                                println("Result does not have expected list behavior: ${e.message}")
-                            }
-                        } else {
-                                // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                                println("Result is not iterable like a list")
-                        }*/
+                        } catch (e: Exception) {
+                            // Handle exceptions when accessing elements if the result doesn't behave like a list
+                            println("Result does not have expected list behavior: ${e.message}")
+                        }
+                        yogamainBinding.angleShow.text = lastText+ "\n"+ detectlist[0].toString()
 
                         //30秒計時器
                         //if(true){//debug
