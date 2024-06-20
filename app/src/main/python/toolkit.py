@@ -975,10 +975,7 @@ def DownwardDogRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 roi["RIGHT_SHOULDER"] = False
                 tips = "請確認是否已經將手臂打直，並將臀部向上撐起" if tip_flag else tips
                 pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_SHOULDER] if key=="LEFT_SHOULDER" else point3d[AngleNodeDef.RIGHT_SHOULDER]
-                if key=="LEFT_SHOULDER":
-                    pointsOut= [pointStart_x, pointStart_y,pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
-                else:
-                    pointsOut= [pointStart_x, pointStart_y,pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                pointsOut= [pointStart_x, pointStart_y,pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
                 imagePath = f"{imageFolder}/7.jpg" if tip_flag else imagePath
         elif key == f'{side}_ELBOW':
             if angle_dict[key] == -1 :
@@ -1016,7 +1013,7 @@ def DownwardDogRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         elif key == f'{side}_KNEE':
             if angle_dict[key] == -1 :
                 continue
-            if angle_dict[key]>=150:
+            if angle_dict[key]>=160:
                 roi["LEFT_KNEE"] = True
                 roi["RIGHT_KNEE"] = True
                 pointsOut=[] if tip_flag else pointsOut
@@ -1038,7 +1035,7 @@ def DownwardDogRule(roi, tips, sample_angle_dict, angle_dict, point3d):
                 _,heel_y,_,heel_vi = (point3d[AngleNodeDef.RIGHT_HEEL])
             if heel_vi<MIN_DETECT_VISIBILITY or index_vi<MIN_DETECT_VISIBILITY:
                 continue
-            if abs(index_y-heel_y)<0.1:
+            if abs(index_y-heel_y)<0.05:
                 roi["LEFT_ANKLE"] = True
                 roi["RIGHT_ANKLE"] = True
                 pointsOut=[] if tip_flag else pointsOut
