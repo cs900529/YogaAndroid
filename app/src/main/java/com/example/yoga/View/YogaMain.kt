@@ -91,6 +91,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
     //file getter
     private var fileGetter=fileNameGetter()
+    //angle Show usage
+    private var angleshowtext:String = ""
+    private val lock = Any()
+    // angle show usage end
 
     fun lastpage(){
         threadFlag = false // to stop thread
@@ -246,6 +250,13 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
         //縮小angle show 字體
         yogamainBinding.angleShow.textSize = 12.0f
+        yogamainBinding.angleShow.postDelayed(updateRunnable,200)
+    }
+    private val updateRunnable =  object : Runnable {
+        override fun run(){
+            yogamainBinding.angleShow.text = angleshowtext
+            yogamainBinding.angleShow.postDelayed(this, 200)
+        }
     }
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -327,10 +338,12 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
             //interval sampling
+
             if (count_result == 0){
                 count_result += 1
                 this.runOnUiThread {
-                    yogamainBinding.angleShow.text = "" //reset
+                    angleshowtext = ""
+
                     var ArrowList: List<Float> = listOf()
                     // heatmap 顯示 (目前沒用到)
                     val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -362,7 +375,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             }
                         }
                     }*/
-/*調換順序,先進行pose detect 得到各角度再丟到視圖上*/
+                    /*調換順序,先進行pose detect 得到各角度再丟到視圖上*/
                     // pass result to Yogapose
                     if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
                         val floatListList: List<MutableList<Any>> =
@@ -399,9 +412,11 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
 
                         // Change pose tips to show angle
-                        var detectlist = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).asList()
-
-                        // yogamainBinding.angleShow.text = detectlist[0].toString()
+                        val detectlist = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).asList()
+                        synchronized(lock){
+                            angleshowtext = detectlist[0].toString()
+                        }
+                        ArrowList = detectlist[1].asList().map{it.toFloat()}
 
                         ArrowList = detectlist[2].asList().map{it.toFloat()}
                         println("ArrowList: $ArrowList")
@@ -481,13 +496,13 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         }
 
                     }
-/*調換順序結尾*/
+                    /*調換順序結尾*/
                     // Force a redraw
                     yogamainBinding.overlay.invalidate()
                 }
-        }else {
-            count_result = 0
-        }
+            }else {
+                count_result = 0
+            }
     }
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {

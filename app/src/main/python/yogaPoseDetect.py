@@ -38,6 +38,7 @@ class YogaPose:
 
     def detect(self, point, rect , center, feet_data_json):
         self.tips = ""
+        self.angle_show = ""
         point3d = []
 
         feet_data = FeetData.from_dict(feet_data_json)
