@@ -39,9 +39,6 @@ public class BluetoothClient {
         PyObject pyObject = python.getModule("heatmap");
         bytes = pyObject.callAttr("get_heatmap", str).toJava(byte[].class);
 
-        // 取得 yogamat 的data
-        // int[][] test = pyObject.callAttr("get_rects").toJava(int[][].class);
-
         // save heatmap
         savePNG();
 
@@ -55,7 +52,7 @@ public class BluetoothClient {
             FileOutputStream fos = new FileOutputStream(filePath);
             fos.write(bytes);
             fos.close();
-            System.out.println("save file done!" + filePath); //20240221
+            // System.out.println("save file done!" + filePath); //20240221
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (IOException e) {

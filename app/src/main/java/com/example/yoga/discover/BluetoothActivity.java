@@ -18,6 +18,7 @@ import com.example.yoga.Model.GlobalVariable;
 import com.example.yoga.bluetooth.ChatActivity;
 import com.example.yoga.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -78,6 +79,18 @@ public class BluetoothActivity extends AppCompatActivity {
     }
 
     public void onClickPass(View view){ // 沒有瑜珈墊
+        String filePath = getFilesDir().getPath() + "/yourFile.txt";
+        File file = new File(filePath);
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("File deleted successfully");
+            } else {
+                System.out.println("Failed to delete the file");
+            }
+        } else {
+            System.out.println("File not found");
+        }
+
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("remoteAddress", "0");
         startActivity(intent);

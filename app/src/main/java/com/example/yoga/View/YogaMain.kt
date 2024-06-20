@@ -70,7 +70,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
     //判別文字是否更動用
     private var lastText="提示文字在這"
-    private var nextText=""
+    private var TipsText=""
     //計時器
     private var timerCurrent = FinishTimer()
     private var timer30S = KSecCountdownTimer(7)
@@ -82,10 +82,13 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var smoothedListQueue: MutableList<MutableList<MutableList<Float>> > = mutableListOf()
     private var len_of_landmark:Int = -1
     private var count_result : Int = 0
-    // yogamap return
-    private lateinit var heatmapReturn : PyObject
-    private var myThread: Thread? = null
-    private var heatThread: Thread? = null
+
+    // yogaMat nextPage
+    private lateinit var yogaMat : PyObject
+    private var yogaMatThread: Thread? = null
+    private var heatMapThread: Thread? = null
+    private var threadFlag : Boolean = true
+
     //file getter
     private var fileGetter=fileNameGetter()
     //angle Show usage
@@ -94,6 +97,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     // angle show usage end
 
     fun lastpage(){
+        threadFlag = false // to stop thread
+
         timer30S.stopTimer()
         timerCurrent.handlerStop()
         val intent = Intent(this, Menu::class.java)
@@ -101,6 +106,8 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
+        threadFlag = false // to stop thread
+
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -174,30 +181,37 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     poseLandmarkerHelperListener = this
             )
         }
-        // yogamap return
-        heatmapReturn = python.getModule("heatmap")
 
-        // yogamap return
-        myThread = Thread {
+        // get yogaMat python module
+        yogaMat = python.getModule("heatmap")
+
+        // using yogaMat return
+        yogaMatThread = Thread {
             try {
-                Thread.sleep(2000)
-                while (!heatmapReturn.callAttr("checkReturn").toBoolean()) {
+                Thread.sleep(3000)
+                while (!yogaMat.callAttr("checkReturn").toBoolean() and threadFlag) {
                     Thread.sleep(100)
-                    print("checkReturn")
                 }
-                runOnUiThread {
-                    lastpage()
+                if(threadFlag){
+                    runOnUiThread {
+                        nextpage()
+                    }
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
+            println("!!! YogaMain Done !!!")
         }
 
-        myThread?.start()
+        yogaMatThread?.start()
 
-        heatThread = Thread {
+        heatMapThread = Thread {
             try {
-                while (true) {
+                val assetManager = assets
+                val inputStream = assetManager.open("image/Other/NO_YOGA_MAT.jpg")
+                val noYogaMat = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                while (threadFlag) {
                     val fileName = "yourFile.txt"
                     val file = File(this.filesDir, fileName)
                     val filePath = file.path
@@ -220,20 +234,19 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             }
                         } else {
                             // 處理空的 ByteArray 情況
-                            Log.e("BitmapFactory", "ByteArray is null or empty")
+                            yogamainBinding.imageView2.setImageBitmap(noYogaMat)
                         }
                     }
 
-                    Thread.sleep(250)
-                    println("NEXT")
+                    Thread.sleep(100)
                 }
             } catch (e: InterruptedException) {
-                e.printStackTrace()
+                Log.e("Thread", "Thread was interrupted", e)
             }
-
+            println("!!! heatMapThread Off !!!")
         }
 
-        heatThread?.start()
+        heatMapThread?.start()
 
         //縮小angle show 字體
         yogamainBinding.angleShow.textSize = 12.0f
@@ -366,7 +379,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     // pass result to Yogapose
                     if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
                         val floatListList: List<MutableList<Any>> =
-                            resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
+                            resultBundle.results.first().landmarks().flatMap { landmarks ->
                                 landmarks.map { landmark ->
                                     mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
                                 }
@@ -405,32 +418,21 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         }
                         ArrowList = detectlist[1].asList().map{it.toFloat()}
 
-                        /*舊的提示顯示, 應該是用不到了*/
-                        /*var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                                center, feet_data_str).toString()
+                        ArrowList = detectlist[2].asList().map{it.toFloat()}
+                        println("ArrowList: $ArrowList")
 
+                        try {
+                            TipsText = detectlist[1].toString()
+                            println("TipsText: $TipsText")
+                            if (lastText != TipsText)
+                                TTSSpeak(TipsText)
+                            lastText = TipsText
 
-                        if (guideStr.iterator().hasNext()) {
-                            val re = guideStr.split(',')
-                            val re_0 = re[0].length
-                            val re_1 = re[1].length
-                            println(re[0].substring(2..re_0 - 2))
-                            println(re[1].substring(2..re_1 - 3))
-                            // Assume it behaves like a list and try accessing its elements
-                            try {
-                                nextText = re[0].substring(2..re_0 - 2)
-                                if (lastText != nextText)
-                                    TTSSpeak(nextText)
-                                lastText = nextText
-
-                            } catch (e: Exception) {
-                                // Handle exceptions when accessing elements if the result doesn't behave like a list
-                                println("Result does not have expected list behavior: ${e.message}")
-                            }
-                        } else {
-                                // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                                println("Result is not iterable like a list")
-                        }*/
+                        } catch (e: Exception) {
+                            // Handle exceptions when accessing elements if the result doesn't behave like a list
+                            println("Result does not have expected list behavior: ${e.message}")
+                        }
+                        yogamainBinding.angleShow.text = lastText+ "\n"+ detectlist[0].toString()
 
                         //30秒計時器
                         //if(true){//debug
@@ -525,9 +527,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         global.backgroundMusic.pause()
         //關掉相機
         backgroundExecutor.shutdown()
-        // 在Activity銷毀時結束thread
-        myThread?.interrupt()
-        heatThread?.interrupt()
     }
     override fun onPause() {
         super.onPause()

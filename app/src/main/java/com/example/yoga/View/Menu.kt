@@ -19,19 +19,15 @@ class Menu : AppCompatActivity() {
     private var global=GlobalVariable.getInstance()
     private lateinit var currentSelect:Button  //call by reference
 
-    // yogamap function
+    // yogaMat function
     private lateinit var python : Python
-    private lateinit var heatmapFunction : PyObject
-    private var functionThread: Thread? = null
+    private lateinit var yogaMat : PyObject
+    private var yogaMatFunctionThread: Thread? = null
+    private var threadFlag : Boolean = true
     private var functionNumber: Int = 0
 
     fun lastpage(){
-
-        try {
-            functionThread?.interrupt()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
+        threadFlag = false // to stop thread
 
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("playMusic",false)
@@ -43,12 +39,7 @@ class Menu : AppCompatActivity() {
         nextpage(currentSelect.text.toString())
     }
     fun nextpage(posename:String){
-
-        try {
-            functionThread?.interrupt()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
+        threadFlag = false // to stop thread
 
         val intent = Intent(this, VideoGuide::class.java).apply {
             putExtra("poseName",posename)
@@ -185,21 +176,21 @@ class Menu : AppCompatActivity() {
 
         select()
 
-        //啟動python
+        // python start
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
         }
         python = Python.getInstance()
 
-        // yogamap nextpage
-        heatmapFunction = python.getModule("heatmap")
+        // get yogaMat python module
+        yogaMat = python.getModule("heatmap")
 
-        // yogamap nextpage
-        functionThread = Thread {
+        // using yogaMat select and nextPage
+        yogaMatFunctionThread = Thread {
             try {
-                while (true) {
-                    Thread.sleep(2000)
-                    functionNumber = heatmapFunction.callAttr("checkFunction").toInt()
+                Thread.sleep(1000)
+                while (threadFlag) {
+                    functionNumber = yogaMat.callAttr("checkFunction").toInt()
                     runOnUiThread {
                         if (functionNumber == 1) {
                             right()
@@ -211,7 +202,7 @@ class Menu : AppCompatActivity() {
                             down()
                         }
                     }
-                    if (heatmapFunction.callAttr("checkReturn").toBoolean()) {
+                    if (yogaMat.callAttr("checkReturn").toBoolean()) {
                         nextpage()
                         break
                     }
@@ -220,9 +211,10 @@ class Menu : AppCompatActivity() {
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
+            println("!!! Menu Done !!!")
         }
 
-        functionThread?.start()
+        yogaMatFunctionThread?.start()
     }
 
     override fun onStart() {
