@@ -403,7 +403,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
 
                         // 分數計算器
-                        var score = scoreCalculator.callAttr("calculate_score", floatListList)
+                        var score = scoreCalculator.callAttr("calculate_score", floatListList, true)
                         println("score ${score}")
 //                        yogamainBinding.score.text = "分數 ${score}"
                         yogamainBinding.score.text = ""
@@ -416,7 +416,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         synchronized(lock){
                             angleshowtext = detectlist[0].toString()
                         }
-                        ArrowList = detectlist[1].asList().map{it.toFloat()}
 
                         ArrowList = detectlist[2].asList().map{it.toFloat()}
                         println("ArrowList: $ArrowList")

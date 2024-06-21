@@ -1,3 +1,4 @@
+import toolkit
 import AngleNodeDef
 import AngleRegion
 
@@ -5,7 +6,7 @@ yogaFileDict = {
     "Tree Style": {
         "roi": AngleRegion.TREE,
         "angle_def": AngleNodeDef.TREE_ANGLE,
-        "default_image_path" : "image/Tree Style/8.jpg"
+        "default_image_path" : "image/Tree Style/8.jpg",
     },
     "Warrior2 Style": {
         "roi": AngleRegion.WARRIOR_II,
@@ -76,8 +77,26 @@ def get_roi(pose):
         return pose_info["roi"]
     return {}
 
-def get_jsonfile_path(pose):
-    return "JsonFile/" + pose
+def get_sample_angle_dict(pose):
+    path = "JsonFile/" + pose + "/sample.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
+def get_sample_socre_angle_dict(pose):
+    path = "JsonFile/" + pose + "/sample_score.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
+def get_std_angle_dict(pose):
+    path = "JsonFile/" + pose + "/std_angle.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
+def get_weight_angle_dict(pose):
+    path = "JsonFile/" + pose + "/weight.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
 
 def get_image_path(pose):
     return "image/" + pose

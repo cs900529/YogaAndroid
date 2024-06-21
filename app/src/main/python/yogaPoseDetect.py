@@ -12,7 +12,6 @@ class YogaPose:
         self.tips = ""
         self.roi = get_roi(type)
         self.angle_def = get_angle_def(type)
-        self.jsonfile_path = get_jsonfile_path(type) + "/sample.json"
 
         self.angle_dict = self.initialAngleDict()
         self.sample_angle_dict = {}#initialAngleDict
@@ -30,11 +29,7 @@ class YogaPose:
         return dict
 
     def initialDetect(self):
-        self.sample_angle_dict = toolkit.readSampleJsonFile(self.jsonfile_path)
-        if self.sample_angle_dict == None:
-            #return self.initialAngleDict()
-            self.sample_angle_dict = toolkit.readSampleJsonFile(self.jsonfile_path)
-        #return self.sample_angle_dict
+        self.sample_angle_dict = get_sample_angle_dict(self.type)
 
     def detect(self, point, rect , center, feet_data_json):
         self.tips = ""
