@@ -416,7 +416,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         synchronized(lock){
                             angleshowtext = detectlist[0].toString()
                         }
-                        ArrowList = detectlist[1].asList().map{it.toFloat()}
 
                         ArrowList = detectlist[2].asList().map{it.toFloat()}
                         println("ArrowList: $ArrowList")
