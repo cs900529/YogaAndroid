@@ -103,6 +103,8 @@ LOWLUNGE = {
 }
 SEATEDFORWARDBEND = {
     'NOSE': False,
+    'LEFT_ELBOW': False,
+    'RIGHT_ELBOW': False,
     'LEFT_SHOULDER': False,
     'RIGHT_SHOULDER': False,
     'LEFT_HIP': False,
