@@ -67,6 +67,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
 
     //判別文字是否更動用
     private var lastText="提示文字在這"
+    private var TipsText=""
     //計時器
     private var timerCurrent = FinishTimer()
     private var timer30S = KSecCountdownTimer(7)
@@ -83,6 +84,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private var myThread: Thread? = null
     //file getter
     private var fileGetter=fileNameGetter()
+    private val lock = Any()
 
     fun lastpage(){
         timer30S.stopTimer()
@@ -306,171 +308,168 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     override fun onResults(
         resultBundle: PoseLandmarkerHelper.ResultBundle
     ) {
-            //interval sampling
-            if (count_result == 0){
-                count_result += 1
-                this.runOnUiThread {
+        if (count_result == 0){
+            count_result += 1
+            this.runOnUiThread {
 
-                    // heatmap 顯示 (目前沒用到)
-                    /*val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
-                    thread {
-                        heatmapexecutor.execute {
-                            val fileName = "yourFile.txt"
-                            val file = File(this.filesDir, fileName)
-                            val filePath = file.path
+                var ArrowList: List<Float> = listOf()
+                // heatmap 顯示 (目前沒用到)
+                val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
+                /*thread {
+                    heatmapexecutor.execute {
+                        val fileName = "yourFile.txt"
+                        val file = File(this.filesDir, fileName)
+                        val filePath = file.path
 
-                            val readByteArray = readBytesFromFile(filePath)
+                        val readByteArray = readBytesFromFile(filePath)
 
-                            // 檢查 ByteArray 是否為空
-                            if ((readByteArray != null) && readByteArray.isNotEmpty()) {
-                                val bmp: Bitmap? =
-                                    BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
+                        // 檢查 ByteArray 是否為空
+                        if ((readByteArray != null) && readByteArray.isNotEmpty()) {
+                            val bmp: Bitmap? =
+                                BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
 
-                                // 檢查解碼的 Bitmap 是否為空
-                                if (bmp != null) {
-                                    runOnUiThread {
-                                        //yogamainBinding.imageView2.setImageBitmap(bmp)
-                                    }
-                                } else {
-                                    // 處理解碼失敗的情況
-                                    Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
+                            // 檢查解碼的 Bitmap 是否為空
+                            if (bmp != null) {
+                                runOnUiThread {
+                                    //yogamainBinding.imageView2.setImageBitmap(bmp)
                                 }
                             } else {
-                                // 處理空的 ByteArray 情況
-                                Log.e("BitmapFactory", "ByteArray is null or empty")
-                            }
-                        }
-                    }*/
-
-                    if (resultBundle.results.first().landmarks().isNotEmpty()) {
-                        val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
-                            nlandmarks.map { landmark ->
-                                mutableListOf( landmark.x(), landmark.y(), landmark.z() , landmark.visibility().orElse((-1.0).toFloat()).toFloat())
-                            }
-                        }
-
-                        //val floatListList = resultBundle.results.first().landmarks()[0]
-                        var smooth_floatListList: MutableList<MutableList<Float>> = mutableListOf()
-                        //var middle_x_list: MutableList<Float> = mutableListOf()
-                        //var middle_y_list: MutableList<Float> = mutableListOf()
-                        //var middle_z_list: MutableList<Float> = mutableListOf()
-                        //var middle_list: MutableList<MutableList<Float>> = mutableListOf()
-                        if (norfloatListList.size != len_of_landmark && len_of_landmark != -1) {
-                            smoothedListQueue.clear()
-                            len_of_landmark = -1
-                        }
-
-                        len_of_landmark = norfloatListList.size
-                        smoothedListQueue.add(norfloatListList.toMutableList())
-                        if (smoothedListQueue.size > 3) {
-                            smoothedListQueue.removeFirst()
-
-                            smooth_floatListList = smoothedListQueue.first()
-                            for (Fll in smoothedListQueue) {
-                                if (Fll == smoothedListQueue.first())
-                                    continue
-                                else {
-                                    for (i in Fll.indices) {
-                                        smooth_floatListList[i][0] += Fll[i][0]
-                                        smooth_floatListList[i][1] += Fll[i][1]
-                                        smooth_floatListList[i][2] += Fll[i][2]
-                                        smooth_floatListList[i][3] += Fll[i][3]
-                                    }
-                                }
-                            }
-                            for (landmark in smooth_floatListList) {
-                                landmark[0] = landmark[0] / smoothedListQueue.size
-                                landmark[1] = landmark[1] / smoothedListQueue.size
-                                landmark[2] = landmark[2] / smoothedListQueue.size
-                                landmark[3] = landmark[3] / smoothedListQueue.size
-                            }
-                            // Pass necessary information to OverlayView for drawing on the canvas
-                            yogamainBinding.overlay.setResults(
-                                    //resultBundle.results.first(),
-                                    smooth_floatListList,
-                                    resultBundle.inputImageHeight,
-                                    resultBundle.inputImageWidth,
-                                    RunningMode.LIVE_STREAM
-                            )
-                        }
-
-                    }
-
-                    // pass result to Yogapose
-                    if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
-                        val floatListList: List<MutableList<Any>> =
-                            resultBundle.results.first().worldLandmarks().flatMap { landmarks ->
-                                landmarks.map { landmark ->
-                                    mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
-                                }
-                            }
-
-                        val point2d: List<MutableList<Float>> =
-                            resultBundle.results.first().landmarks().flatMap { nlandmarks ->
-                                nlandmarks.map { landmark ->
-                                    mutableListOf(landmark.x(), landmark.y())
-                                }
-                            }
-
-                        var center = heatmappy.callAttr("get_center")
-                        // 取得腳在瑜珈墊上面的座標
-                        var feet_data_str = yogamatProcessor.callAttr("generate_feet_data", point2d, floatListList)
-
-                        // 如果沒有該腳的資料，會回傳 -999999
-                        var left_x = yogamatProcessor.callAttr("get_left_foot_x").toFloat()
-                        var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
-                        var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
-                        var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
-
-                        // 分數計算器
-                        var score = scoreCalculator.callAttr("calculate_score", floatListList)
-                        println("score ${score}")
-//                        yogamainBinding.score.text = "分數 ${score}"
-                        yogamainBinding.score.text = ""
-
-                        yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
-                        yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
-
-                        var guideStr = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") ,
-                                center, feet_data_str).toString()
-
-                        if (guideStr.iterator().hasNext()) {
-                            val re = guideStr.split(',')
-                            val re_0 = re[0].length
-                            val re_1 = re[1].length
-                            println(re[0].substring(2..re_0 - 2))
-                            println(re[1].substring(2..re_1 - 3))
-                            // Assume it behaves like a list and try accessing its elements
-                            try {
-                                yogamainBinding.guide.text = re[0].substring(2..re_0 - 2)
-                                if (lastText != yogamainBinding.guide.text)
-                                    TTSSpeak(yogamainBinding.guide.text.toString())
-                                lastText = yogamainBinding.guide.text.toString()
-
-                                val imagePath = re[1].substring(2..re_1 - 3)
-                                setImage(imagePath)
-
-                            } catch (e: Exception) {
-                                // Handle exceptions when accessing elements if the result doesn't behave like a list
-                                println("Result does not have expected list behavior: ${e.message}")
+                                // 處理解碼失敗的情況
+                                Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
                             }
                         } else {
-                                // Handle cases where the result does not behave like an iterable (e.g., not a list)
-                                println("Result is not iterable like a list")
+                            // 處理空的 ByteArray 情況
+                            Log.e("BitmapFactory", "ByteArray is null or empty")
                         }
-                        //30秒計時器
-                        //if(true){//debug
-                        if (lastText.contains("動作正確")) {
-                            if (timer30S.isNotRunning())
-                                timer30S.startTimer(this)
-                            yogamainBinding.guide.text = lastText + " " + timer30S.getRemainTimeStr()
-                        } else
-                            timer30S.resetTimer()
                     }
-                    // Force a redraw
-                    yogamainBinding.overlay.invalidate()
+                }*/
+                /*調換順序,先進行pose detect 得到各角度再丟到視圖上*/
+                // pass result to Yogapose
+                if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {
+                    val floatListList: List<MutableList<Any>> =
+                        resultBundle.results.first().landmarks().flatMap { landmarks ->
+                            landmarks.map { landmark ->
+                                mutableListOf(landmark.x(), landmark.y(), landmark.z(), landmark.visibility().orElse((-1.0).toFloat()).toFloat())
+                            }
+                        }
+
+                    val point2d: List<MutableList<Float>> =
+                        resultBundle.results.first().landmarks().flatMap { nlandmarks ->
+                            nlandmarks.map { landmark ->
+                                mutableListOf(landmark.x(), landmark.y())
+                            }
+                        }
+
+                    var center = heatmappy.callAttr("get_center")
+                    // 取得腳在瑜珈墊上面的座標
+                    var feet_data_str = yogamatProcessor.callAttr("generate_feet_data", point2d, floatListList)
+
+                    // 如果沒有該腳的資料，會回傳 -999999
+                    var left_x = yogamatProcessor.callAttr("get_left_foot_x").toFloat()
+                    var left_y = yogamatProcessor.callAttr("get_left_foot_y").toFloat()
+                    var right_x = yogamatProcessor.callAttr("get_right_foot_x").toFloat()
+                    var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
+
+                    // 分數計算器
+                    // var score = scoreCalculator.callAttr("calculate_score", floatListList, true)
+                    // println("score ${score}")
+                    // yogamainBinding.score.text = "分數 ${score}"
+                    yogamainBinding.score.text = ""
+
+                    yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
+                    yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);
+
+                    // Change pose tips
+                    val detectlist = pose.callAttr("detect", floatListList , heatmappy.callAttr("get_rects") , center, feet_data_str).asList()
+
+                    ArrowList = detectlist[2].asList().map{it.toFloat()}
+                    println("ArrowList: $ArrowList")
+
+                    val imagePath = detectlist[1].toString()
+                    println("imagePath: $imagePath")
+                    setImage(imagePath)
+
+                    try {
+                        TipsText = detectlist[0].toString()
+                        println("TipsText: $TipsText")
+                        if (lastText != TipsText)
+                            TTSSpeak(TipsText)
+                        lastText = TipsText
+
+                    } catch (e: Exception) {
+                        // Handle exceptions when accessing elements if the result doesn't behave like a list
+                        println("Result does not have expected list behavior: ${e.message}")
+                    }
+                    yogamainBinding.guide.text = lastText
+                    //30秒計時器
+                    //if(true){//debug
+                    if (lastText.contains("動作正確")) {
+                        if (timer30S.isNotRunning())
+                            timer30S.startTimer(this)
+                    } else
+                        timer30S.resetTimer()
                 }
-        }else count_result = 0
+                if (resultBundle.results.first().landmarks().isNotEmpty()) {
+                    val norfloatListList: List<MutableList<Float>> = resultBundle.results.first().landmarks().flatMap { nlandmarks ->
+                        nlandmarks.map { landmark ->
+                            mutableListOf( landmark.x(), landmark.y(), landmark.z() , landmark.visibility().orElse((-1.0).toFloat()).toFloat())
+                        }
+                    }
+
+                    //val floatListList = resultBundle.results.first().landmarks()[0]
+                    var smooth_floatListList: MutableList<MutableList<Float>> = mutableListOf()
+                    //var middle_x_list: MutableList<Float> = mutableListOf()
+                    //var middle_y_list: MutableList<Float> = mutableListOf()
+                    //var middle_z_list: MutableList<Float> = mutableListOf()
+                    //var middle_list: MutableList<MutableList<Float>> = mutableListOf()
+                    if (norfloatListList.size != len_of_landmark && len_of_landmark != -1) {
+                        smoothedListQueue.clear()
+                        len_of_landmark = -1
+                    }
+
+                    len_of_landmark = norfloatListList.size
+                    smoothedListQueue.add(norfloatListList.toMutableList())
+                    if (smoothedListQueue.size > 3) {
+                        smoothedListQueue.removeFirst()
+
+                        smooth_floatListList = smoothedListQueue.first()
+                        for (Fll in smoothedListQueue) {
+                            if (Fll == smoothedListQueue.first())
+                                continue
+                            else {
+                                for (i in Fll.indices) {
+                                    smooth_floatListList[i][0] += Fll[i][0]
+                                    smooth_floatListList[i][1] += Fll[i][1]
+                                    smooth_floatListList[i][2] += Fll[i][2]
+                                    smooth_floatListList[i][3] += Fll[i][3]
+                                }
+                            }
+                        }
+                        for (landmark in smooth_floatListList) {
+                            landmark[0] = landmark[0] / smoothedListQueue.size
+                            landmark[1] = landmark[1] / smoothedListQueue.size
+                            landmark[2] = landmark[2] / smoothedListQueue.size
+                            landmark[3] = landmark[3] / smoothedListQueue.size
+                        }
+                        // Pass necessary information to OverlayView for drawing on the canvas
+                        yogamainBinding.overlay.setResults(
+                                //resultBundle.results.first(),
+                                smooth_floatListList,
+                                resultBundle.inputImageWidth,
+                                resultBundle.inputImageHeight,
+                                RunningMode.LIVE_STREAM,
+                                ArrowList
+                        )
+                    }
+
+                }
+                /*調換順序結尾*/
+                // Force a redraw
+                yogamainBinding.overlay.invalidate()
+            }
+        }else {
+            count_result = 0
+        }
     }
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {
