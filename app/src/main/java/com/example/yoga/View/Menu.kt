@@ -30,7 +30,7 @@ class Menu : AppCompatActivity() {
     private val poseNames = arrayOf(
             "Tree Style", "Warrior2 Style", "Plank", "Reverse Plank", "Child's pose",
             "Seated Forward Bend", "Low Lunge", "Downward dog", "Pyramid pose", "Bridge pose",
-            "Pose 11", "Pose 12", "Pose 13", "Pose 14", "Pose 15",
+            "Mountain pose", "Triangle pose", "Pose 13", "Pose 14", "Pose 15",
             "Pose 16", "Pose 17", "Pose 18", "Pose 19", "Pose 20"
     )
 

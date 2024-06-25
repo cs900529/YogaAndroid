@@ -17,6 +17,8 @@ class fileNameGetter {
             "Downward dog" -> R.raw.downwarddog_teacher
             "Pyramid pose" -> R.raw.pyramid_teacher
             "Bridge pose" -> R.raw.bridge_teacher
+            "Mountain pose" -> R.raw.mountain_teacher
+            "Triangle pose" -> R.raw.triangle_teacher
             else -> R.raw.tree_style
         }
     }
@@ -33,6 +35,8 @@ class fileNameGetter {
             "Downward dog" -> "Downward dog/6"
             "Pyramid pose" -> "Pyramid pose/6"
             "Bridge pose" -> "Bridge pose/5"
+            "Mountain pose" -> "Mountain pose/1"
+            "Triangle pose" -> "Triangle pose/1"
             else -> "Tree Style/8"
         }
     }
@@ -49,6 +53,8 @@ class fileNameGetter {
             "Downward dog" -> "Downward dog"
             "Pyramid pose" -> "Pyramid pose"
             "Bridge pose" -> "Bridge pose"
+            "Mountain pose" -> "Mountain pose"
+            "Triangle pose" -> "Triangle pose"
             else -> "Tree Style"
         }
     }

@@ -13,7 +13,7 @@ class YogaPose:
         self.roi = get_roi(type)
         self.angle_def = get_angle_def(type)
         self.jsonfile_path = get_jsonfile_path(type) + "/sample.json"
-
+        self.pointsOut = []
         self.angle_dict = self.initialAngleDict()
         self.sample_angle_dict = {}#initialAngleDict
         self.imagePath = ""# temporary use to demo, skip it
@@ -35,6 +35,8 @@ class YogaPose:
 
     def detect(self, point, rect , center, feet_data_json):
         self.tips = ""
+        self.pointsOut = []
+        self.imagePath =  get_image_path(self.type)
         point3d = []
 
         feet_data = FeetData.from_dict(feet_data_json)
@@ -56,7 +58,8 @@ class YogaPose:
         if(con>16):  #half of all node
             self.tips="無法偵測到完整骨架"
             self.imagePath =  get_image_path(self.type)
-            return [self.tips, self.imagePath]
+            self.pointsOut=[]
+            return [self.tips, self.imagePath, self.pointsOut]
         
 
         for key,value in self.angle_def.items():
@@ -74,56 +77,64 @@ class YogaPose:
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    #angle = toolkit.computeAngle(point3d.get(value[0]), point3d.get(value[1]), point3d.get(value[2]))
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.treePoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.treePoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Warrior2 Style'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.warriorIIPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.warriorIIPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Reverse Plank'):
             """for key,value in self.angle_def.items():
                 angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
                 self.angle_dict[key] = angle"""
-            self.roi, self.tips, self.imagePath = toolkit.reversePlankPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.reversePlankPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Plank'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.plankPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.plankPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == "Child's pose"):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]][:2], point3d[value[1]][:2], point3d[value[2]][:2])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.ChildsPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.ChildsPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Downward dog'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.DownwardDogRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.DownwardDogRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Low Lunge'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.LowLungeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.LowLungeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == "Seated Forward Bend"):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.SeatedForwardBendRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.SeatedForwardBendRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Bridge pose'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.BridgeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.BridgeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         elif(self.type == 'Pyramid pose'):
             #for key,value in self.angle_def.items():
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
-            self.roi, self.tips, self.imagePath = toolkit.PyramidRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
-
-        return [self.tips, self.imagePath]
-
-
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.PyramidRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Mountain pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.MountainRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Triangle pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.TriangleRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        # print([self.tips, self.imagePath, self.pointsOut])
+        return [self.tips, self.imagePath, self.pointsOut]
 
 
 if __name__ == "__main__":

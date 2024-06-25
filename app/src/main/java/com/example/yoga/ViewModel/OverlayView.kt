@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import com.example.yoga.R
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
+import kotlin.math.max
 
 class OverlayView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
@@ -32,10 +33,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var results: MutableList<MutableList<Float>>? = null
     private var pointPaint = Paint()
     private var linePaint = Paint()
-
-    private var scaleFactor: Float = 1f
-    private var scaleFactorX:Float = 1f
-    private var scaleFactorY:Float = 1f
+    private var arrowPaint = Paint()
+    private var arrowPoints: List<Float> = emptyList()
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
 
@@ -47,6 +46,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         results = null
         pointPaint.reset()
         linePaint.reset()
+        arrowPaint.reset()
         invalidate()
         initPaints()
     }
@@ -60,19 +60,46 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         pointPaint.color = Color.YELLOW
         pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
         pointPaint.style = Paint.Style.FILL
-    }
 
+        arrowPaint.color = Color.BLUE // 默认箭头颜色
+        arrowPaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        arrowPaint.style = Paint.Style.STROKE
+    }
+    private fun drawArrow(canvas: Canvas, startX: Float, startY: Float, endX: Float, endY: Float) {
+        val arrowHeadLength = 30f  // 箭头头部的长度
+        val arrowHeadAngle = Math.toRadians(45.0)  // 箭头头部的角度
+
+        // 画箭身
+        canvas.drawLine(startX, startY, endX, endY, arrowPaint)
+
+        // 算出箭头头部的两个点
+        val angle = Math.atan2((endY - startY).toDouble(), (endX - startX).toDouble())
+        val x1 = endX - arrowHeadLength * Math.cos(angle - arrowHeadAngle).toFloat()
+        val y1 = endY - arrowHeadLength * Math.sin(angle - arrowHeadAngle).toFloat()
+        val x2 = endX - arrowHeadLength * Math.cos(angle + arrowHeadAngle).toFloat()
+        val y2 = endY - arrowHeadLength * Math.sin(angle + arrowHeadAngle).toFloat()
+
+        // 画箭头头部的两条线
+        canvas.drawLine(endX, endY, x1, y1, arrowPaint)
+        canvas.drawLine(endX, endY, x2, y2, arrowPaint)
+    }
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
+            val offsetX: Float
+            val offsetY: Float
+
+            val scaleFactor: Float = max(width.toFloat() / imageWidth.toFloat(), height.toFloat() / imageHeight.toFloat())
+            offsetX = (width - imageWidth * scaleFactor) / 2
+            offsetY = (height - imageHeight * scaleFactor) / 2
             for(normalizedLandmark in poseLandmarkerResult) {
                 if (normalizedLandmark[3] > 0.7)
                 {
                     canvas.drawPoint(
                             //normalizedLandmark.x() * imageWidth * scaleFactor,
                             //normalizedLandmark.y() * imageHeight * scaleFactor,
-                            normalizedLandmark[0] * imageWidth * scaleFactorX,
-                            normalizedLandmark[1] * imageHeight * scaleFactorY,
+                            normalizedLandmark[0] * imageWidth * scaleFactor + offsetX,
+                            normalizedLandmark[1] * imageHeight * scaleFactor + offsetY,
                             pointPaint
                     )
                 }
@@ -82,47 +109,44 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     if (poseLandmarkerResult[it!!.start()][3] >0.7 && poseLandmarkerResult[it.end()][3] >0.7)
                     {
                         canvas.drawLine(
-                                poseLandmarkerResult[it!!.start()][0] * imageWidth * scaleFactorX,
-                                poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactorY,
-                                poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactorX,
-                                poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactorY,
+                                poseLandmarkerResult[it!!.start()][0] * imageWidth * scaleFactor + offsetX,
+                                poseLandmarkerResult[it.start()][1] * imageHeight * scaleFactor + offsetY,
+                                poseLandmarkerResult[it.end()][0] * imageWidth * scaleFactor + offsetX,
+                                poseLandmarkerResult[it.end()][1] * imageHeight * scaleFactor + offsetY,
                                 linePaint
                         )
                     }
                 }
             }
         }
+        // 绘制箭头
+        if (arrowPoints.size == 4) {
+            val offsetX: Float
+            val offsetY: Float
+            val scaleFactor: Float = max(width.toFloat() / imageWidth.toFloat(), height.toFloat() / imageHeight.toFloat())
+            offsetX = (width - imageWidth * scaleFactor) / 2
+            offsetY = (height - imageHeight * scaleFactor) / 2
+            val arrowstart_x=arrowPoints[0]* imageWidth* scaleFactor+offsetX
+            val arrowstart_y=arrowPoints[1]* imageHeight*scaleFactor+offsetY
+            val arrowend_x=arrowPoints[2]* imageWidth* scaleFactor+offsetX
+            val arrowend_y=arrowPoints[3]* imageHeight*scaleFactor+offsetY
+            println("draw Point: $arrowstart_x ,$arrowstart_y, $arrowend_x, $arrowend_y")
+            drawArrow(canvas, arrowstart_x, arrowstart_y, arrowend_x, arrowend_y)
+        }
     }
 
     fun setResults(
         poseLandmarkerResults: MutableList<MutableList<Float>>,
-        imageHeight: Int,
         imageWidth: Int,
-        runningMode: RunningMode = RunningMode.IMAGE
+        imageHeight: Int,
+        runningMode: RunningMode = RunningMode.IMAGE,
+        arrowPoints: List<Float>,
     ) {
         results = poseLandmarkerResults
 
         this.imageHeight = imageHeight
         this.imageWidth = imageWidth
-
-        //scaleFactor = when (runningMode) {
-        //    RunningMode.IMAGE,
-        //    RunningMode.VIDEO -> {
-        //        min(width * 1f / imageWidth, height * 1f / imageHeight)
-        //    }
-        //    RunningMode.LIVE_STREAM -> {
-        //        // PreviewView is in FILL_START mode. So we need to scale up the
-        //        // landmarks to match with the size that the captured images will be
-        //        // displayed.
-        //        max(width * 1f / imageWidth, height * 1f / imageHeight)
-        //    }
-        //}
-        //println("W : "+(width * 1f / imageWidth).toString())//W : 1.70625//W : 1.4109375
-        //
-        //println("H : "+(height * 1f / imageHeight).toString())//H : 1.3770833//H : 1.3645834
-
-        scaleFactorX = width * 1f / imageWidth
-        scaleFactorY = height * 1f / imageHeight
+        this.arrowPoints = arrowPoints
 
         invalidate()
     }

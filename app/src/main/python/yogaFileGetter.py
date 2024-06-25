@@ -51,6 +51,16 @@ yogaFileDict = {
         "roi": AngleRegion.PYRAMID,
         "angle_def": AngleNodeDef.PYRAMID_ANGLE,
         "default_image_path" : "image/Pyramid pose/6.jpg"
+    },
+    "Mountain pose":{
+        "roi": AngleRegion.MOUNTAIN,
+        "angle_def": AngleNodeDef.MOUNTAIN_ANGLE,
+        "default_image_path" : "image/Mountain pose/1.jpg"
+    },
+    "Triangle pose":{
+        "roi": AngleRegion.TRIANGLE,
+        "angle_def": AngleNodeDef.TRIANGLE_ANGLE,
+        "default_image_path" : "image/Triangle pose/1.jpg"
     }
 }
 
@@ -77,10 +87,12 @@ def get_roi(pose):
     return {}
 
 def get_jsonfile_path(pose):
+    pose_info = get_pose_info(pose)
     return "JsonFile/" + pose
 
 def get_image_path(pose):
-    return "image/" + pose
+    pose_info = get_pose_info(pose)
+    return pose_info["default_image_path"]
 
 
 

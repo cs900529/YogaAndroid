@@ -103,6 +103,8 @@ LOWLUNGE = {
 }
 SEATEDFORWARDBEND = {
     'NOSE': False,
+    'LEFT_ELBOW': False,
+    'RIGHT_ELBOW': False,
     'LEFT_SHOULDER': False,
     'RIGHT_SHOULDER': False,
     'LEFT_HIP': False,
@@ -134,4 +136,29 @@ PYRAMID = {
     'RIGHT_KNEE': False,
     'LEFT_KNEE': False,
     'LEG': False,
+}
+MOUNTAIN = {
+    'NOSE': False,
+    'LEFT_SHOULDER': False,
+    'RIGHT_SHOULDER': False,
+    'LEFT_ELBOW': False,
+    'RIGHT_ELBOW': False,
+    'LEFT_HIP': False,
+    'RIGHT_HIP': False,
+    'RIGHT_KNEE': False,
+    'LEFT_KNEE': False,
+    'RIGHT_ANKLE':False,
+    'LEFT_ANKLE':False,
+}
+TRIANGLE = {
+    'RIGHT_KNEE': False,
+    'LEFT_SHOULDER': False,
+    'RIGHT_SHOULDER': False,
+    'LEFT_ELBOW': False,
+    'RIGHT_ELBOW': False,
+    'RIGHT_EYE':False,
+    'LEFT_HIP': False,
+    'RIGHT_HIP': False,
+    'LEFT_KNEE': False,
+    'RIGHT_FOOT_INDEX':False
 }
