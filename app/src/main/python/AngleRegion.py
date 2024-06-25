@@ -151,15 +151,14 @@ MOUNTAIN = {
     'LEFT_ANKLE':False,
 }
 TRIANGLE = {
-    'NOSE': False,
-    'RIGHT_EYE':False,
+    'RIGHT_KNEE': False,
     'LEFT_SHOULDER': False,
     'RIGHT_SHOULDER': False,
     'LEFT_ELBOW': False,
     'RIGHT_ELBOW': False,
+    'RIGHT_EYE':False,
     'LEFT_HIP': False,
     'RIGHT_HIP': False,
-    'RIGHT_KNEE': False,
     'LEFT_KNEE': False,
     'RIGHT_FOOT_INDEX':False
 }

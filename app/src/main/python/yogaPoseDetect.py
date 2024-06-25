@@ -133,7 +133,7 @@ class YogaPose:
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
             self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.TriangleRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
-        print([self.tips, self.imagePath, self.pointsOut])
+        # print([self.tips, self.imagePath, self.pointsOut])
         return [self.tips, self.imagePath, self.pointsOut]
 
 
