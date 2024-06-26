@@ -79,51 +79,79 @@ class Menu : AppCompatActivity() {
         currentSelect.setTextColor(Color.WHITE)
         currentSelect.setShadowLayer(0f, 0f, 0f, 0)
     }
+    fun moveRollBarTo(index:Int){
+        recyclerView.smoothScrollToPosition(index)
+    }
 
     fun selectTo(btn: Button) {
         unselect()
-        //recyclerView.scrollToPosition(index)
         currentSelect = btn
         select()
     }
 
-    fun up() {//still has bug when index == 0 or 1
+    fun up() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
-            if(index >= WIDTH){
+            /*if(index >= WIDTH){
                 index -= WIDTH
+                moveRollBarTo(index)
                 selectTo(buttonAdapter.getButtonByIndex(index))
-            }
+            }*/
+            index = (index - WIDTH + poseNames.size) % poseNames.size
+            moveRollBarTo(index)
+            selectTo(buttonAdapter.getButtonByIndex(index))
+            Log.d("UP",index.toString())
         }
     }
 
     fun down() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
+            /*if(index+WIDTH < poseNames.size){
+                index += WIDTH
+                moveRollBarTo(index)
+                selectTo(buttonAdapter.getButtonByIndex(index))
+            }*/
             index = (index + WIDTH) % poseNames.size
+            moveRollBarTo(index)
             selectTo(buttonAdapter.getButtonByIndex(index))
+            Log.d("DOWN",index.toString())
         }
     }
 
     fun left() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
+            /*if(index%WIDTH-1>=0){
+                index--
+                moveRollBarTo(index)
+                selectTo(buttonAdapter.getButtonByIndex(index))
+            }*/
             var q = index/WIDTH
             var r = index%WIDTH
             r=(r-1+WIDTH)%WIDTH
             index = q*WIDTH+r
+            moveRollBarTo(index)
             selectTo(buttonAdapter.getButtonByIndex(index))
+            Log.d("LEFT",index.toString())
         }
     }
 
     fun right() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
+            /*if((index+1)%WIDTH!=0){
+                index++
+                moveRollBarTo(index)
+                selectTo(buttonAdapter.getButtonByIndex(index))
+            }*/
             var q = index/WIDTH
             var r = index%WIDTH
             r=(r+1)%WIDTH
             index = q*WIDTH+r
+            moveRollBarTo(index)
             selectTo(buttonAdapter.getButtonByIndex(index))
+            Log.d("RIGHT",index.toString())
         }
     }
 
@@ -153,12 +181,11 @@ class Menu : AppCompatActivity() {
             }
         }
 
+        //暴力使recycle view載入
+        recyclerView.smoothScrollToPosition(19)
+        recyclerView.smoothScrollToPosition(1)
 
 
-
-        /*recyclerView.post {
-            Log.d("sadasdsa", buttonAdapter.poseNames.size.toString())
-        }*/
 
 
         if (!Python.isStarted()) {
@@ -170,8 +197,8 @@ class Menu : AppCompatActivity() {
 
         functionThread = Thread {
             try {
+                Thread.sleep(1000)
                 while (true) {
-                    Thread.sleep(2000)
                     functionNumber = heatmapFunction.callAttr("checkFunction").toInt()
                     runOnUiThread {
                         when (functionNumber) {
