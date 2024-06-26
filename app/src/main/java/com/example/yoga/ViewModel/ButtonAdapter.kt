@@ -11,10 +11,11 @@ import com.example.yoga.R
 
 class ButtonAdapter(
     private val context: Context,
-    private val poseNames: Array<String>,
+    val poseNames: Array<String>,
     private val onButtonClick: (String) -> Unit
 ) : RecyclerView.Adapter<ButtonAdapter.ButtonViewHolder>() {
 
+    private val buttonReferences = mutableListOf<Button>()
     inner class ButtonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val button: Button = itemView.findViewById(R.id.buttonItem)
     }
@@ -31,9 +32,21 @@ class ButtonAdapter(
         holder.button.setOnClickListener {
             onButtonClick(poseName)
         }
+        // 確保按鈕引用是唯一的
+        if (!buttonReferences.contains(holder.button)) {
+            buttonReferences.add(holder.button)
+        }
     }
 
     override fun getItemCount(): Int {
         return poseNames.size
+    }
+    // Function 1: 根據索引獲取按鈕的參考
+    fun getButtonByIndex(index: Int): Button {
+        return buttonReferences[index]
+    }
+    // Function 2: 根據按鈕的參考獲取它的索引
+    fun getIndexByButton(button: Button): Int {
+        return buttonReferences.indexOf(button)
     }
 }

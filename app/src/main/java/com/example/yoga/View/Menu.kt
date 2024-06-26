@@ -3,11 +3,12 @@ package com.example.yoga.View
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -26,6 +27,9 @@ class Menu : AppCompatActivity() {
     private lateinit var heatmapFunction: PyObject
     private var functionThread: Thread? = null
     private var functionNumber: Int = 0
+    private lateinit var recyclerView: RecyclerView
+    private final var WIDTH = 2
+    private final var HEIGHT = 2
 
     private val poseNames = arrayOf(
             "Tree Style", "Warrior2 Style", "Plank", "Reverse Plank", "Child's pose",
@@ -34,15 +38,15 @@ class Menu : AppCompatActivity() {
             "Pose 16", "Pose 17", "Pose 18", "Pose 19", "Pose 20"
     )
 
+    private lateinit var buttonAdapter: ButtonAdapter
+
     fun lastpage() {
         try {
             functionThread?.interrupt()
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
-        val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("playMusic", false)
-        }
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
@@ -78,31 +82,50 @@ class Menu : AppCompatActivity() {
 
     fun selectTo(btn: Button) {
         unselect()
+        //recyclerView.scrollToPosition(index)
         currentSelect = btn
         select()
     }
 
-    fun up() {
-        val index = (poseNames.indexOf(currentSelect.text.toString()) - 2 + poseNames.size) % poseNames.size
-        selectTo(buttons[index])
+    fun up() {//still has bug when index == 0 or 1
+        recyclerView.post {
+            var index = buttonAdapter.getIndexByButton(currentSelect)
+            if(index >= WIDTH){
+                index -= WIDTH
+                selectTo(buttonAdapter.getButtonByIndex(index))
+            }
+        }
     }
 
     fun down() {
-        val index = (poseNames.indexOf(currentSelect.text.toString()) + 2) % poseNames.size
-        selectTo(buttons[index])
+        recyclerView.post {
+            var index = buttonAdapter.getIndexByButton(currentSelect)
+            index = (index + WIDTH) % poseNames.size
+            selectTo(buttonAdapter.getButtonByIndex(index))
+        }
     }
 
     fun left() {
-        val index = (poseNames.indexOf(currentSelect.text.toString()) - 1 + poseNames.size) % poseNames.size
-        selectTo(buttons[index])
+        recyclerView.post {
+            var index = buttonAdapter.getIndexByButton(currentSelect)
+            var q = index/WIDTH
+            var r = index%WIDTH
+            r=(r-1+WIDTH)%WIDTH
+            index = q*WIDTH+r
+            selectTo(buttonAdapter.getButtonByIndex(index))
+        }
     }
 
     fun right() {
-        val index = (poseNames.indexOf(currentSelect.text.toString()) + 1) % poseNames.size
-        selectTo(buttons[index])
+        recyclerView.post {
+            var index = buttonAdapter.getIndexByButton(currentSelect)
+            var q = index/WIDTH
+            var r = index%WIDTH
+            r=(r+1)%WIDTH
+            index = q*WIDTH+r
+            selectTo(buttonAdapter.getButtonByIndex(index))
+        }
     }
-
-    private lateinit var buttons: Array<Button>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,11 +133,33 @@ class Menu : AppCompatActivity() {
         setContentView(menuBinding.root)
         supportActionBar?.hide()
 
-        val recyclerView = menuBinding.buttonContainer
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
-        recyclerView.adapter = ButtonAdapter(this, poseNames) { posename ->
+        menuBinding.back.setOnClickListener {
+            lastpage()
+        }
+
+        buttonAdapter = ButtonAdapter(this, poseNames) { posename ->
             nextpage(posename)
         }
+        recyclerView = menuBinding.buttonContainer
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
+        recyclerView.adapter = buttonAdapter
+
+        // 獲取索引為 0 的按鈕並設置 currentSelect
+        recyclerView.post {
+            val button = buttonAdapter.getButtonByIndex(0)
+            if (button != null) {
+                currentSelect = button
+                select()
+            }
+        }
+
+
+
+
+        /*recyclerView.post {
+            Log.d("sadasdsa", buttonAdapter.poseNames.size.toString())
+        }*/
+
 
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))

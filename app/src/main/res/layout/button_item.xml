@@ -18,3 +18,4 @@
         android:maxLines="2"
         android:layout_gravity="center" />
 </LinearLayout>
+
