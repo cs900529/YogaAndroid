@@ -180,7 +180,8 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
             poseLandmarkerHelper.detectLiveStream(
                     imageProxy = imageProxy,
                     //isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
-                    isFrontCamera = cameraFacing >= 0
+                    isFrontCamera = cameraFacing >= 0,
+                    rotateAngle = 0.0f
             )
         }
     }
