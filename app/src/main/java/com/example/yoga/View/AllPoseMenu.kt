@@ -12,12 +12,12 @@ import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.ViewModel.ButtonAdapter
-import com.example.yoga.databinding.ActivityMenuBinding
+import com.example.yoga.databinding.ActivityAllPoseMenuBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class Menu : AppCompatActivity() {
-    private lateinit var menuBinding: ActivityMenuBinding
+class AllPoseMenu : AppCompatActivity() {
+    private lateinit var menuBinding: ActivityAllPoseMenuBinding
     private var global = GlobalVariable.getInstance()
     private lateinit var currentSelect: Button
 
@@ -113,7 +113,7 @@ class Menu : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        menuBinding = ActivityMenuBinding.inflate(layoutInflater)
+        menuBinding = ActivityAllPoseMenuBinding.inflate(layoutInflater)
         setContentView(menuBinding.root)
         supportActionBar?.hide()
 

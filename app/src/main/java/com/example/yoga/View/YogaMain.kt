@@ -89,7 +89,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     fun lastpage(){
         timer30S.stopTimer()
         timerCurrent.handlerStop()
-        val intent = Intent(this, Menu::class.java)
+        val intent = Intent(this, AllPoseMenu::class.java)
         startActivity(intent)
         finish()
     }

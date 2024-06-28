@@ -28,9 +28,17 @@
         android:theme="@style/Theme.Yoga"
         tools:targetApi="31">
         <activity
+            android:name=".View.ChooseMenu"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".View.TrainingMenu"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity
             android:name=".View.YogaResult"
             android:exported="false"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".discover.BluetoothActivity"
             android:screenOrientation="landscape" />
@@ -44,7 +52,7 @@
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".View.Menu"
+            android:name=".View.AllPoseMenu"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity

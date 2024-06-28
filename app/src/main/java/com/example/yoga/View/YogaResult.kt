@@ -26,7 +26,7 @@ class YogaResult : AppCompatActivity() {
             e.printStackTrace()
         }
 
-        val intent = Intent(this, Menu::class.java)
+        val intent = Intent(this, AllPoseMenu::class.java)
         startActivity(intent)
         finish()
     }
