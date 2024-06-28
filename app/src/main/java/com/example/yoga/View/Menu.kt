@@ -1,9 +1,7 @@
 package com.example.yoga.View
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +15,6 @@ import com.example.yoga.ViewModel.ButtonAdapter
 import com.example.yoga.databinding.ActivityMenuBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.Math.max
 
 class Menu : AppCompatActivity() {
     private lateinit var menuBinding: ActivityMenuBinding
@@ -53,7 +50,7 @@ class Menu : AppCompatActivity() {
     }
 
     fun nextpage() {
-        nextpage(currentSelect.text.toString())
+        nextpage(poseNames[buttonAdapter.getIndexByButton(currentSelect)])
     }
 
     fun nextpage(posename: String) {
@@ -68,104 +65,52 @@ class Menu : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
-
-    fun select() {
-        currentSelect.setBackgroundColor(Color.rgb(10, 240, 5))
-        currentSelect.setTextColor(Color.rgb(60, 60, 0))
-        currentSelect.setShadowLayer(15f, 5f, 5f, Color.WHITE)
-    }
-
-    fun unselect() {
-        currentSelect.setBackgroundColor(Color.BLUE)
-        currentSelect.setTextColor(Color.WHITE)
-        currentSelect.setShadowLayer(0f, 0f, 0f, 0)
-    }
     fun moveRollBarTo(index:Int){
-        forceRefresh()
         recyclerView.smoothScrollToPosition(index)
     }
-
-    fun selectTo(btn: Button) {
-        unselect()
-        currentSelect = btn
-        select()
+    fun selectTo(index:Int){
+        buttonAdapter.setSelectedIndex(index)
+        moveRollBarTo(index)
+        currentSelect = buttonAdapter.getButtonByIndex(index)
     }
 
     fun up() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
-            if(index - WIDTH >= 0){
-                index -= WIDTH
-                buttonAdapter.setSelectedIndex(index)
-                moveRollBarTo(index)
-                selectTo(buttonAdapter.getButtonByIndex(index))
-            }
-            /*index = (index - WIDTH + poseNames.size) % poseNames.size
-            moveRollBarTo(index)
-            selectTo(buttonAdapter.getButtonByIndex(index))
-            Log.d("UP",index.toString())*/
+            index = (index - WIDTH + poseNames.size) % poseNames.size
+            selectTo(index)
         }
     }
 
     fun down() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
-            if(index+WIDTH < poseNames.size){
-                index += WIDTH
-                buttonAdapter.setSelectedIndex(index)
-                moveRollBarTo(index)
-                selectTo(buttonAdapter.getButtonByIndex(index))
-            }
-            /*index = (index + WIDTH) % poseNames.size
-            moveRollBarTo(index)
-            selectTo(buttonAdapter.getButtonByIndex(index))
-            Log.d("DOWN",index.toString())*/
+            index = (index + WIDTH) % poseNames.size
+            selectTo(index)
         }
     }
 
     fun left() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
-            if(index%WIDTH==1){
-                index--
-                buttonAdapter.setSelectedIndex(index)
-                moveRollBarTo(index)
-                selectTo(buttonAdapter.getButtonByIndex(index))
-            }
-            /*var q = index/WIDTH
+            var q = index/WIDTH
             var r = index%WIDTH
             r=(r-1+WIDTH)%WIDTH
             index = q*WIDTH+r
-            moveRollBarTo(index)
-            selectTo(buttonAdapter.getButtonByIndex(index))
-            Log.d("LEFT",index.toString())*/
+            selectTo(index)
         }
     }
 
     fun right() {
         recyclerView.post {
             var index = buttonAdapter.getIndexByButton(currentSelect)
-            if(index%WIDTH==0){
-                index++
-                buttonAdapter.setSelectedIndex(index)
-                moveRollBarTo(index)
-                selectTo(buttonAdapter.getButtonByIndex(index))
-            }
-            /*var q = index/WIDTH
+            var q = index/WIDTH
             var r = index%WIDTH
             r=(r+1)%WIDTH
             index = q*WIDTH+r
-            moveRollBarTo(index)
-            selectTo(buttonAdapter.getButtonByIndex(index))
-            Log.d("RIGHT",index.toString())*/
+            selectTo(index)
         }
     }
-    fun forceRefresh(){
-        //暴力使recycle view載入
-        recyclerView.smoothScrollToPosition(19)
-        recyclerView.smoothScrollToPosition(0)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         menuBinding = ActivityMenuBinding.inflate(layoutInflater)
@@ -188,11 +133,8 @@ class Menu : AppCompatActivity() {
             val button = buttonAdapter.getButtonByIndex(0)
             if (button != null) {
                 currentSelect = button
-                select()
             }
         }
-
-        forceRefresh()
 
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(this))
@@ -226,7 +168,6 @@ class Menu : AppCompatActivity() {
         }
         functionThread?.start()
     }
-
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch {
@@ -234,17 +175,14 @@ class Menu : AppCompatActivity() {
             global.backgroundMusic.play()
         }
     }
-
     override fun onPause() {
         super.onPause()
         global.backgroundMusic.pause()
     }
-
     override fun onResume() {
         super.onResume()
         global.backgroundMusic.play()
     }
-
     override fun onDestroy() {
         super.onDestroy()
         global.backgroundMusic.pause()

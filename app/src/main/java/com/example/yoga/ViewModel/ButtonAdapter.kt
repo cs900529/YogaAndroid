@@ -41,7 +41,6 @@ class ButtonAdapter(
             buttonReferences.add(holder.button)
         }
     }
-
     override fun getItemCount(): Int {
         return poseNames.size
     }
