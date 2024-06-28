@@ -310,7 +310,9 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
             poseLandmarkerHelper.detectLiveStream(
                     imageProxy = imageProxy,
                     //isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
-                    isFrontCamera = cameraFacing >= 0
+
+                    isFrontCamera = cameraFacing >= 0,
+                    rotateAngle = 0.0f
             )
         }
     }
@@ -343,38 +345,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                 count_result += 1
                 this.runOnUiThread {
                     angleshowtext = ""
-
                     var ArrowList: List<Float> = listOf()
-                    // heatmap 顯示 (目前沒用到)
-                    val heatmapexecutor: ExecutorService = Executors.newSingleThreadExecutor()
-                    /*thread {
-                        heatmapexecutor.execute {
-                            val fileName = "yourFile.txt"
-                            val file = File(this.filesDir, fileName)
-                            val filePath = file.path
-
-                            val readByteArray = readBytesFromFile(filePath)
-
-                            // 檢查 ByteArray 是否為空
-                            if ((readByteArray != null) && readByteArray.isNotEmpty()) {
-                                val bmp: Bitmap? =
-                                    BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
-
-                                // 檢查解碼的 Bitmap 是否為空
-                                if (bmp != null) {
-                                    runOnUiThread {
-                                        //yogamainBinding.imageView2.setImageBitmap(bmp)
-                                    }
-                                } else {
-                                    // 處理解碼失敗的情況
-                                    Log.e("BitmapFactory", "Failed to decode ByteArray to Bitmap")
-                                }
-                            } else {
-                                // 處理空的 ByteArray 情況
-                                Log.e("BitmapFactory", "ByteArray is null or empty")
-                            }
-                        }
-                    }*/
                     /*調換順序,先進行pose detect 得到各角度再丟到視圖上*/
                     // pass result to Yogapose
                     if (resultBundle.results.first().worldLandmarks().isNotEmpty()) {

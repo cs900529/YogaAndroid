@@ -7,7 +7,7 @@ need_center = np.array([])
 need_rects = np.array([])
 flag = False
 function = 0
-
+need_angle_degrees = 0.0
 def test(data):
     data = np.array(json.loads(data))
 
@@ -55,7 +55,7 @@ def get_heatmap(data):
     return bytes_data
 
 def find_bounding_box(heatmap):
-    global flag, function
+    global flag, function , need_angle_degrees
     flag = False
     function = 0
     # https://stackoverflow.com/questions/58419893/generating-bounding-boxes-from-heatmap-data
@@ -110,7 +110,8 @@ def find_bounding_box(heatmap):
     angle_radians = np.arctan2(delta[1], delta[0])
 
     # 将弧度转换为度数
-    angle_degrees = np.degrees(angle_radians)
+    angle_degrees = round(np.degrees(angle_radians),3)
+    need_angle_degrees = angle_degrees
 
     #print("与X轴的夹角（度数）：", angle_degrees)
 
@@ -137,6 +138,10 @@ def get_rects():
 def get_center():
     global need_center
     return need_center
+
+def get_angle_degrees():
+    global need_angle_degrees
+    return need_angle_degrees
 
 def checkReturn():
     global flag

@@ -17,6 +17,7 @@ package com.example.yoga.Model
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -31,6 +32,10 @@ import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+import java.io.ByteArrayOutputStream
 
 class PoseLandmarkerHelper(
     var minPoseDetectionConfidence: Float = DEFAULT_POSE_DETECTION_CONFIDENCE,
@@ -152,7 +157,8 @@ class PoseLandmarkerHelper(
     // Convert the ImageProxy to MP Image and feed it to PoselandmakerHelper.
     fun detectLiveStream(
         imageProxy: ImageProxy,
-        isFrontCamera: Boolean
+        isFrontCamera: Boolean,
+        rotateAngle: Float
     ) {
         if (runningMode != RunningMode.LIVE_STREAM) {
             throw IllegalArgumentException(
@@ -191,9 +197,26 @@ class PoseLandmarkerHelper(
             bitmapBuffer, 0, 0, bitmapBuffer.width, bitmapBuffer.height,
             matrix, true
         )
+        val mpImage: MPImage
+        if(rotateAngle != 0.0f)
+        {
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+            val byteArray = byteArrayOutputStream.toByteArray()
+            val pyModule = Python.getInstance().getModule("correct_perspective")
+            val npArray  = pyModule.callAttr("np_from_buffer", byteArray)
+            val correctedByteArray = pyModule.callAttr("correct_horizontal_perspective", npArray, rotateAngle).toJava(ByteArray::class.java)
+            val correctedBitmap = BitmapFactory.decodeByteArray(correctedByteArray, 0, correctedByteArray.size)
+
+            mpImage = BitmapImageBuilder(correctedBitmap).build()
+        }
+        else{
+            mpImage = BitmapImageBuilder(rotatedBitmap).build()
+        }
+
 
         // Convert the input Bitmap object to an MPImage object to run inference
-        val mpImage = BitmapImageBuilder(rotatedBitmap).build()
+        //val mpImage = BitmapImageBuilder(rotatedBitmap).build()
 
         detectAsync(mpImage, frameTime)
     }
@@ -210,6 +233,9 @@ class PoseLandmarkerHelper(
     // pose landmarker inference on the video. This process will evaluate every
     // frame in the video and attach the results to a bundle that will be
     // returned.
+    /* 從未使用 先隱藏
+
+
     fun detectVideoFile(
         videoUri: Uri,
         inferenceIntervalMs: Long
@@ -334,7 +360,7 @@ class PoseLandmarkerHelper(
         )
         return null
     }
-
+    */
     // Return the landmark result to this PoseLandmarkerHelper's caller
     private fun returnLivestreamResult(
         result: PoseLandmarkerResult,
