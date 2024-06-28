@@ -16,6 +16,7 @@ class ButtonAdapter(
 ) : RecyclerView.Adapter<ButtonAdapter.ButtonViewHolder>() {
 
     private val buttonReferences = mutableListOf<Button>()
+    private var selectedIndex: Int = 0
     inner class ButtonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val button: Button = itemView.findViewById(R.id.buttonItem)
     }
@@ -28,7 +29,10 @@ class ButtonAdapter(
     override fun onBindViewHolder(holder: ButtonViewHolder, position: Int) {
         val poseName = poseNames[position]
         holder.button.text = poseName
-        holder.button.setBackgroundColor(Color.BLUE)
+        holder.button.setBackgroundColor(if (position == selectedIndex) Color.rgb(10, 240, 5) else Color.BLUE)
+        holder.button.setTextColor(if (position == selectedIndex) Color.rgb(60, 60, 0) else Color.WHITE)
+        holder.button.setShadowLayer(if (position == selectedIndex) 15f else 0f, 5f, 5f, if (position == selectedIndex) Color.WHITE else 0)
+
         holder.button.setOnClickListener {
             onButtonClick(poseName)
         }
@@ -48,5 +52,9 @@ class ButtonAdapter(
     // Function 2: 根據按鈕的參考獲取它的索引
     fun getIndexByButton(button: Button): Int {
         return buttonReferences.indexOf(button)
+    }
+    fun setSelectedIndex(index: Int) {
+        selectedIndex = index
+        notifyDataSetChanged()
     }
 }
