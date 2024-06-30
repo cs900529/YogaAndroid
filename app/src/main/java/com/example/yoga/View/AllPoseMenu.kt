@@ -44,7 +44,7 @@ class AllPoseMenu : AppCompatActivity() {
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, ChooseMenu::class.java)
         startActivity(intent)
         finish()
     }

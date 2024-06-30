@@ -11,7 +11,7 @@
         android:id="@+id/menuTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Menu"
+        android:text="All Pose"
         android:textSize="40sp"
         android:textColor="#800080"
         app:layout_constraintTop_toTopOf="parent"
