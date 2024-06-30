@@ -94,7 +94,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         finish()
     }
     fun nextpage(){
-        println("call# nextpage")
         val intent = Intent(this, YogaResult::class.java).apply {
             putExtra("title" ,yogamainBinding.title.text)
             putExtra("finishTime",timerCurrent.getTime())
@@ -105,7 +104,6 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     }
     //30秒倒數結束
     override fun onTimerFinished() {
-        println("call# ontimerfinish")
         timer30S.setRemainTimeStr("结束")
         timer30S.stopTimer()
         //停止计时

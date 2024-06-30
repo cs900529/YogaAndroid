@@ -28,6 +28,10 @@
         android:theme="@style/Theme.Yoga"
         tools:targetApi="31">
         <activity
+            android:name=".View.RestInterval"
+            android:exported="false"
+            android:screenOrientation="landscape"/>
+        <activity
             android:name=".View.ChooseMenu"
             android:exported="false"
             android:screenOrientation="landscape" />

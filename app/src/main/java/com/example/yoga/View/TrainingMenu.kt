@@ -22,7 +22,9 @@ class TrainingMenu : AppCompatActivity() {
         finish()
     }
     fun nextpage(posename: String) {
-
+        val intent = Intent(this, RestInterval::class.java)
+        startActivity(intent)
+        finish()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +42,5 @@ class TrainingMenu : AppCompatActivity() {
         trainingMenuBinding.back.setOnClickListener{
             lastpage()
         }
-
-
     }
 }
