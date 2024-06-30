@@ -121,13 +121,13 @@ class AllPoseMenu : AppCompatActivity() {
             lastpage()
         }
 
+        //init 按鈕們
         buttonAdapter = ButtonAdapter(this, poseNames) { posename ->
             nextpage(posename)
         }
         recyclerView = menuBinding.buttonContainer
         recyclerView.layoutManager = GridLayoutManager(this, 2)
         recyclerView.adapter = buttonAdapter
-
         // 獲取索引為 0 的按鈕並設置 currentSelect
         recyclerView.post {
             val button = buttonAdapter.getButtonByIndex(0)

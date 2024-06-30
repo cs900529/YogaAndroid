@@ -3,8 +3,6 @@ package com.example.yoga.View
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.yoga.R
-import com.example.yoga.databinding.ActivityAllPoseMenuBinding
 import com.example.yoga.databinding.ActivityChooseMenuBinding
 
 class ChooseMenu : AppCompatActivity() {
