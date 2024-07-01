@@ -21,7 +21,9 @@ def np_from_buffer(buffer):
     return img_np
 
 def correct_horizontal_perspective(image_array, angle):
-    
+    if angle == 0.0:
+        _, buffer = cv2.imencode('.png', image_array)
+        return buffer.tobytes()
     
     h, w = image_array.shape[:2]
     
@@ -50,7 +52,6 @@ def correct_horizontal_perspective(image_array, angle):
         [shift_y * 0.5, h - shift_y],           # 左下角
         [w, h]                                  # 右下角
     ])
-
     ''' 負角度 default
     dst_points = np.float32([
         [0, shift_y],       # 左上角
