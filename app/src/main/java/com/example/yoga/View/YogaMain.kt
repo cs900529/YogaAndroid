@@ -211,15 +211,19 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                 val inputStream = assetManager.open("image/Other/NO_YOGA_MAT.jpg")
                 val noYogaMat = BitmapFactory.decodeStream(inputStream)
                 inputStream.close()
-                while (threadFlag) {
-                    val fileName = "yourFile.txt"
-                    val file = File(this.filesDir, fileName)
-                    val filePath = file.path
 
+                val fileName = "yourFile.txt"
+                val file = File(this.filesDir, fileName)
+                val filePath = file.path
+
+                threadFlag = file.exists()
+                if(!threadFlag) yogamainBinding.imageView2.setImageBitmap(noYogaMat)
+
+                while (threadFlag) {
                     val readByteArray = readBytesFromFile(filePath)
                     runOnUiThread {
                         // 檢查 ByteArray 是否為空
-                        if ((readByteArray != null) && readByteArray.isNotEmpty()) {
+                        if (readByteArray != null) {
                             val bmp: Bitmap? =
                                 BitmapFactory.decodeByteArray(readByteArray, 0, readByteArray.size)
 
@@ -235,6 +239,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                         } else {
                             // 處理空的 ByteArray 情況
                             yogamainBinding.imageView2.setImageBitmap(noYogaMat)
+                            threadFlag = false
                         }
                     }
 
