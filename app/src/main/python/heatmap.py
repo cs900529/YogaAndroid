@@ -117,20 +117,6 @@ def find_bounding_box(heatmap):
 
     return np.array(rects)
 
-'''def herotwo_pose_evaluate(center ,rects):
-    if len(rects) == 2 and abs( rects[0][2] - rects[1][2])>50:       
-        if rects[0][2] > rects[1][2]:
-            front_foot = rects[0]
-            rear_foot = rects[1]
-        else:
-            front_foot = rects[1]
-            rear_foot = rects[0]
-        front2center = abs(front_foot[0]+(front_foot[3]/2)-center[1]) 
-        rear2center = abs(rear_foot[0]+(rear_foot[3]/2)-center[1])
-        if front2center<rear2center and abs(front2center-rear2center)<100:
-            return True
-    return False'''
-
 def get_rects():
     global need_rects
     return need_rects
