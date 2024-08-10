@@ -49,7 +49,7 @@ def get_heatmap(data):
         for rect in rects:
             x , y , w , h = rect
             cv2.rectangle(heatmap, (x, y), (x + w, y + h), (36,255,12), 2)
-    heatmap = cv2.rotate(heatmap, cv2.ROTATE_180)
+    heatmap = cv2.flip(heatmap, 1)
     is_success, im_buf_arr = cv2.imencode(".png", heatmap)
     bytes_data = im_buf_arr.tobytes()
     return bytes_data

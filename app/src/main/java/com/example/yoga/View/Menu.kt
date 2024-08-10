@@ -203,7 +203,9 @@ class Menu : AppCompatActivity() {
                         }
                     }
                     if (yogaMat.callAttr("checkReturn").toBoolean()) {
-                        nextpage()
+                        runOnUiThread{
+                            nextpage()
+                        }
                         break
                     }
                     Thread.sleep(750)
