@@ -369,10 +369,10 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     var right_y = yogamatProcessor.callAttr("get_right_foot_y").toFloat()
 
                     // 分數計算器
-                    // var score = scoreCalculator.callAttr("calculate_score", floatListList, true)
-                    // println("score ${score}")
-                    // yogamainBinding.score.text = "分數 ${score}"
-                    yogamainBinding.score.text = ""
+                     var score = scoreCalculator.callAttr("calculate_score", floatListList, true)
+                     println("score ${score}")
+                     yogamainBinding.score.text = "分數 ${score}"
+//                    yogamainBinding.score.text = ""
 
                     yogamainBinding.yogaMat.setLeftFeetPosition(left_x, left_y);
                     yogamainBinding.yogaMat.setRightFeetPosition(right_x,right_y);

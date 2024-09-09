@@ -1,3 +1,4 @@
+import toolkit
 import AngleNodeDef
 import AngleRegion
 
@@ -86,9 +87,26 @@ def get_roi(pose):
         return pose_info["roi"]
     return {}
 
-def get_jsonfile_path(pose):
-    pose_info = get_pose_info(pose)
-    return "JsonFile/" + pose
+def get_sample_angle_dict(pose):
+    path = "JsonFile/" + pose + "/sample.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
+def get_sample_score_angle_dict(pose):
+    path = "JsonFile/" + pose + "/sample_score.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
+def get_std_angle_dict(pose):
+    path = "JsonFile/" + pose + "/std_angle.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
+def get_weight_angle_dict(pose):
+    path = "JsonFile/" + pose + "/weight.json"
+    dict = toolkit.readSampleJsonFile(path)
+    return dict
+
 
 def get_image_path(pose):
     pose_info = get_pose_info(pose)
