@@ -194,7 +194,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                 }
                 if(threadFlag){
                     runOnUiThread {
-                        nextpage()
+                        lastpage()
                     }
                 }
             } catch (e: InterruptedException) {
@@ -407,7 +407,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                             // Handle exceptions when accessing elements if the result doesn't behave like a list
                             println("Result does not have expected list behavior: ${e.message}")
                         }
-                        yogamainBinding.angleShow.text = lastText+ "\n"+ detectlist[0].toString()
+                        yogamainBinding.angleShow.text = detectlist[0].toString()+"\n"+lastText
 
                         //30秒計時器
                         //if(true){//debug
