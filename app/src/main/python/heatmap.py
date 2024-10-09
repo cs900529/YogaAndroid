@@ -136,3 +136,5 @@ def checkReturn():
 def checkFunction():
     global function
     return function
+
+# TEST
