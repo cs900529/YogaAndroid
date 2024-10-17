@@ -1,5 +1,5 @@
 # 安裝說明
-* 需自行導入.gitignore、app\build.gradle檔案
+* 需自行導入app\build.gradle檔案
 * 修改build.gradle如下
     - 修改buildPython 和pip 
     ```gradle = 
