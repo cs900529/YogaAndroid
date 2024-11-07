@@ -1,23 +1,55 @@
 package com.example.yoga.View
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.hardware.camera2.CameraManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Rational
+import android.util.Size
 import android.widget.Button
+import androidx.activity.viewModels
+import androidx.camera.core.AspectRatio
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
+import com.example.yoga.Model.MainViewModel
+import com.example.yoga.Model.PoseLandmarkerHelper
 import com.example.yoga.databinding.ActivityMenuBinding
+import com.google.mediapipe.tasks.vision.core.RunningMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
-class Menu : AppCompatActivity() {
+class Menu : AppCompatActivity(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var menuBinding: ActivityMenuBinding
     private var global=GlobalVariable.getInstance()
     private lateinit var currentSelect:Button  //call by reference
+
+    // control UI by pose
+    //拿mediapipe model
+    private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
+    private val viewModel : MainViewModel by viewModels()
+    //分析圖片
+    private var imageAnalyzer: ImageAnalysis? = null
+    //前鏡頭
+    private var camera: Camera? = null
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
+
+    //開個thread
+    private lateinit var backgroundExecutor: ExecutorService
+
 
     // yogaMat function
     private lateinit var python : Python
@@ -112,6 +144,69 @@ class Menu : AppCompatActivity() {
         }
         selectTo(next)
     }
+
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+
+        cameraProviderFuture.addListener(Runnable {
+            // 获取 CameraProvider
+            val cameraProvider : ProcessCameraProvider = cameraProviderFuture.get()
+            val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraFacing = cameraManager.cameraIdList[0].toInt()
+
+            // 配置预览
+            val aspectRatio: Rational = Rational(4, 3) // 指定4:3的寬高比
+            val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
+
+            val preview : Preview = Preview.Builder()
+                .setTargetResolution(size)
+                .build()
+                .also {
+                    it.setSurfaceProvider(menuBinding.camera.getSurfaceProvider())
+                }
+
+            // 配置相机选择器
+            val cameraSelector : CameraSelector =
+                CameraSelector.Builder().requireLensFacing(cameraFacing).build()
+
+            // ImageAnalysis. Using RGBA 8888 to match how our models work
+            imageAnalyzer =
+                ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                    //.setTargetRotation(CalibrationStageBinding.camera.display.rotation) // 模擬器需要指定旋轉
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                    .build()
+                    // The analyzer can then be assigned to the instance
+                    .also {
+                        it.setAnalyzer(backgroundExecutor) { image ->
+                            detectPose(image)
+                        }
+                    }
+
+            // 绑定相机和预览
+            try {
+                cameraProvider.unbindAll()
+                camera = cameraProvider.bindToLifecycle(
+                        this, cameraSelector, preview , imageAnalyzer
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun detectPose(imageProxy: ImageProxy) {
+        if(this::poseLandmarkerHelper.isInitialized) {
+            poseLandmarkerHelper.detectLiveStream(
+                    imageProxy = imageProxy,
+                    //isFrontCamera = cameraFacing == CameraSelector.LENS_FACING_FRONT
+                    isFrontCamera = cameraFacing >= 0,
+                    rotateAngle = 0.0f
+            )
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         menuBinding = ActivityMenuBinding.inflate(layoutInflater)
@@ -123,6 +218,25 @@ class Menu : AppCompatActivity() {
         menuBinding.back.setOnClickListener {
             lastpage()
         }
+
+        backgroundExecutor = Executors.newSingleThreadExecutor()
+
+        // 初始化 CameraX
+        startCamera()
+        //設定PoseLandmarkerHelper
+        backgroundExecutor.execute {
+            poseLandmarkerHelper = PoseLandmarkerHelper(
+                    //context = requireContext(),
+                    context = this,
+                    runningMode = RunningMode.LIVE_STREAM,
+                    minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
+                    minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
+                    minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
+                    currentDelegate = viewModel.currentDelegate,
+                    poseLandmarkerHelperListener = this
+            )
+        }
+
         menuBinding.button1.setBackgroundColor(Color.BLUE)
         menuBinding.button1.setOnClickListener {
             selectTo(menuBinding.button1)
@@ -239,5 +353,11 @@ class Menu : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         global.backgroundMusic.pause()
+    }
+
+    override fun onError(error: String, errorCode: Int) {
+    }
+
+    override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
     }
 }

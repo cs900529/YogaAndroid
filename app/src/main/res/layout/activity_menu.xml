@@ -9,9 +9,9 @@
 
     <TextView
         android:id="@+id/menuTitle"
+        android:text="Menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Menu"
         android:textSize="40sp"
         android:textColor="#0000FF"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,6 +20,8 @@
 
     <ImageButton
         android:id="@+id/back"
+        android:text=""
+        tools:ignore="SpeakableTextPresentCheck"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/back"
@@ -30,6 +32,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <androidx.camera.view.PreviewView
+        android:id="@+id/camera"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintVertical_bias="1.0" />
     <!-- debug controller
     <Button
         android:id="@+id/btnUp"
@@ -213,8 +227,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:text="Bridge pose"
             android:textAllCaps="false"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--
