@@ -26,9 +26,7 @@ import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.Model.MainHandLandmarkViewModel
-import com.example.yoga.Model.MainGestureRecognizeViewModel
 import com.example.yoga.Model.HandLandmarkerHelper
-import com.example.yoga.Model.PoseLandmarkerHelper
 import com.example.yoga.databinding.ActivityMenuBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import kotlinx.coroutines.delay
@@ -448,7 +446,7 @@ class Menu : AppCompatActivity(), HandLandmarkerHelper.LandmarkerListener {
     override fun onError(error: String, errorCode: Int) {
         this.runOnUiThread {
             Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
-            if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
+            if (errorCode == HandLandmarkerHelper.GPU_ERROR) {
                 handViewModel.setDelegate(0)
             }
         }
