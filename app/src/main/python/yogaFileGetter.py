@@ -62,8 +62,58 @@ yogaFileDict = {
         "roi": AngleRegion.TRIANGLE,
         "angle_def": AngleNodeDef.TRIANGLE_ANGLE,
         "default_image_path" : "image/Triangle pose/1.jpg"
-    }
+    },
+
+   "Locust pose": {
+       "roi": AngleRegion.LOCUST,
+       "angle_def": AngleNodeDef.LOCUST_ANGLE,
+       "default_image_path" : "image/Locust Pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Cobra pose": {
+      "roi": AngleRegion.COBRA,
+      "angle_def": AngleNodeDef.COBRA_ANGLE,
+      "default_image_path" : "image/Cobra pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Half moon pose": {
+      "roi": AngleRegion.HALF_MOON,
+      "angle_def": AngleNodeDef.HALF_MOON_ANGLE,
+      "default_image_path" : "image/Half moon pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Boat pose": {
+      "roi": AngleRegion.BOAT,
+      "angle_def": AngleNodeDef.BOAT_ANGLE,
+      "default_image_path" : "image/Boat pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Camel pose": {
+      "roi": AngleRegion.CAMEL,
+      "angle_def": AngleNodeDef.CAMEL_ANGLE,
+      "default_image_path" : "image/Camel pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Pigeon pose": {
+      "roi": AngleRegion.PIGEON,
+      "angle_def": AngleNodeDef.PIGEON_ANGLE,
+      "default_image_path" : "image/Pigeon pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Fish pose": {
+      "roi": AngleRegion.FISH,
+      "angle_def": AngleNodeDef.FISH_ANGLE,
+      "default_image_path" : "image/Fish pose/1.jpg" #預設瑜珈動作參考圖片
+   },
+
+   "Chair pose": {
+      "roi": AngleRegion.CHAIR,
+      "angle_def": AngleNodeDef.CHAIR_ANGLE,
+      "default_image_path" : "image/Chair pose/1.jpg" #預設瑜珈動作參考圖片
+   }
 }
+
+
 
 
 def get_pose_info(pose):

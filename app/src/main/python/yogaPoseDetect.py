@@ -129,6 +129,46 @@ class YogaPose:
             #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
             #    self.angle_dict[key] = angle
             self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.TriangleRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Locust pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.LocustPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Cobra pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.CobraPoseRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Half moon pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.HalfmoonposeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Boat pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.BoatposeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Camel pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.CamelposeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Pigeon pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.PigeonposeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Fish pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.FishposeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
+        elif(self.type == 'Chair pose'):
+            #for key,value in self.angle_def.items():
+            #    angle = toolkit.computeAngle(point3d[value[0]], point3d[value[1]], point3d[value[2]])
+            #    self.angle_dict[key] = angle
+            self.roi, self.tips, self.imagePath, self.pointsOut = toolkit.ChairposeRule(self.roi, self.tips, self.sample_angle_dict, self.angle_dict, point3d)
         # print([self.tips, self.imagePath, self.pointsOut])
         return [self.tips, self.imagePath, self.pointsOut]
 

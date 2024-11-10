@@ -1897,3 +1897,1217 @@ def TriangleRule(roi, tips, sample_angle_dict, angle_dict, point3d):
         pointsOut = []
         imagePath = f"{imageFolder}/1.jpg"
     return roi, tips, imagePath, pointsOut
+
+def LocustPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    Locust Pose rule
+
+    Args:
+       roi (list): region of interesting joint for locust pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Locust Pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'LEFT_KNEE':
+            min_angle = 140
+            max_angle = 180
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將右小腿放低" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ANKLE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將右小腿抬高" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ANKLE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_EAR':
+            ear_x,ear_y,_ ,ear_vi= point3d[AngleNodeDef.LEFT_EAR]
+            nose_x,nose_y,_ ,nose_vi= point3d[AngleNodeDef.NOSE]
+            if ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if ear_x <= nose_x:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+            if abs(ear_y - nose_y) <= 0.05:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif ear_y < nose_y:
+                roi[key] = False
+                tips = "請勿過度抬頭，目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請抬頭並目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_ELBOW':
+            min_angle = 155
+            max_angle = 175
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將右手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_SHOULDER':
+            min_angle = 15
+            max_angle = 45
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將雙臂抬高" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_WRIST]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_SHOULDER])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請放下雙臂" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_WRIST]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_KNEE':
+            min_angle = 155
+            max_angle = 175
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將左小腿放低" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ANKLE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將左小腿抬高" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ANKLE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_ELBOW':
+            min_angle = 155
+            max_angle = 175
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將左手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_HIP':
+            _,hip_y,_ ,hip_vi= point3d[AngleNodeDef.RIGHT_HIP]
+            _,knee_y,_ ,knee_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+            if hip_vi <MIN_DETECT_VISIBILITY and knee_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if hip_y > knee_y:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將大腿抬高"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_FOOT_INDEX':
+            _,foot_y,_ ,foot_vi= point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+            _,knee_y,_ ,knee_vi= point3d[AngleNodeDef.LEFT_KNEE]
+            if foot_vi <MIN_DETECT_VISIBILITY and knee_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if foot_y < knee_y:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將雙腿抬高"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def CobraPoseRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    cobra pose rule
+
+    Args:
+       roi (list): region of interesting joint for cobra pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Cobra pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'LEFT_HIP':
+            min_angle = 90
+            max_angle = 135
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "請將肩膀放鬆，身體打直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_SHOULDER]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x + DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_SHOULDER])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請盡力將身體撐起並打直，勿駝背" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_SHOULDER]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x - DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_EAR':
+            ear_x,_,_,ear_vi= point3d[AngleNodeDef.LEFT_EAR]
+            nose_x,_,_,nose_vi= point3d[AngleNodeDef.NOSE]
+            if ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if ear_x < nose_x:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x + DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_FOOT_INDEX':
+            _,foot_y,_,foot_vi = point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+            _,ankle_y,_,ankle_vi = point3d[AngleNodeDef.LEFT_ANKLE]
+            if foot_vi <MIN_DETECT_VISIBILITY and ankle_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if abs(foot_y - ankle_y)<=0.05:
+                roi[key] = True
+                pointsOut=[]
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ANKLE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_FOOT_INDEX])
+                tips = "請將右腿放至地面，勿抬起" if tip_flag else tips
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_FOOT_INDEX':
+            _,foot_y,_,foot_vi = point3d[AngleNodeDef.RIGHT_FOOT_INDEX]
+            _,ankle_y,_,ankle_vi = point3d[AngleNodeDef.RIGHT_ANKLE]
+            if foot_vi <MIN_DETECT_VISIBILITY and ankle_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if abs(foot_y - ankle_y)<=0.05:
+                roi[key] = True
+                pointsOut=[]
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ANKLE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_FOOT_INDEX])
+                tips = "請將左腿放至地面，勿抬起" if tip_flag else tips
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def HalfmoonposeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    half moon pose rule
+
+    Args:
+       roi (list): region of interesting joint for tree pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Half moon pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'RIGHT_KNEE':
+            min_angle = 175
+            max_angle = 185
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將左腿伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y, pointStart_x, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將左腿伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y, pointStart_x, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_ELBOW':
+            min_angle = 175
+            max_angle = 185
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將左手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將左手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+
+        elif key == 'RIGHT_EAR':
+            _,ear_y,_,ear_vi = point3d[AngleNodeDef.LEFT_EAR]
+            _,nose_y,_,nose_vi = point3d[AngleNodeDef.NOSE]
+            if ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if nose_y < ear_y :
+                roi[key] = True
+                pointsOut=[]
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.NOSE])
+                tips = "請將頭轉向天花板" if tip_flag else tips
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_SHOULDER':
+            min_angle = 85
+            max_angle = 95
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將右手高舉，並和身體呈90度" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE, pointStart_x, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_ELBOW':
+            min_angle = 175
+            max_angle = 185
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將右手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將右手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_HIP':
+            min_angle = 85
+            max_angle = 95
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將右腿抬高並平行於地面" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將右腿放低並平行於地面" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def BoatposeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    boat pose rule
+
+    Args:
+       roi (list): region of interesting joint for tree pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Boat pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'LEFT_SHOULDER':
+            min_angle = 25
+            max_angle = 60
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "請將雙手抬高並與地面平行" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將雙手放低並與地面平行" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_ELBOW':
+            min_angle = 160
+            max_angle = 185
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將右手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_HIP':
+            _,hip_y,_,hip_vi = point3d[AngleNodeDef.LEFT_HIP]
+            _,knee_y,_,knee_vi = point3d[AngleNodeDef.LEFT_KNEE]
+            if hip_vi <MIN_DETECT_VISIBILITY and knee_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if (hip_y - knee_y)>0.022:
+                min_angle = 80
+                max_angle = 150
+                if angle_dict[key] == -1:
+                    continue
+                if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                    roi[key] = True
+                    pointsOut=[] if tip_flag else pointsOut
+                    imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+                elif angle_dict[key]<min_angle:
+                    roi[key] = False
+                    tips = "請將腿放低，盡量和身體呈現90度" if tip_flag else tips
+                    pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                    pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                    print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_KNEE])
+                    imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+                else:
+                    roi[key] = False
+                    tips = "請將腿抬高，盡量和身體呈現90度" if tip_flag else tips
+                    pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                    pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                    imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將雙腿抬起"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_KNEE':
+            min_angle = 170
+            max_angle = 195
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將右腿伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_EAR':
+            ear_x,_,_,ear_vi = point3d[AngleNodeDef.LEFT_EAR]
+            nose_x,_,_,nose_vi = point3d[AngleNodeDef.NOSE]
+            if ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if ear_x > nose_x:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_ANKLE':
+            min_angle = 125
+            max_angle = 145
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "請放鬆右腳掌" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_FOOT_INDEX])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將右腳掌勾起" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_ELBOW':
+            min_angle = 160
+            max_angle = 195
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將左手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_KNEE':
+            min_angle = 170
+            max_angle = 195
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將左腿伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_ANKLE':
+            min_angle = 125
+            max_angle = 145
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "請放鬆左腳掌" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_FOOT_INDEX])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將左腳掌勾起" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def CamelposeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    camel pose rule
+
+    Args:
+       roi (list): region of interesting joint for tree pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Camel pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'LEFT_ELBOW':
+            min_angle = 165
+            max_angle = 180
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將右手伸直"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_HIP' or key == 'RIGHT_HIP':
+            min_angle = 90
+            max_angle = 135
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將臀部往前推，讓身體再向後仰多一點"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_HIP]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_HIP])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_KNEE' or key == 'RIGHT_KNEE':
+            min_angle = 75
+            max_angle = 110
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "請將臀部往前推，盡量與小腿呈90度" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_HIP]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_HIP])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將臀部往後移，盡量與小腿呈90度" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_FOOT_INDEX]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_ELBOW':
+            min_angle = 165
+            max_angle = 180
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將左手伸直"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_SHOULDER':
+            min_angle = 50
+            max_angle = 95
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將胸口往上頂"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_SHOULDER]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_SHOULDER])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_EAR':
+            _,ear_y,_,ear_vi = point3d[AngleNodeDef.RIGHT_EAR]
+            _,nose_y,_,nose_vi = point3d[AngleNodeDef.NOSE]
+            if ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if ear_y > nose_y:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將頭向上仰"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def PigeonposeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    pigeon pose rule
+
+    Args:
+       roi (list): region of interesting joint for tree pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Pigeon pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'RIGHT_KNEE':
+            min_angle = 140
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將左腿伸直並貼齊地面" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_HIP':
+            min_angle = 130
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將臀部盡量向下，充分伸展大腿內側" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_HIP]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_HIP])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_SHOULDER':
+            r_shoulder_x,r_shoulder_y,_ ,r_shoulder_vi= point3d[AngleNodeDef.RIGHT_SHOULDER]
+            r_hip_x,r_hip_y,_ ,r_hip_vi= point3d[AngleNodeDef.RIGHT_HIP]
+            if r_shoulder_vi <MIN_DETECT_VISIBILITY and r_hip_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if abs(r_shoulder_x - r_hip_x)<=0.1 and r_shoulder_y < r_hip_y:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將身體盡量打直"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.RIGHT_SHOULDER]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'RIGHT_ELBOW':
+            min_angle = 165
+            max_angle = 195
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "將雙手伸直"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_EAR':
+            l_ear_x,_,_,l_ear_vi = point3d[AngleNodeDef.LEFT_EAR]
+            nose_x,_,_,nose_vi = point3d[AngleNodeDef.NOSE]
+            if l_ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if l_ear_x < nose_x:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+        elif key == 'LEFT_KNEE':
+            l_knee_x,_,_,l_knee_vi = point3d[AngleNodeDef.LEFT_KNEE]
+            l_hip_x,_,_,l_hip_vi = point3d[AngleNodeDef.LEFT_HIP]
+            if l_knee_vi <MIN_DETECT_VISIBILITY and l_hip_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if l_hip_x < l_knee_x:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將右腿放到身體前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def FishposeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    fish pose rule
+
+    Args:
+       roi (list): region of interesting joint for tree pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Fish pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'RIGHT_KNEE':
+            min_angle = 165
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle :
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將左腿伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_KNEE':
+            min_angle = 165
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle :
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將右腿伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_SHOULDER':
+            min_angle = 10
+            max_angle = 60
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "將腰背拱起" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_SHOULDER]
+                pointStart_x2, pointStart_y2, pointStart_z2, pointStart_vi2= point3d[AngleNodeDef.LEFT_HIP]
+                pointsOut = [(pointStart_x-pointStart_x2)/2, (pointStart_y2-pointStart_y)/2, (pointStart_x-pointStart_x2)/2, (pointStart_y2-pointStart_y)/2-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_SHOULDER])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "勿將腰背過度拱起" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_SHOULDER]
+                pointStart_x2, pointStart_y2, pointStart_z2, pointStart_vi2= point3d[AngleNodeDef.LEFT_HIP]
+                pointsOut = [(pointStart_x-pointStart_x2)/2, (pointStart_y2-pointStart_y)/2, (pointStart_x-pointStart_x2)/2, (pointStart_y2-pointStart_y)/2+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_SHOULDER])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_MOUTH':
+            _,l_mouth_y,_ ,l_mouth_vi= point3d[AngleNodeDef.LEFT_MOUTH]
+            _,l_eye_y,_ ,l_eye_vi= point3d[AngleNodeDef.LEFT_EYE]
+            if l_mouth_vi <MIN_DETECT_VISIBILITY and l_eye_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if (l_eye_y-l_mouth_y)>0.02:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將頭向後仰，盡量將頭頂貼近地板"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.LEFT_MOUTH]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y+DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut
+
+def ChairposeRule(roi, tips, sample_angle_dict, angle_dict, point3d):
+    """
+    chair pose rule
+
+    Args:
+       roi (list): region of interesting joint for tree pose
+       tips (str): tips
+       sample_angle_dict (dict): sample angle dict
+       angle_dict (dict): angle dict
+       point3d (mediapipe): mediapipe detect result
+
+    Returns:
+       roi (dict)
+       tips (str)
+       imagePath (str)
+       pointsOut (list)
+    """
+    imageFolder = "image/Chair pose"
+    imagePath = ""
+    pointsOut = []# (a,b): a -> b
+    for key, _ in roi.items():
+        tip_flag = False
+        if tips == "":
+            tip_flag = True
+
+        if key == 'LEFT_KNEE':
+            min_angle = 100
+            max_angle = 140
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "右腿膝蓋彎曲角度太小" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "右腿膝蓋彎曲角度太大" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'RIGHT_KNEE':
+            min_angle = 100
+            max_angle = 140
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "左腿膝蓋彎曲角度太小" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "左腿膝蓋彎曲角度太大" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_KNEE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_KNEE])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_ELBOW':
+            min_angle = 150
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將右手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.LEFT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.LEFT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'RIGHT_ELBOW':
+            min_angle = 150
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請將左手伸直" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_ELBOW])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'RIGHT_HIP':
+            min_angle = 65
+            max_angle = 110
+            if angle_dict[key] == -1:
+                continue
+            if angle_dict[key]>=min_angle and angle_dict[key]<=max_angle:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            elif angle_dict[key]<min_angle:
+                roi[key] = False
+                tips = "左腿臀部彎曲角度太小" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_HIP]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_HIP])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "左腿臀部彎曲角度太大" if tip_flag else tips
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_HIP]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x-DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                print("toolkit: ",pointsOut, "Point3d:",point3d[AngleNodeDef.RIGHT_HIP])
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'RIGHT_SHOULDER':
+            _,r_shoulder_y,_,r_shoulder_vi = point3d[AngleNodeDef.RIGHT_SHOULDER]
+            _,l_shoulder_y,_,l_shoulder_vi = point3d[AngleNodeDef.LEFT_SHOULDER]
+            _,elbow_y,_,elbow_vi = point3d[AngleNodeDef.RIGHT_ELBOW]
+            if r_shoulder_vi <MIN_DETECT_VISIBILITY and l_shoulder_vi < MIN_DETECT_VISIBILITY and elbow_vi < MIN_DETECT_VISIBILITY:
+                continue
+            if r_shoulder_y-elbow_y > 0.05 and l_shoulder_y-elbow_y > 0.05:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi= point3d[AngleNodeDef.RIGHT_ELBOW]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x, pointStart_y-DISPLACEMENT_DISTANCE] if tip_flag else pointsOut
+                tips = "請將雙手舉起，手肘接近頭部" if tip_flag else tips
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+        elif key == 'LEFT_EAR':
+            l_ear_x,_,_,l_ear_vi = point3d[AngleNodeDef.LEFT_EAR]
+            nose_x,_,_,nose_vi = point3d[AngleNodeDef.NOSE]
+            if l_ear_vi <MIN_DETECT_VISIBILITY and nose_vi < MIN_DETECT_VISIBILITY :
+                continue
+            if l_ear_x < nose_x:
+                roi[key] = True
+                pointsOut=[] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+            else:
+                roi[key] = False
+                tips = "請目視前方"
+                pointStart_x, pointStart_y, pointStart_z, pointStart_vi = point3d[AngleNodeDef.NOSE]
+                pointsOut = [pointStart_x, pointStart_y, pointStart_x+DISPLACEMENT_DISTANCE, pointStart_y] if tip_flag else pointsOut
+                imagePath = f"{imageFolder}/1.jpg" if tip_flag else imagePath
+
+
+    if tips == "":
+        tips = "動作正確"
+        pointsOut=[]
+        imagePath = f"{imageFolder}/1.jpg"
+    print("toolkit: ",pointsOut)
+    return roi, tips, imagePath, pointsOut

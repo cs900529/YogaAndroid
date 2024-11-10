@@ -32,8 +32,8 @@ class AllPoseMenu : AppCompatActivity() {
     private val poseNames = arrayOf(
             "Tree Style", "Warrior2 Style", "Plank", "Reverse Plank", "Child's pose",
             "Seated Forward Bend", "Low Lunge", "Downward dog", "Pyramid pose", "Bridge pose",
-            "Mountain pose", "Triangle pose", "Pose 13", "Pose 14", "Pose 15",
-            "Pose 16", "Pose 17", "Pose 18", "Pose 19", "Pose 20"
+            "Mountain pose", "Triangle pose", "Locust pose", "Cobra pose", "Half moon pose",
+            "Boat pose", "Camel pose", "Pigeon pose", "Fish pose", "Chair pose"
     )
 
     private lateinit var buttonAdapter: ButtonAdapter

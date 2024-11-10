@@ -19,6 +19,14 @@ class fileNameGetter {
             "Bridge pose" -> R.raw.bridge_teacher
             "Mountain pose" -> R.raw.mountain_teacher
             "Triangle pose" -> R.raw.triangle_teacher
+            "Locust pose" -> R.raw.locust_teacher
+            "Cobra pose" -> R.raw.cobra_teacher
+            "Half moon pose" -> R.raw.half_moon_teacher
+            "Boat pose" -> R.raw.boat_teacher
+            "Camel pose" -> R.raw.camel_teacher
+            "Pigeon pose" -> R.raw.pigeon_teacher
+            "Fish pose" -> R.raw.fish_teacher
+            "Chair pose" -> R.raw.chair_teacher
             else -> R.raw.tree_style
         }
     }
@@ -37,6 +45,14 @@ class fileNameGetter {
             "Bridge pose" -> "Bridge pose/5"
             "Mountain pose" -> "Mountain pose/1"
             "Triangle pose" -> "Triangle pose/1"
+            "Locust pose" -> "Locust Pose/1"
+            "Cobra pose" -> "Cobra pose/1"
+            "Half moon pose" -> "Half moon pose/1"
+            "Boat pose" -> "Boat pose/1"
+            "Camel pose" -> "Camel pose/1"
+            "Pigeon pose" -> "Pigeon pose/1"
+            "Fish pose" -> "Fish pose/1"
+            "Chair pose" -> "Chair pose/1"
             else -> "Tree Style/8"
         }
     }
@@ -55,6 +71,14 @@ class fileNameGetter {
             "Bridge pose" -> "Bridge pose"
             "Mountain pose" -> "Mountain pose"
             "Triangle pose" -> "Triangle pose"
+            "Locust pose" -> "Locust Pose"
+            "Cobra pose" -> "Cobra pose"
+            "Half moon pose" -> "Half moon pose"
+            "Boat pose" -> "Boat pose"
+            "Camel pose" -> "Camel pose"
+            "Pigeon pose" -> "Pigeon pose"
+            "Fish pose" -> "Fish pose"
+            "Chair pose" -> "Chair pose"
             else -> "Tree Style"
         }
     }
