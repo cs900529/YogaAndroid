@@ -162,3 +162,79 @@ TRIANGLE = {
     'LEFT_KNEE': False,
     'RIGHT_FOOT_INDEX':False
 }
+
+LOCUST = {
+    'LEFT_KNEE': False,
+    'LEFT_EAR': False,
+    'LEFT_ELBOW': False,
+    'LEFT_SHOULDER': False,
+    'RIGHT_KNEE': False,
+    'RIGHT_ELBOW': False,
+    'RIGHT_HIP':False,
+    'LEFT_FOOT_INDEX': False
+}
+
+COBRA = {
+   'LEFT_HIP': False,
+   'LEFT_EAR': False,
+   'LEFT_FOOT_INDEX': False,
+   'RIGHT_FOOT_INDEX': False
+}
+
+HALF_MOON = {
+   'LEFT_KNEE': False,
+   'LEFT_ELBOW': False,
+   'LEFT_HIP': False,
+   'RIGHT_SHOULDER': False,
+   'RIGHT_ELBOW': False,
+   'RIGHT_EAR': False
+}
+
+BOAT = {
+   'LEFT_SHOULDER': False,
+   'LEFT_ELBOW': False,
+   'LEFT_HIP': False,
+   'LEFT_KNEE': False,
+   'LEFT_EAR': False,
+   'LEFT_ANKLE': False,
+   'RIGHT_ELBOW': False,
+   'RIGHT_KNEE': False,
+   'RIGHT_ANKLE': False,
+}
+
+CAMEL = {
+    'LEFT_ELBOW': False,
+    'LEFT_HIP': False,
+    'LEFT_KNEE': False,
+    'RIGHT_ELBOW': False,
+    'RIGHT_SHOULDER': False,
+    'RIGHT_HIP': False,
+    'RIGHT_KNEE': False,
+    'RIGHT_EAR': False
+}
+
+PIGEON = {
+   'RIGHT_KNEE': False,
+   'RIGHT_HIP': False,
+   'RIGHT_SHOULDER': False,
+   'RIGHT_ELBOW': False,
+   'LEFT_EAR': False,
+   'LEFT_KNEE': False
+}
+
+FISH = {
+   'LEFT_KNEE': False,
+   'RIGHT_KNEE': False,
+   'LEFT_SHOULDER': False,
+   'LEFT_MOUTH': False,
+}
+
+CHAIR = {
+   'LEFT_KNEE': False,
+   'RIGHT_KNEE': False,
+   'LEFT_ELBOW': False,
+   'RIGHT_ELBOW': False,
+   'RIGHT_HIP': False,
+   'RIGHT_SHOULDER': False,
+   'LEFT_EAR': False
+}
