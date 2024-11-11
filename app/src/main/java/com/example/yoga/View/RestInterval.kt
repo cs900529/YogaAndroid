@@ -1,5 +1,4 @@
 package com.example.yoga.View
-
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -60,7 +59,6 @@ class RestInterval : AppCompatActivity(), KSecCountdownTimer.TimerCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("訓練階段", "restInterval")
         restIntervalBinding = ActivityRestIntervalBinding.inflate(layoutInflater)
         setContentView(restIntervalBinding.root)
         supportActionBar?.hide() // 隱藏 title bar
