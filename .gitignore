@@ -1,13 +1,10 @@
 app/build.gradle
+app/build
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+app/.idea
+.idea
 .DS_Store
 /build
 /captures
@@ -15,3 +12,4 @@ app/build.gradle
 .cxx
 local.properties
 app/release
+.vscode
