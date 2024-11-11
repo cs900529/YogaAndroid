@@ -1,7 +1,11 @@
 app/build.gradle
+app/build
 *.iml
 .gradle
 /local.properties
+app/.idea
+.idea
+.idea
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -15,3 +19,4 @@ app/build.gradle
 .cxx
 local.properties
 app/release
+.vscode
