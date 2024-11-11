@@ -1,15 +1,19 @@
 package com.example.yoga.View
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.yoga.Model.GlobalVariable
 import com.example.yoga.Model.fileNameGetter
+import com.example.yoga.ViewModel.TrainingMenuViewModel
 import com.example.yoga.databinding.ActivityVideoGuideBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,7 +21,14 @@ import kotlinx.coroutines.launch
 class VideoGuide : AppCompatActivity() {
     private lateinit var videoGuideBinding: ActivityVideoGuideBinding
     private var global=GlobalVariable.getInstance()
+    private val trainingMenuViewModel: TrainingMenuViewModel by viewModels()
+    var mode = ""
+    var menuTitle = ""
+    var poseList = arrayOf<String>()
     var poseName=""
+    var currentIndex = 0
+    var totalScore = 0.0
+    var totalTime = 0.0
 
     // yogamap next
     private lateinit var python : Python
@@ -26,18 +37,41 @@ class VideoGuide : AppCompatActivity() {
     private var fileGetter=fileNameGetter()
 
     fun nextpage(){
-
         try {
             nextThread?.interrupt()
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
-
-        val intent = Intent(this, YogaMain::class.java).apply {
-            putExtra("poseName",poseName)
+        if (mode == "AllPose"){
+            val intent = Intent(this, YogaMain::class.java).apply {
+                putExtra("mode", mode)
+                putExtra("poseName",poseName)
+            }
+            startActivity(intent)
+            finish()
         }
-        startActivity(intent)
-        finish()
+        else if (mode == "TrainingProcess"){
+//          else{
+            Log.d("Video menuTitle", "$menuTitle")
+            Log.d("Video 目前 index", "$currentIndex")
+            Log.d("Video 目前總時間", "$totalTime")
+            Log.d("Video 目前總分", "$totalScore")
+            val intent = Intent(this, YogaMain::class.java).apply{
+               putExtra("mode", mode)
+               putExtra("menuTitle", menuTitle)
+               putExtra("poseList", poseList)
+               putExtra("poseName", poseList[currentIndex])
+               putExtra("currentIndex", currentIndex)
+               putExtra("totalScore", totalScore)
+               putExtra("totalTime", totalTime)
+            }
+            startActivity(intent)
+            finish()
+        //            val resultIntent = Intent()
+        //            setResult(Activity.RESULT_OK, resultIntent)
+        //            finish()
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +81,15 @@ class VideoGuide : AppCompatActivity() {
         videoGuideBinding = ActivityVideoGuideBinding.inflate(layoutInflater)
         setContentView(videoGuideBinding.root)
 
+        mode = intent.getStringExtra("mode").toString()
         poseName = intent.getStringExtra("poseName").toString()
-
+        if(mode=="TrainingProcess"){
+            menuTitle = intent.getStringExtra("menuTitle").toString()
+            poseList = intent.getStringArrayExtra("poseList")!!
+            currentIndex = intent.getIntExtra("currentIndex", -1)
+            totalScore = intent.getDoubleExtra("totalScore", 0.0)
+            totalTime = intent.getDoubleExtra("totalTime", 0.0)
+        }
         videoGuideBinding.videoTitle.text = poseName
 
         //video player init

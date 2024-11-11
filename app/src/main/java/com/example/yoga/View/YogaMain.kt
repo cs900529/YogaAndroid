@@ -1,5 +1,6 @@
 package com.example.yoga.View
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.AssetManager
@@ -8,6 +9,7 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.widget.ImageView
@@ -23,6 +25,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
@@ -34,6 +37,7 @@ import com.example.yoga.Model.KSecCountdownTimer
 import com.example.yoga.Model.PoseLandmarkerHelper
 import com.example.yoga.Model.fileNameGetter
 import com.example.yoga.R
+import com.example.yoga.ViewModel.TrainingMenuViewModel
 import com.example.yoga.databinding.ActivityYogaMainBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import kotlinx.coroutines.delay
@@ -45,6 +49,15 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,KSecCountdownTimer.TimerCallback{
+
+    var mode = ""
+    var poseList = arrayOf<String>()
+    var poseName=""
+    var currentIndex = 0
+    var menuTitle = ""
+    var totalScore = 0.0
+    var totalTime = 0.0
+
     //拿mediapipe model
     private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
     private val viewModel : MainViewModel by viewModels()
@@ -87,20 +100,70 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
     private val lock = Any()
 
     fun lastpage(){
-        timer30S.stopTimer()
-        timerCurrent.handlerStop()
-        val intent = Intent(this, AllPoseMenu::class.java)
-        startActivity(intent)
-        finish()
+        if(mode == "ALlPose"){
+            timer30S.stopTimer()
+            timerCurrent.handlerStop()
+            val intent = Intent(this, AllPoseMenu::class.java)
+            startActivity(intent)
+            finish()
+        }
+        else if(mode == "TrainingProcess"){
+            timer30S.stopTimer()
+            timerCurrent.handlerStop()
+            val intent = Intent(this, TrainingMenu::class.java)
+            startActivity(intent)
+            finish()
+        }
+
     }
     fun nextpage(){
-        val intent = Intent(this, YogaResult::class.java).apply {
-            putExtra("title" ,yogamainBinding.title.text)
-            putExtra("finishTime",timerCurrent.getTime())
-            putExtra("score",score)
+        Log.d("訓練模式", "$mode")
+        if(mode == "AllPose"){
+            val intent = Intent(this, YogaResult::class.java).apply {
+                putExtra("title" ,yogamainBinding.title.text)
+                putExtra("finishTime",timerCurrent.getTime())
+                putExtra("score",score)
+            }
+            startActivity(intent)
+            finish()
         }
-        startActivity(intent)
-        finish()
+        else if(mode == "TrainingProcess"){
+//        else{
+            totalTime = totalTime + timerCurrent.getTime()
+            totalScore = totalScore + score
+            Log.d("Main menuTitle", "$menuTitle")
+            Log.d("Main 目前 index", "$currentIndex")
+            Log.d("Main 目前總時間", "$totalTime")
+            Log.d("Main 目前總分", "$totalScore")
+
+            if(currentIndex < poseList.size-1) {
+                val intent = Intent(this, RestInterval::class.java).apply {
+                    putExtra("title", yogamainBinding.title.text)
+//                putExtra("finishTime",timerCurrent.getTime())
+//                    putExtra("score", score)
+                    putExtra("mode", mode)
+                    putExtra("menuTitle", menuTitle)
+                    putExtra("poseList", poseList)
+                    putExtra("poseName", poseList[currentIndex])
+                    putExtra("currentIndex", currentIndex)
+                    putExtra("totalScore", totalScore)
+                    putExtra("totalTime", totalTime)
+                }
+                startActivity(intent)
+                finish()
+            }
+            else{
+                val intent = Intent(this, YogaResult::class.java).apply {
+//                    putExtra("title" ,yogamainBinding.title.text)
+                    putExtra("title" ,menuTitle)
+                    putExtra("finishTime",totalTime)
+                    putExtra("score",totalScore/poseList.size)
+                }
+                startActivity(intent)
+                finish()
+            }
+
+        }
     }
     //30秒倒數結束
     override fun onTimerFinished() {
@@ -155,8 +218,23 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
         yogamainBinding = ActivityYogaMainBinding.inflate(layoutInflater)
         setContentView(yogamainBinding.root)
 
-        val poseName = intent.getStringExtra("poseName")
-        yogamainBinding.title.text = poseName
+//        val poseName = intent.getStringExtra("poseName")
+
+        mode = intent.getStringExtra("mode").toString()
+        poseName = intent.getStringExtra("poseName").toString()
+
+        if(mode=="TrainingProcess"){
+            menuTitle = intent.getStringExtra("menuTitle").toString()
+            poseList = intent.getStringArrayExtra("poseList")!!
+            currentIndex = intent.getIntExtra("currentIndex", -1)
+            totalScore = intent.getDoubleExtra("totalScore", 0.0)
+            totalTime = intent.getDoubleExtra("totalTime", 10.0)
+            yogamainBinding.title.text = menuTitle
+        }
+        else if (mode == "AllPose"){
+            yogamainBinding.title.text = poseName
+        }
+
 
         //開始計算完成時間
         timerCurrent.handlerStart()
@@ -400,7 +478,7 @@ class YogaMain : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerListener,K
                     }
                     yogamainBinding.guide.text = lastText
                     //30秒計時器
-                    //if(true){//debug
+//                    if(true){//debug
                     if (lastText.contains("動作正確")) {
                         if (timer30S.isNotRunning())
                             timer30S.startTimer(this)

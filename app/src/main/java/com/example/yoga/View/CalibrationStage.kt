@@ -133,8 +133,7 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
             // 获取 CameraProvider
             val cameraProvider :ProcessCameraProvider = cameraProviderFuture.get()
             val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-            val cameraFacing = cameraManager.cameraIdList[0].toInt()
-
+            // val cameraFacing = cameraManager.cameraIdList[0].toInt()
             // 配置预览
             val aspectRatio: Rational = Rational(4, 3) // 指定4:3的寬高比
             val size: Size = Size(aspectRatio.numerator, aspectRatio.denominator)
@@ -147,9 +146,10 @@ class CalibrationStage : AppCompatActivity() , PoseLandmarkerHelper.LandmarkerLi
                 }
 
             // 配置相机选择器
+//            val cameraSelector : CameraSelector =
+//                CameraSelector.Builder().requireLensFacing(cameraFacing).build()
             val cameraSelector : CameraSelector =
-                CameraSelector.Builder().requireLensFacing(cameraFacing).build()
-
+                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build()
             // ImageAnalysis. Using RGBA 8888 to match how our models work
             imageAnalyzer =
                 ImageAnalysis.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)

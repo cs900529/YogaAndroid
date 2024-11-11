@@ -29,6 +29,8 @@ class AllPoseMenu : AppCompatActivity() {
     private final var WIDTH = 2
     private final var HEIGHT = 10
 
+    private val mode="AllPose"
+
     private val poseNames = arrayOf(
             "Tree Style", "Warrior2 Style", "Plank", "Reverse Plank", "Child's pose",
             "Seated Forward Bend", "Low Lunge", "Downward dog", "Pyramid pose", "Bridge pose",
@@ -60,6 +62,7 @@ class AllPoseMenu : AppCompatActivity() {
             e.printStackTrace()
         }
         val intent = Intent(this, VideoGuide::class.java).apply {
+            putExtra("mode", mode)
             putExtra("poseName", posename)
         }
         startActivity(intent)
